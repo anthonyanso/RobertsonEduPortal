@@ -10,19 +10,29 @@ import News from "./pages/News";
 import Admission from "./pages/Admission";
 import Results from "./pages/Results";
 import Contact from "./pages/Contact";
-import Admin from "./pages/Admin";
+import AuthLayout from "./pages/auth/AuthLayout";
+import AdminLayout from "./pages/admin/AdminLayout";
 import NotFound from "./pages/not-found";
 
-type Page = "home" | "about" | "news" | "admission" | "results" | "contact" | "admin";
+type Page = "home" | "about" | "news" | "admission" | "results" | "contact" | "admin" | "auth";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const authStatus = localStorage.getItem("isAdminAuthenticated");
+    if (authStatus === "true") {
+      setIsAdminAuthenticated(true);
+    }
+  }, []);
 
   // Simple routing based on URL hash
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1) as Page;
-      if (["home", "about", "news", "admission", "results", "contact", "admin"].includes(hash)) {
+      if (["home", "about", "news", "admission", "results", "contact", "admin", "auth"].includes(hash)) {
         setCurrentPage(hash);
       } else {
         setCurrentPage("home");
@@ -40,6 +50,18 @@ function App() {
     };
   }, []);
 
+  const handleAuthSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setCurrentPage("admin");
+    window.location.hash = "admin";
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false);
+    setCurrentPage("home");
+    window.location.hash = "home";
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case "home":
@@ -55,17 +77,37 @@ function App() {
       case "contact":
         return <Contact />;
       case "admin":
-        return <Admin />;
+        if (isAdminAuthenticated) {
+          return <AdminLayout onLogout={handleAdminLogout} />;
+        } else {
+          return <AuthLayout onAuthSuccess={handleAuthSuccess} />;
+        }
+      case "auth":
+        return <AuthLayout onAuthSuccess={handleAuthSuccess} />;
       default:
         return <NotFound />;
     }
   };
 
+  // Admin and auth pages don't need the main layout
+  if (currentPage === "admin" || currentPage === "auth") {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div className="min-h-screen bg-background">
+            {renderPage()}
+            <Toaster />
+          </div>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="min-h-screen bg-background">
-          <Layout currentPage={currentPage} setCurrentPage={setCurrentPage}>
+          <Layout currentPage={currentPage} setCurrentPage={(page: string) => setCurrentPage(page as Page)}>
             {renderPage()}
           </Layout>
           <Toaster />

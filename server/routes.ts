@@ -10,12 +10,145 @@ import {
   insertAdmissionApplicationSchema,
   insertContactMessageSchema,
   insertSchoolInfoSchema,
+  insertAdminUserSchema,
 } from "@shared/schema";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
+
+// Admin authentication middleware
+const isAdminAuthenticated = async (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader) {
+    return res.status(401).json({ message: "No authorization header" });
+  }
+  
+  const token = authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+  
+  try {
+    // In a real app, you'd verify JWT token here
+    // For now, we'll use a simple session-based approach
+    const sessionData = req.session.adminUser;
+    
+    if (!sessionData) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    req.adminUser = sessionData;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Admin authentication routes
+  app.post('/api/auth/signup', async (req, res) => {
+    try {
+      const validatedData = insertAdminUserSchema.parse(req.body);
+      const adminCode = req.body.adminCode;
+      
+      // Check admin code
+      if (adminCode !== "ROBERTSON2024") {
+        return res.status(400).json({ message: "Invalid admin code" });
+      }
+      
+      // Check if email already exists
+      const existingUser = await storage.getAdminUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(validatedData.passwordHash, 10);
+      
+      // Create admin user
+      const adminUser = await storage.createAdminUser({
+        ...validatedData,
+        passwordHash: hashedPassword,
+      });
+      
+      // Store in session
+      req.session.adminUser = {
+        id: adminUser.id,
+        email: adminUser.email,
+        firstName: adminUser.firstName,
+        lastName: adminUser.lastName,
+        role: adminUser.role,
+      };
+      
+      res.json({ 
+        message: "Admin account created successfully",
+        user: {
+          id: adminUser.id,
+          email: adminUser.email,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          role: adminUser.role,
+        }
+      });
+    } catch (error) {
+      console.error("Error creating admin user:", error);
+      res.status(500).json({ message: "Failed to create admin account" });
+    }
+  });
+
+  app.post('/api/auth/signin', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Find admin user
+      const adminUser = await storage.getAdminUserByEmail(email);
+      if (!adminUser) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+      
+      // Check password
+      const isValidPassword = await bcrypt.compare(password, adminUser.passwordHash);
+      if (!isValidPassword) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+      
+      // Store in session
+      req.session.adminUser = {
+        id: adminUser.id,
+        email: adminUser.email,
+        firstName: adminUser.firstName,
+        lastName: adminUser.lastName,
+        role: adminUser.role,
+      };
+      
+      res.json({ 
+        message: "Signed in successfully",
+        user: {
+          id: adminUser.id,
+          email: adminUser.email,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          role: adminUser.role,
+        }
+      });
+    } catch (error) {
+      console.error("Error signing in:", error);
+      res.status(500).json({ message: "Failed to sign in" });
+    }
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Failed to logout" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

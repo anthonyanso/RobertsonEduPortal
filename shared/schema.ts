@@ -37,6 +37,19 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Admin users table for custom authentication
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").unique().notNull(),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  passwordHash: varchar("password_hash").notNull(),
+  role: varchar("role").default("admin"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Students table
 export const students = pgTable("students", {
   id: serial("id").primaryKey(),
@@ -162,10 +175,13 @@ export const insertNewsSchema = createInsertSchema(news).omit({ id: true, create
 export const insertAdmissionApplicationSchema = createInsertSchema(admissionApplications).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertSchoolInfoSchema = createInsertSchema(schoolInfo).omit({ id: true, updatedAt: true });
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type Student = typeof students.$inferSelect;
 export type InsertStudent = z.infer<typeof insertStudentSchema>;
 export type Result = typeof results.$inferSelect;

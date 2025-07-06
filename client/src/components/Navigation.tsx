@@ -52,7 +52,10 @@ export default function Navigation({ currentPage, setCurrentPage }: NavigationPr
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-colors">
+            <button
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-colors"
+              onClick={() => navigateTo('contact')}
+            >
               Call Now
             </button>
           </div>

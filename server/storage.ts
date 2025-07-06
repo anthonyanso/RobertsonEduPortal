@@ -1,5 +1,6 @@
 import {
   users,
+  adminUsers,
   students,
   results,
   scratchCards,
@@ -9,6 +10,8 @@ import {
   schoolInfo,
   type User,
   type UpsertUser,
+  type AdminUser,
+  type InsertAdminUser,
   type Student,
   type InsertStudent,
   type Result,
@@ -31,6 +34,10 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  
+  // Admin user operations
+  getAdminUserByEmail(email: string): Promise<AdminUser | undefined>;
+  createAdminUser(adminUser: InsertAdminUser): Promise<AdminUser>;
   
   // Student operations
   getStudents(): Promise<Student[]>;
@@ -107,6 +114,17 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  // Admin user operations
+  async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
+    const [adminUser] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
+    return adminUser;
+  }
+
+  async createAdminUser(adminUserData: InsertAdminUser): Promise<AdminUser> {
+    const [adminUser] = await db.insert(adminUsers).values(adminUserData).returning();
+    return adminUser;
   }
 
   // Student operations
