@@ -1,30 +1,11 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import logoUrl from "@assets/logo_1751823007371.png";
-
-const signUpSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Please confirm your password"),
-  adminCode: z.string().min(1, "Admin code is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type SignUpData = z.infer<typeof signUpSchema>;
 
 interface SignUpProps {
   onSuccess: () => void;
@@ -32,59 +13,82 @@ interface SignUpProps {
 }
 
 export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    adminCode: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<SignUpData>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      adminCode: "",
-    },
-  });
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-  const signUpMutation = useMutation({
-    mutationFn: async (data: SignUpData) => {
+  const validateForm = () => {
+    if (!formData.firstName.trim()) return "First name is required";
+    if (!formData.lastName.trim()) return "Last name is required";
+    if (!formData.email.trim()) return "Email is required";
+    if (!/\S+@\S+\.\S+/.test(formData.email)) return "Invalid email format";
+    if (formData.password.length < 6) return "Password must be at least 6 characters";
+    if (formData.password !== formData.confirmPassword) return "Passwords don't match";
+    if (!formData.adminCode.trim()) return "Admin code is required";
+    return null;
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      toast({
+        title: "Validation Error",
+        description: validationError,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formData),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Registration failed");
       }
+
+      const data = await response.json();
       
-      return response.json();
-    },
-    onSuccess: (data) => {
       toast({
         title: "Success",
         description: "Admin account created successfully",
       });
+      
       // Store admin user data
       localStorage.setItem("adminUser", JSON.stringify(data.user));
       onSuccess();
-    },
-    onError: (error: any) => {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to create account",
         variant: "destructive",
       });
-    },
-  });
-
-  const onSubmit = (data: SignUpData) => {
-    signUpMutation.mutate(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -100,7 +104,7 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName" className="text-sm font-medium">
@@ -113,12 +117,11 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                     type="text"
                     placeholder="First name"
                     className="pl-10"
-                    {...form.register("firstName")}
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    required
                   />
                 </div>
-                {form.formState.errors.firstName && (
-                  <p className="text-sm text-red-600">{form.formState.errors.firstName.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -132,12 +135,11 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                     type="text"
                     placeholder="Last name"
                     className="pl-10"
-                    {...form.register("lastName")}
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    required
                   />
                 </div>
-                {form.formState.errors.lastName && (
-                  <p className="text-sm text-red-600">{form.formState.errors.lastName.message}</p>
-                )}
               </div>
             </div>
 
@@ -152,12 +154,11 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                   type="email"
                   placeholder="Enter your email"
                   className="pl-10"
-                  {...form.register("email")}
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  required
                 />
               </div>
-              {form.formState.errors.email && (
-                <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -171,7 +172,9 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="pl-10 pr-10"
-                  {...form.register("password")}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  required
                 />
                 <button
                   type="button"
@@ -181,9 +184,6 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {form.formState.errors.password && (
-                <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -197,7 +197,9 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
                   className="pl-10 pr-10"
-                  {...form.register("confirmPassword")}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                  required
                 />
                 <button
                   type="button"
@@ -207,9 +209,6 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {form.formState.errors.confirmPassword && (
-                <p className="text-sm text-red-600">{form.formState.errors.confirmPassword.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -220,11 +219,10 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                 id="adminCode"
                 type="text"
                 placeholder="Enter admin code"
-                {...form.register("adminCode")}
+                value={formData.adminCode}
+                onChange={(e) => handleInputChange("adminCode", e.target.value)}
+                required
               />
-              {form.formState.errors.adminCode && (
-                <p className="text-sm text-red-600">{form.formState.errors.adminCode.message}</p>
-              )}
               <p className="text-xs text-gray-500">
                 Contact the school administrator for the admin code
               </p>
@@ -233,9 +231,9 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
             <Button
               type="submit"
               className="w-full bg-red-600 hover:bg-red-700"
-              disabled={signUpMutation.isPending}
+              disabled={isLoading}
             >
-              {signUpMutation.isPending ? "Creating Account..." : "Create Admin Account"}
+              {isLoading ? "Creating Account..." : "Create Admin Account"}
             </Button>
           </form>
 
@@ -248,6 +246,16 @@ export default function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
               >
                 Sign In
               </button>
+            </p>
+          </div>
+
+          <div className="mt-4 p-4 bg-amber-50 rounded-lg">
+            <h3 className="text-sm font-medium text-amber-800 mb-2">Admin Code:</h3>
+            <p className="text-sm text-amber-700">
+              <strong>Code:</strong> ROBERTSON2024
+            </p>
+            <p className="text-xs text-amber-600 mt-2">
+              Use this code to create admin accounts
             </p>
           </div>
         </CardContent>

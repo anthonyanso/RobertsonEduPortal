@@ -14,14 +14,16 @@ This is a comprehensive multi-page school website for Robertson Education built 
 - **State Management**: TanStack Query for server state management
 - **Routing**: Hash-based client-side routing
 - **Forms**: React Hook Form with Zod validation
+- **Authentication Pages**: Separate auth folder with SignIn and SignUp components
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ES modules
 - **Database**: PostgreSQL with Neon serverless
 - **ORM**: Drizzle ORM for type-safe database operations
-- **Authentication**: Replit Auth with OpenID Connect
+- **Authentication**: Dual system - Replit Auth for public users + Custom admin authentication
 - **Session Management**: Express sessions with PostgreSQL storage
+- **Password Security**: bcryptjs for password hashing and validation
 
 ### Build System
 - **Bundler**: Vite for frontend development and building

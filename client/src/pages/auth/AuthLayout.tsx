@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SignIn from "./SignIn";
+import SimpleAuth from "./SimpleAuth";
 import SignUp from "./SignUp";
 
 interface AuthLayoutProps {
@@ -20,7 +20,7 @@ export default function AuthLayout({ onAuthSuccess }: AuthLayoutProps) {
 
   if (currentView === "signin") {
     return (
-      <SignIn
+      <SimpleAuth
         onSuccess={handleAuthSuccess}
         onSwitchToSignUp={switchToSignUp}
       />

@@ -9,9 +9,10 @@ import logoUrl from "@assets/logo_1751823007371.png";
 
 interface SimpleAuthProps {
   onSuccess: () => void;
+  onSwitchToSignUp?: () => void;
 }
 
-export default function SimpleAuth({ onSuccess }: SimpleAuthProps) {
+export default function SimpleAuth({ onSuccess, onSwitchToSignUp }: SimpleAuthProps) {
   const [email, setEmail] = useState("admin@robertsoneducation.com");
   const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
@@ -123,7 +124,21 @@ export default function SimpleAuth({ onSuccess }: SimpleAuthProps) {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          {onSwitchToSignUp && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{" "}
+                <button
+                  onClick={onSwitchToSignUp}
+                  className="text-red-600 hover:text-red-700 font-medium"
+                >
+                  Create Admin Account
+                </button>
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
             <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
             <p className="text-sm text-blue-700">
               <strong>Email:</strong> admin@robertsoneducation.com<br />
