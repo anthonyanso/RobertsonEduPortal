@@ -177,6 +177,16 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 export const insertSchoolInfoSchema = createInsertSchema(schoolInfo).omit({ id: true, updatedAt: true });
 export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({ id: true, createdAt: true, updatedAt: true });
 
+// Custom schema for signup that accepts password instead of passwordHash
+export const signUpSchema = insertAdminUserSchema.omit({ passwordHash: true }).extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Please confirm your password"),
+  adminCode: z.string().min(1, "Admin code is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;

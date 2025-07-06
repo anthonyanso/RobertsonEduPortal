@@ -11,6 +11,7 @@ import {
   insertContactMessageSchema,
   insertSchoolInfoSchema,
   insertAdminUserSchema,
+  signUpSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -52,8 +53,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin authentication routes
   app.post('/api/auth/signup', async (req, res) => {
     try {
-      const validatedData = insertAdminUserSchema.parse(req.body);
-      const adminCode = req.body.adminCode;
+      const { firstName, lastName, email, password, adminCode } = req.body;
+      
+      // Basic validation
+      if (!firstName || !lastName || !email || !password || !adminCode) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
       
       // Check admin code
       if (adminCode !== "ROBERTSON2024") {
@@ -61,22 +66,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if email already exists
-      const existingUser = await storage.getAdminUserByEmail(validatedData.email);
+      const existingUser = await storage.getAdminUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ message: "Email already exists" });
       }
       
       // Hash password
-      const hashedPassword = await bcrypt.hash(validatedData.passwordHash, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
       
       // Create admin user
       const adminUser = await storage.createAdminUser({
-        ...validatedData,
+        email,
+        firstName,
+        lastName,
         passwordHash: hashedPassword,
+        role: "admin",
+        isActive: true,
       });
       
       // Store in session
-      req.session.adminUser = {
+      (req.session as any).adminUser = {
         id: adminUser.id,
         email: adminUser.email,
         firstName: adminUser.firstName,
@@ -117,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Store in session
-      req.session.adminUser = {
+      (req.session as any).adminUser = {
         id: adminUser.id,
         email: adminUser.email,
         firstName: adminUser.firstName,
@@ -148,6 +157,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ message: "Logged out successfully" });
     });
+  });
+
+  // Test endpoint to check admin user
+  app.get('/api/auth/test', async (req, res) => {
+    try {
+      const adminUser = await storage.getAdminUserByEmail('admin@robertsoneducation.com');
+      res.json({ 
+        exists: !!adminUser,
+        user: adminUser ? { 
+          id: adminUser.id, 
+          email: adminUser.email, 
+          firstName: adminUser.firstName, 
+          lastName: adminUser.lastName 
+        } : null 
+      });
+    } catch (error) {
+      console.error("Error checking admin user:", error);
+      res.status(500).json({ message: "Failed to check admin user" });
+    }
   });
 
   // Auth routes

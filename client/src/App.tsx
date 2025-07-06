@@ -10,7 +10,7 @@ import News from "./pages/News";
 import Admission from "./pages/Admission";
 import Results from "./pages/Results";
 import Contact from "./pages/Contact";
-import AuthLayout from "./pages/auth/AuthLayout";
+import SimpleAuth from "./pages/auth/SimpleAuth";
 import AdminLayout from "./pages/admin/AdminLayout";
 import NotFound from "./pages/not-found";
 
@@ -80,10 +80,10 @@ function App() {
         if (isAdminAuthenticated) {
           return <AdminLayout onLogout={handleAdminLogout} />;
         } else {
-          return <AuthLayout onAuthSuccess={handleAuthSuccess} />;
+          return <SimpleAuth onSuccess={handleAuthSuccess} />;
         }
       case "auth":
-        return <AuthLayout onAuthSuccess={handleAuthSuccess} />;
+        return <SimpleAuth onSuccess={handleAuthSuccess} />;
       default:
         return <NotFound />;
     }
