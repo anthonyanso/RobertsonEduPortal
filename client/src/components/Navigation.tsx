@@ -52,9 +52,6 @@ export default function Navigation({ currentPage, setCurrentPage }: NavigationPr
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <a href="/admin" className="text-sm text-gray-600 hover:text-red-600 transition-colors">
-              Admin Portal
-            </a>
             <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full transition-colors">
               Call Now
             </button>
@@ -89,9 +86,7 @@ export default function Navigation({ currentPage, setCurrentPage }: NavigationPr
                   {item.label}
                 </button>
               ))}
-              <a href="/admin" className="text-sm text-gray-600 hover:text-red-600 transition-colors">
-                Admin Portal
-              </a>
+
             </div>
           </div>
         </div>
