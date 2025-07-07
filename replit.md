@@ -133,6 +133,7 @@ This is a comprehensive multi-page school website for Robertson Education built 
 
 Changelog:
 - July 06, 2025. Initial setup
+- July 07, 2025. Enhanced delete confirmations with SweetAlert2 for better user experience
 
 ## User Preferences
 

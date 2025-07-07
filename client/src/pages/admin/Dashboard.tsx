@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import Swal from 'sweetalert2';
 
 interface DashboardProps {
   onNavigate: (tab: string) => void;
@@ -85,9 +86,12 @@ export default function Admin({ onNavigate }: DashboardProps) {
       return await apiRequest("DELETE", `/api/admin/students/${studentId}`);
     },
     onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Student deleted successfully!",
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Student has been deleted successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/students"] });
     },
@@ -103,10 +107,11 @@ export default function Admin({ onNavigate }: DashboardProps) {
         }, 500);
         return;
       }
-      toast({
-        title: "Error",
-        description: "Failed to delete student",
-        variant: "destructive",
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to delete student. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
       });
     },
   });
@@ -149,9 +154,12 @@ export default function Admin({ onNavigate }: DashboardProps) {
       return await apiRequest("DELETE", `${endpoint}/${id}`);
     },
     onSuccess: (_, { endpoint }) => {
-      toast({
-        title: "Success",
-        description: "Item deleted successfully!",
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Item has been deleted successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
       });
       // Invalidate relevant queries
       if (endpoint.includes("results")) {
@@ -178,10 +186,11 @@ export default function Admin({ onNavigate }: DashboardProps) {
         }, 500);
         return;
       }
-      toast({
-        title: "Error",
-        description: "Failed to delete item",
-        variant: "destructive",
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to delete item. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
       });
     },
   });
@@ -198,8 +207,19 @@ export default function Admin({ onNavigate }: DashboardProps) {
     }
   };
 
-  const handleDelete = (endpoint: string, id: number, itemName: string) => {
-    if (confirm(`Are you sure you want to delete this ${itemName}?`)) {
+  const handleDelete = async (endpoint: string, id: number, itemName: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete this ${itemName}. This action cannot be undone!`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
       deleteMutation.mutate({ endpoint, id });
     }
   };
@@ -373,8 +393,19 @@ export default function Admin({ onNavigate }: DashboardProps) {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {
-                                    if (confirm(`Are you sure you want to delete ${student.firstName} ${student.lastName}?`)) {
+                                  onClick={async () => {
+                                    const result = await Swal.fire({
+                                      title: 'Delete Student?',
+                                      text: `Are you sure you want to delete ${student.firstName} ${student.lastName}? This action cannot be undone!`,
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonColor: '#dc2626',
+                                      cancelButtonColor: '#6b7280',
+                                      confirmButtonText: 'Yes, delete student!',
+                                      cancelButtonText: 'Cancel'
+                                    });
+
+                                    if (result.isConfirmed) {
                                       deleteStudentMutation.mutate(student.id);
                                     }
                                   }}
@@ -474,8 +505,19 @@ export default function Admin({ onNavigate }: DashboardProps) {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {
-                                    if (confirm(`Are you sure you want to delete this result?`)) {
+                                  onClick={async () => {
+                                    const swalResult = await Swal.fire({
+                                      title: 'Delete Result?',
+                                      text: `Are you sure you want to delete this result for ${result.studentId}? This action cannot be undone!`,
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonColor: '#dc2626',
+                                      cancelButtonColor: '#6b7280',
+                                      confirmButtonText: 'Yes, delete result!',
+                                      cancelButtonText: 'Cancel'
+                                    });
+
+                                    if (swalResult.isConfirmed) {
                                       deleteMutation.mutate({ endpoint: "/api/admin/results", id: result.id });
                                     }
                                   }}

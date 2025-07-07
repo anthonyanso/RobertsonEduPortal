@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { UserCheck, Search, Edit, Trash2, ChevronLeft, ChevronRight, MoreHorizontal, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import Swal from 'sweetalert2';
 import {
   Table,
   TableBody,
@@ -165,16 +166,20 @@ export default function ViewStudents() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/students'] });
-      toast({
-        title: "Student Deleted",
-        description: "Student has been deleted successfully.",
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Student has been deleted successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
       });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Delete Failed",
-        description: error.message,
-        variant: "destructive",
+      Swal.fire({
+        title: 'Error!',
+        text: error.message || 'Failed to delete student. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
       });
     },
   });
@@ -391,32 +396,25 @@ export default function ViewStudents() {
                                   <Edit className="mr-2 h-4 w-4" />
                                   Edit
                                 </DropdownMenuItem>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                      <Trash2 className="mr-2 h-4 w-4" />
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete Student</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to delete {student.firstName} {student.lastName}? 
-                                        This action cannot be undone.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => handleDelete(student.id)}
-                                        className="bg-red-600 hover:bg-red-700"
-                                      >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
+                                <DropdownMenuItem onClick={async () => {
+                                  const result = await Swal.fire({
+                                    title: 'Delete Student?',
+                                    text: `Are you sure you want to delete ${student.firstName} ${student.lastName}? This action cannot be undone!`,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#dc2626',
+                                    cancelButtonColor: '#6b7280',
+                                    confirmButtonText: 'Yes, delete student!',
+                                    cancelButtonText: 'Cancel'
+                                  });
+
+                                  if (result.isConfirmed) {
+                                    handleDelete(student.id);
+                                  }
+                                }}>
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
