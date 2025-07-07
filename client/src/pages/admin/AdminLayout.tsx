@@ -45,10 +45,11 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
+    { id: "students", label: "Students", icon: Users, hasDropdown: true },
     { id: "results", label: "Results", icon: GraduationCap },
     { id: "scratch-cards", label: "Scratch Cards", icon: CreditCard },
     { id: "news", label: "News", icon: Newspaper },
-    { id: "admissions", label: "Admissions", icon: Users },
+    { id: "admissions", label: "Admissions", icon: UserPlus },
     { id: "messages", label: "Messages", icon: MessageSquare },
     { id: "settings", label: "Settings", icon: Settings },
   ];
@@ -99,6 +100,52 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
             <div className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon;
+                
+                if (item.hasDropdown) {
+                  return (
+                    <div key={item.id} className="space-y-1">
+                      <button
+                        onClick={() => setStudentsDropdownOpen(!studentsDropdownOpen)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors ${
+                          activeTab === "add-student" || activeTab === "view-students"
+                            ? "bg-red-50 text-red-600 border-l-4 border-red-600"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Icon className="h-5 w-5" />
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                        <ChevronDown className={`h-4 w-4 transition-transform ${
+                          studentsDropdownOpen ? "transform rotate-180" : ""
+                        }`} />
+                      </button>
+                      
+                      {studentsDropdownOpen && (
+                        <div className="ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                          {studentsSubItems.map((subItem) => {
+                            const SubIcon = subItem.icon;
+                            return (
+                              <button
+                                key={subItem.id}
+                                onClick={() => setActiveTab(subItem.id)}
+                                className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-left transition-colors ${
+                                  activeTab === subItem.id
+                                    ? "bg-red-50 text-red-600"
+                                    : "text-gray-600 hover:bg-gray-50"
+                                }`}
+                              >
+                                <SubIcon className="h-4 w-4" />
+                                <span className="text-sm">{subItem.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                
                 return (
                   <button
                     key={item.id}
@@ -115,52 +162,6 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
                 );
               })}
               
-              {/* Students Dropdown */}
-              <div className="space-y-1">
-                <button
-                  onClick={() => setStudentsDropdownOpen(!studentsDropdownOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeTab === "add-student" || activeTab === "view-students"
-                      ? "bg-red-50 text-red-600 border-l-4 border-red-600"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Users className="h-5 w-5" />
-                    <span className="font-medium">Students</span>
-                  </div>
-                  {studentsDropdownOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </button>
-                
-                {studentsDropdownOpen && (
-                  <div className="ml-4 space-y-1">
-                    {studentsSubItems.map((subItem) => {
-                      const SubIcon = subItem.icon;
-                      return (
-                        <button
-                          key={subItem.id}
-                          onClick={() => {
-                            setActiveTab(subItem.id);
-                            setStudentsDropdownOpen(true);
-                          }}
-                          className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-left transition-colors ${
-                            activeTab === subItem.id
-                              ? "bg-red-100 text-red-700"
-                              : "text-gray-600 hover:bg-gray-50"
-                          }`}
-                        >
-                          <SubIcon className="h-4 w-4" />
-                          <span className="text-sm font-medium">{subItem.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </div>
           </nav>
         </aside>
@@ -170,6 +171,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "dashboard" && <Dashboard />}
           {activeTab === "add-student" && <AddStudent />}
           {activeTab === "view-students" && <ViewStudents />}
+          
           {activeTab === "results" && (
             <Card>
               <CardHeader>
