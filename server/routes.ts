@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAdminAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, isAdminAuthenticated } from "./replitAuth";
 import { 
   insertStudentSchema,
   insertResultSchema,
@@ -458,7 +458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/app.put('/api/admin/news/:id', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.put('/api/admin/news/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertNewsSchema.partial().parse(req.body);
@@ -470,7 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/app.delete('/api/admin/news/:id', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.delete('/api/admin/news/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteNews(id);
@@ -482,7 +482,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin admission applications
-  app.get('/api/admin/app.get('/api/admin/admissions', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.get('/api/admin/admissions', isAdminAuthenticated, async (req, res) => {
     try {
       const applications = await storage.getAdmissionApplications();
       res.json(applications);
@@ -492,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/app.put('/api/admin/admissions/:id', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.put('/api/admin/admissions/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertAdmissionApplicationSchema.partial().parse(req.body);
@@ -504,7 +504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/app.delete('/api/admin/admissions/:id', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.delete('/api/admin/admissions/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteAdmissionApplication(id);
@@ -516,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin contact messages
-  app.get('/api/admin/app.get('/api/admin/contact-messages', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.get('/api/admin/contact-messages', isAdminAuthenticated, async (req, res) => {
     try {
       const messages = await storage.getContactMessages();
       res.json(messages);
@@ -526,7 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/app.put('/api/admin/contact-messages/:id', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.put('/api/admin/contact-messages/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertContactMessageSchema.partial().parse(req.body);
@@ -538,7 +538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/app.delete('/api/admin/contact-messages/:id', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.delete('/api/admin/contact-messages/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteContactMessage(id);
@@ -550,7 +550,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin school info
-  app.put('/api/admin/app.put('/api/admin/school-info', isAdminAuthenticated', isAdminAuthenticated, async (req, res) => {
+  app.put('/api/admin/school-info', isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertSchoolInfoSchema.parse(req.body);
       const schoolInfo = await storage.upsertSchoolInfo(validatedData);

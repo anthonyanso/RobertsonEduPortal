@@ -155,3 +155,18 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return;
   }
 };
+
+export const isAdminAuthenticated: RequestHandler = async (req, res, next) => {
+  const session = req.session as any;
+  
+  if (!session || !session.adminUser) {
+    return res.status(401).json({ message: "Admin authentication required" });
+  }
+  
+  // Check if admin user is active
+  if (!session.adminUser.isActive) {
+    return res.status(401).json({ message: "Admin account is inactive" });
+  }
+  
+  return next();
+};
