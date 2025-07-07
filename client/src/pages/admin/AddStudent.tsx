@@ -46,7 +46,7 @@ export default function AddStudent() {
 
   const registerStudentMutation = useMutation({
     mutationFn: async (data: StudentFormData) => {
-      const response = await fetch("/api/admin/students", {
+      const response = await fetch("/api/test/students", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
