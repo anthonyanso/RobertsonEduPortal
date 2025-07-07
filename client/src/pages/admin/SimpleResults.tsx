@@ -165,7 +165,7 @@ export default function SimpleResults() {
       subjects: processedSubjects,
       totalScore,
       average: Number(average.toFixed(2)),
-      gpa
+      gpa: Number(gpa.toFixed(2))
     };
 
     createResultMutation.mutate(finalData);
