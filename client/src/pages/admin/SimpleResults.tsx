@@ -32,7 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
@@ -59,9 +59,28 @@ type ResultFormData = z.infer<typeof resultFormSchema>;
 
 const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
 const termOptions = ["First Term", "Second Term", "Third Term"];
+const commonSubjects = [
+  "Mathematics",
+  "English Language",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Geography",
+  "History",
+  "Economics",
+  "Literature",
+  "Government",
+  "Agricultural Science",
+  "Computer Science",
+  "Further Mathematics",
+  "Technical Drawing",
+  "French",
+  "Civic Education"
+];
 
 export default function SimpleResults() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [subjects, setSubjects] = useState([{ subject: "", score: 0, grade: "", remark: "" }]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -145,16 +164,28 @@ export default function SimpleResults() {
     }
   });
 
+  // Add subject
+  const addSubject = () => {
+    setSubjects([...subjects, { subject: "", score: 0, grade: "", remark: "" }]);
+  };
+
+  // Remove subject
+  const removeSubject = (index: number) => {
+    if (subjects.length > 1) {
+      setSubjects(subjects.filter((_, i) => i !== index));
+    }
+  };
+
   // Handle form submission
   const onSubmit = (data: ResultFormData) => {
-    // Simple calculation
-    const validSubjects = data.subjects.filter(s => s.score > 0);
+    // Use current subjects state instead of form data
+    const validSubjects = subjects.filter(s => s.subject && s.score > 0);
     const totalScore = validSubjects.reduce((sum, subject) => sum + subject.score, 0);
     const average = validSubjects.length > 0 ? totalScore / validSubjects.length : 0;
     const gpa = average >= 70 ? 4.0 : average >= 60 ? 3.0 : average >= 50 ? 2.0 : average >= 40 ? 1.0 : 0.0;
 
     // Auto-calculate grades
-    const processedSubjects = data.subjects.map(subject => ({
+    const processedSubjects = validSubjects.map(subject => ({
       ...subject,
       grade: subject.score >= 70 ? "A" : subject.score >= 60 ? "B" : subject.score >= 50 ? "C" : subject.score >= 40 ? "D" : "F",
       remark: subject.score >= 70 ? "Excellent" : subject.score >= 60 ? "Very Good" : subject.score >= 50 ? "Good" : subject.score >= 40 ? "Fair" : "Poor"
@@ -199,6 +230,7 @@ export default function SimpleResults() {
         <Button 
           onClick={() => {
             form.reset();
+            setSubjects([{ subject: "", score: 0, grade: "", remark: "" }]);
             setIsAddDialogOpen(true);
           }}
           className="bg-red-600 hover:bg-red-700"
@@ -221,6 +253,8 @@ export default function SimpleResults() {
                   <th className="text-left p-4">Student ID</th>
                   <th className="text-left p-4">Session</th>
                   <th className="text-left p-4">Term</th>
+                  <th className="text-left p-4">Subjects</th>
+                  <th className="text-left p-4">Total Score</th>
                   <th className="text-left p-4">Average</th>
                   <th className="text-left p-4">GPA</th>
                   <th className="text-left p-4">Actions</th>
@@ -238,7 +272,7 @@ export default function SimpleResults() {
                   </tr>
                 ) : results.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8 text-gray-500">
+                    <td colSpan={8} className="text-center py-8 text-gray-500">
                       No results found. Click "Add Result" to create the first result.
                     </td>
                   </tr>
@@ -248,6 +282,20 @@ export default function SimpleResults() {
                       <td className="p-4 font-medium">{result.studentId}</td>
                       <td className="p-4">{result.session}</td>
                       <td className="p-4">{result.term}</td>
+                      <td className="p-4">
+                        <div className="space-y-1">
+                          {result.subjects && result.subjects.length > 0 ? (
+                            result.subjects.map((subject: any, idx: number) => (
+                              <div key={idx} className="text-sm">
+                                <span className="font-medium">{subject.subject}:</span> {subject.score} ({subject.grade})
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-gray-500">No subjects</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4 font-medium">{result.totalScore}</td>
                       <td className="p-4">{result.average}%</td>
                       <td className="p-4">{result.gpa}/4.0</td>
                       <td className="p-4">
@@ -380,50 +428,103 @@ export default function SimpleResults() {
                 />
               </div>
 
-              {/* Simple subject entry */}
+              {/* Multiple subjects entry */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Subject Score</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg">
-                  <FormField
-                    control={form.control}
-                    name="subjects.0.subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subject</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="e.g., Mathematics" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Subjects & Scores</h3>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addSubject}
+                    className="bg-green-50 hover:bg-green-100 text-green-600"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Subject
+                  </Button>
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="subjects.0.score"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Score (0-100)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                {subjects.map((subject, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg relative">
+                    {subjects.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeSubject(index)}
+                        className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     )}
-                  />
 
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Subject</label>
+                      <Select
+                        value={subject.subject}
+                        onValueChange={(value) => {
+                          const newSubjects = [...subjects];
+                          newSubjects[index].subject = value;
+                          setSubjects(newSubjects);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {commonSubjects.map((subj) => (
+                            <SelectItem key={subj} value={subj}>
+                              {subj}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Score (0-100)</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={subject.score}
+                        onChange={(e) => {
+                          const newSubjects = [...subjects];
+                          newSubjects[index].score = Number(e.target.value);
+                          setSubjects(newSubjects);
+                        }}
+                        placeholder="Enter score"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Grade</label>
+                      <Input
+                        value={subject.score >= 70 ? "A" : subject.score >= 60 ? "B" : subject.score >= 50 ? "C" : subject.score >= 40 ? "D" : "F"}
+                        disabled
+                        className="bg-gray-100"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Remark</label>
+                      <Input
+                        value={subject.score >= 70 ? "Excellent" : subject.score >= 60 ? "Very Good" : subject.score >= 50 ? "Good" : subject.score >= 40 ? "Fair" : "Poor"}
+                        disabled
+                        className="bg-gray-100"
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                {/* Position field */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-gray-50">
                   <FormField
                     control={form.control}
                     name="position"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Position (Optional)</FormLabel>
+                        <FormLabel>Class Position (Optional)</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -436,7 +537,59 @@ export default function SimpleResults() {
                       </FormItem>
                     )}
                   />
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Total Score</label>
+                    <Input
+                      value={subjects.filter(s => s.subject && s.score > 0).reduce((sum, s) => sum + s.score, 0)}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Average (%)</label>
+                    <Input
+                      value={(() => {
+                        const validSubjects = subjects.filter(s => s.subject && s.score > 0);
+                        const total = validSubjects.reduce((sum, s) => sum + s.score, 0);
+                        return validSubjects.length > 0 ? (total / validSubjects.length).toFixed(2) : '0.00';
+                      })()}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
                 </div>
+
+                {/* Summary Statistics */}
+                {subjects.some(s => s.subject && s.score > 0) && (
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-2">Result Summary</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="text-blue-600">Subjects:</span> {subjects.filter(s => s.subject && s.score > 0).length}
+                      </div>
+                      <div>
+                        <span className="text-blue-600">Total Score:</span> {subjects.filter(s => s.subject && s.score > 0).reduce((sum, s) => sum + s.score, 0)}
+                      </div>
+                      <div>
+                        <span className="text-blue-600">Average:</span> {(() => {
+                          const validSubjects = subjects.filter(s => s.subject && s.score > 0);
+                          const total = validSubjects.reduce((sum, s) => sum + s.score, 0);
+                          return validSubjects.length > 0 ? (total / validSubjects.length).toFixed(2) : '0.00';
+                        })()}%
+                      </div>
+                      <div>
+                        <span className="text-blue-600">GPA:</span> {(() => {
+                          const validSubjects = subjects.filter(s => s.subject && s.score > 0);
+                          const total = validSubjects.reduce((sum, s) => sum + s.score, 0);
+                          const average = validSubjects.length > 0 ? total / validSubjects.length : 0;
+                          return (average >= 70 ? 4.0 : average >= 60 ? 3.0 : average >= 50 ? 2.0 : average >= 40 ? 1.0 : 0.0).toFixed(1);
+                        })()}/4.0
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end space-x-4">
