@@ -15,6 +15,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { generateUniqueStudentId } from "./utils/studentIdGenerator";
 
 // Note: Temporarily removing auth middleware to fix corruption
 
@@ -301,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes (simplified for now)
-  app.get('/api/admin/students', async (req, res) => {
+  app.get('/api/admin/students', isAdminAuthenticated, async (req, res) => {
     try {
       const students = await storage.getStudents();
       res.json(students);
@@ -311,10 +312,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/students', async (req, res) => {
+  app.post('/api/admin/students', isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertStudentSchema.parse(req.body);
-      const student = await storage.createStudent(validatedData);
+      
+      // Generate unique student ID
+      const studentId = await generateUniqueStudentId();
+      
+      // Create student with auto-generated ID
+      const studentData = {
+        ...validatedData,
+        studentId: studentId
+      };
+      
+      const student = await storage.createStudent(studentData);
       res.json(student);
     } catch (error) {
       console.error("Error creating student:", error);
@@ -322,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/students/:id', async (req, res) => {
+  app.put('/api/admin/students/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertStudentSchema.partial().parse(req.body);
@@ -334,7 +345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/students/:id', async (req, res) => {
+  app.delete('/api/admin/students/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteStudent(id);
