@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
+import StudentRegistration from "./StudentRegistration";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -107,16 +108,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
         {/* Main Content */}
         <main className="flex-1 p-8">
           {activeTab === "dashboard" && <Dashboard />}
-          {activeTab === "students" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Students Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Students management interface will be implemented here.</p>
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "students" && <StudentRegistration />}
           {activeTab === "results" && (
             <Card>
               <CardHeader>
