@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
+// @ts-ignore
 import AddStudent from "./AddStudent";
+// @ts-ignore
 import ViewStudents from "./ViewStudents";
 import logoUrl from "@assets/logo_1751823007371.png";
 

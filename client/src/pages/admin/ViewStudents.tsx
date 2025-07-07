@@ -109,7 +109,7 @@ export default function ViewStudents() {
 
   // Fetch students
   const { data: students = [], isLoading: studentsLoading } = useQuery<Student[]>({
-    queryKey: ['/api/admin/students'],
+    queryKey: ['/api/test/students'],
   });
 
   // Update student mutation

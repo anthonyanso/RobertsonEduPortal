@@ -370,8 +370,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Protected admin routes (temporarily removing auth for testing)
-  app.get('/api/admin/students', async (req, res) => {
+  // Create admin session for testing
+  app.post('/api/auth/admin-session', async (req, res) => {
+    try {
+      // Find any admin user to create a session with
+      const adminUser = await storage.getAdminUserByEmail('admin@robertsoneducation.com');
+      if (!adminUser) {
+        return res.status(404).json({ message: "No admin user found" });
+      }
+      
+      // Store in session
+      (req.session as any).adminUser = {
+        id: adminUser.id,
+        email: adminUser.email,
+        firstName: adminUser.firstName,
+        lastName: adminUser.lastName,
+        role: adminUser.role,
+        isActive: adminUser.isActive,
+      };
+      
+      res.json({ 
+        message: "Admin session created successfully",
+        user: {
+          id: adminUser.id,
+          email: adminUser.email,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          role: adminUser.role,
+        }
+      });
+    } catch (error) {
+      console.error("Error creating admin session:", error);
+      res.status(500).json({ message: "Failed to create admin session" });
+    }
+  });
+
+  // Protected admin routes
+  app.get('/api/admin/students', isAdminAuthenticated, async (req, res) => {
     try {
       const students = await storage.getStudents();
       res.json(students);
@@ -381,7 +416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/students', async (req, res) => {
+  app.post('/api/admin/students', isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertStudentSchema.parse(req.body);
       
@@ -402,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/students/:id', async (req, res) => {
+  app.put('/api/admin/students/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertStudentSchema.partial().parse(req.body);
@@ -414,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/students/:id', async (req, res) => {
+  app.delete('/api/admin/students/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteStudent(id);

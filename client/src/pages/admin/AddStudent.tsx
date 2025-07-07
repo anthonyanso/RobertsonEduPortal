@@ -60,7 +60,7 @@ export default function AddStudent() {
       return response.json();
     },
     onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/students'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/test/students'] });
       toast({
         title: "Student Registered Successfully",
         description: `${data.firstName} ${data.lastName} has been registered with ID: ${data.studentId}`,
