@@ -63,6 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: adminUser.firstName,
         lastName: adminUser.lastName,
         role: adminUser.role,
+        isActive: adminUser.isActive,
       };
       
       res.json({ 
@@ -104,6 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: adminUser.firstName,
         lastName: adminUser.lastName,
         role: adminUser.role,
+        isActive: adminUser.isActive,
       };
       
       res.json({ 

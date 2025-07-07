@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings } from "lucide-react";
+import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
-import StudentRegistration from "./StudentRegistration";
+import AddStudent from "./AddStudent";
+import ViewStudents from "./ViewStudents";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -14,6 +15,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [adminUser, setAdminUser] = useState<any>(null);
+  const [studentsDropdownOpen, setStudentsDropdownOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -23,6 +25,13 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
       setAdminUser(JSON.parse(adminData));
     }
   }, []);
+
+  useEffect(() => {
+    // Auto-open students dropdown when a student tab is active
+    if (activeTab === "add-student" || activeTab === "view-students") {
+      setStudentsDropdownOpen(true);
+    }
+  }, [activeTab]);
 
   const handleLogout = () => {
     localStorage.removeItem("isAdminAuthenticated");
@@ -36,13 +45,17 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "students", label: "Students", icon: Users },
     { id: "results", label: "Results", icon: GraduationCap },
     { id: "scratch-cards", label: "Scratch Cards", icon: CreditCard },
     { id: "news", label: "News", icon: Newspaper },
     { id: "admissions", label: "Admissions", icon: Users },
     { id: "messages", label: "Messages", icon: MessageSquare },
     { id: "settings", label: "Settings", icon: Settings },
+  ];
+
+  const studentsSubItems = [
+    { id: "add-student", label: "Add Student", icon: UserPlus },
+    { id: "view-students", label: "View Students", icon: UserCheck },
   ];
 
   return (
@@ -101,6 +114,53 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
                   </button>
                 );
               })}
+              
+              {/* Students Dropdown */}
+              <div className="space-y-1">
+                <button
+                  onClick={() => setStudentsDropdownOpen(!studentsDropdownOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors ${
+                    activeTab === "add-student" || activeTab === "view-students"
+                      ? "bg-red-50 text-red-600 border-l-4 border-red-600"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Users className="h-5 w-5" />
+                    <span className="font-medium">Students</span>
+                  </div>
+                  {studentsDropdownOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+                
+                {studentsDropdownOpen && (
+                  <div className="ml-4 space-y-1">
+                    {studentsSubItems.map((subItem) => {
+                      const SubIcon = subItem.icon;
+                      return (
+                        <button
+                          key={subItem.id}
+                          onClick={() => {
+                            setActiveTab(subItem.id);
+                            setStudentsDropdownOpen(true);
+                          }}
+                          className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-left transition-colors ${
+                            activeTab === subItem.id
+                              ? "bg-red-100 text-red-700"
+                              : "text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          <SubIcon className="h-4 w-4" />
+                          <span className="text-sm font-medium">{subItem.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </nav>
         </aside>
@@ -108,7 +168,8 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
         {/* Main Content */}
         <main className="flex-1 p-8">
           {activeTab === "dashboard" && <Dashboard />}
-          {activeTab === "students" && <StudentRegistration />}
+          {activeTab === "add-student" && <AddStudent />}
+          {activeTab === "view-students" && <ViewStudents />}
           {activeTab === "results" && (
             <Card>
               <CardHeader>
