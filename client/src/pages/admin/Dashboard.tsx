@@ -24,7 +24,11 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
-export default function Admin() {
+interface DashboardProps {
+  onNavigate: (tab: string) => void;
+}
+
+export default function Admin({ onNavigate }: DashboardProps) {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -290,7 +294,10 @@ export default function Admin() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Students Management</CardTitle>
-                <Button className="bg-red-600 hover:bg-red-700">
+                <Button 
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => onNavigate("add-student")}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Student
                 </Button>

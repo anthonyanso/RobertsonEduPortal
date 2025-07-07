@@ -170,7 +170,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
 
         {/* Main Content */}
         <main className="flex-1 p-8">
-          {activeTab === "dashboard" && <Dashboard />}
+          {activeTab === "dashboard" && <Dashboard onNavigate={setActiveTab} />}
           {activeTab === "add-student" && <AddStudent />}
           {activeTab === "view-students" && <ViewStudents />}
           
