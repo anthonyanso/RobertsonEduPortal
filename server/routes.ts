@@ -227,7 +227,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/test/students', async (req, res) => {
     try {
       const result = await db.execute('SELECT * FROM students ORDER BY created_at DESC');
-      res.json(result.rows);
+      
+      // Map database fields to frontend expected format
+      const students = result.rows.map((row: any) => ({
+        id: row.id,
+        studentId: row.student_id,
+        firstName: row.first_name || '',
+        lastName: row.last_name || '',
+        email: row.email || '',
+        phone: row.phone || '',
+        dateOfBirth: row.date_of_birth,
+        gender: row.gender || '',
+        nationality: row.nationality || '',
+        address: row.address || '',
+        gradeLevel: row.grade_level || '',
+        fatherName: row.father_name || '',
+        motherName: row.mother_name || '',
+        guardianPhone: row.guardian_phone || '',
+        guardianEmail: row.guardian_email || '',
+        medicalConditions: row.medical_conditions || '',
+        specialNeeds: row.special_needs || '',
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        // Add additional fields expected by frontend
+        phoneNumber: row.phone || '',
+        parentGuardianName: row.father_name || '',
+        parentGuardianPhone: row.guardian_phone || '',
+        parentGuardianEmail: row.guardian_email || '',
+        emergencyContact: row.guardian_phone || '',
+        enrollmentDate: row.created_at,
+        status: 'active'
+      }));
+      
+      res.json(students);
     } catch (error) {
       console.error("Error fetching students:", error);
       res.status(500).json({ message: "Failed to fetch students" });

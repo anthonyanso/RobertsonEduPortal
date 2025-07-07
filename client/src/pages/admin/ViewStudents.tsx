@@ -182,9 +182,9 @@ export default function ViewStudents() {
   // Filter and paginate students
   const filteredStudents = students.filter(student => {
     const matchesSearch = 
-      student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.firstName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.lastName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.studentId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || student.status === statusFilter;
