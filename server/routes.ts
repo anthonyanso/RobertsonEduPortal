@@ -440,7 +440,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Protected admin routes
   app.get('/api/admin/students', isAdminAuthenticated, async (req, res) => {
     try {
-      const students = await storage.getStudents();
+      const result = await db.execute('SELECT * FROM students ORDER BY created_at DESC');
+      
+      // Map database fields to frontend expected format (same as test endpoint)
+      const students = result.rows.map((row: any) => ({
+        id: row.id,
+        studentId: row.student_id,
+        firstName: row.first_name || '',
+        lastName: row.last_name || '',
+        email: row.email || '',
+        phone: row.phone || '',
+        dateOfBirth: row.date_of_birth,
+        gender: row.gender || '',
+        nationality: row.nationality || '',
+        address: row.address || '',
+        gradeLevel: row.grade_level || '',
+        fatherName: row.father_name || '',
+        motherName: row.mother_name || '',
+        guardianPhone: row.guardian_phone || '',
+        guardianEmail: row.guardian_email || '',
+        medicalConditions: row.medical_conditions || '',
+        specialNeeds: row.special_needs || '',
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        // Add additional fields expected by frontend
+        phoneNumber: row.phone || '',
+        parentGuardianName: row.father_name || '',
+        parentGuardianPhone: row.guardian_phone || '',
+        parentGuardianEmail: row.guardian_email || '',
+        emergencyContact: row.guardian_phone || '',
+        enrollmentDate: row.created_at,
+        status: 'active'
+      }));
+      
       res.json(students);
     } catch (error) {
       console.error("Error fetching students:", error);
@@ -472,8 +504,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin/students/:id', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertStudentSchema.partial().parse(req.body);
-      const student = await storage.updateStudent(id, validatedData);
+      console.log("Updating student with ID:", id);
+      console.log("Update data:", req.body);
+      
+      // Update directly in database using raw SQL for now
+      const updateFields = [];
+      const updateValues = [];
+      
+      if (req.body.firstName) {
+        updateFields.push('first_name = ?');
+        updateValues.push(req.body.firstName);
+      }
+      if (req.body.lastName) {
+        updateFields.push('last_name = ?');
+        updateValues.push(req.body.lastName);
+      }
+      if (req.body.email) {
+        updateFields.push('email = ?');
+        updateValues.push(req.body.email);
+      }
+      if (req.body.phone) {
+        updateFields.push('phone = ?');
+        updateValues.push(req.body.phone);
+      }
+      if (req.body.dateOfBirth) {
+        updateFields.push('date_of_birth = ?');
+        updateValues.push(req.body.dateOfBirth);
+      }
+      if (req.body.gender) {
+        updateFields.push('gender = ?');
+        updateValues.push(req.body.gender);
+      }
+      if (req.body.nationality) {
+        updateFields.push('nationality = ?');
+        updateValues.push(req.body.nationality);
+      }
+      if (req.body.address) {
+        updateFields.push('address = ?');
+        updateValues.push(req.body.address);
+      }
+      if (req.body.gradeLevel) {
+        updateFields.push('grade_level = ?');
+        updateValues.push(req.body.gradeLevel);
+      }
+      if (req.body.fatherName) {
+        updateFields.push('father_name = ?');
+        updateValues.push(req.body.fatherName);
+      }
+      if (req.body.motherName) {
+        updateFields.push('mother_name = ?');
+        updateValues.push(req.body.motherName);
+      }
+      if (req.body.guardianPhone) {
+        updateFields.push('guardian_phone = ?');
+        updateValues.push(req.body.guardianPhone);
+      }
+      if (req.body.guardianEmail) {
+        updateFields.push('guardian_email = ?');
+        updateValues.push(req.body.guardianEmail);
+      }
+      if (req.body.medicalConditions) {
+        updateFields.push('medical_conditions = ?');
+        updateValues.push(req.body.medicalConditions);
+      }
+      if (req.body.specialNeeds) {
+        updateFields.push('special_needs = ?');
+        updateValues.push(req.body.specialNeeds);
+      }
+      
+      // Add updated timestamp
+      updateFields.push('updated_at = NOW()');
+      updateValues.push(id); // for WHERE clause
+      
+      const sql = `UPDATE students SET ${updateFields.join(', ')} WHERE id = ? RETURNING *`;
+      console.log("SQL Query:", sql);
+      console.log("Values:", updateValues);
+      
+      const result = await db.execute(sql, updateValues);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+      
+      const updatedRow = result.rows[0];
+      const student = {
+        id: updatedRow.id,
+        studentId: updatedRow.student_id,
+        firstName: updatedRow.first_name || '',
+        lastName: updatedRow.last_name || '',
+        email: updatedRow.email || '',
+        phone: updatedRow.phone || '',
+        dateOfBirth: updatedRow.date_of_birth,
+        gender: updatedRow.gender || '',
+        nationality: updatedRow.nationality || '',
+        address: updatedRow.address || '',
+        gradeLevel: updatedRow.grade_level || '',
+        fatherName: updatedRow.father_name || '',
+        motherName: updatedRow.mother_name || '',
+        guardianPhone: updatedRow.guardian_phone || '',
+        guardianEmail: updatedRow.guardian_email || '',
+        medicalConditions: updatedRow.medical_conditions || '',
+        specialNeeds: updatedRow.special_needs || '',
+        createdAt: updatedRow.created_at,
+        updatedAt: updatedRow.updated_at,
+      };
+      
+      console.log("Updated student:", student);
       res.json(student);
     } catch (error) {
       console.error("Error updating student:", error);
