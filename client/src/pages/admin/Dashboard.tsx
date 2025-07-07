@@ -79,6 +79,38 @@ export default function Admin({ onNavigate }: DashboardProps) {
     retry: false,
   });
 
+  // Delete student mutation
+  const deleteStudentMutation = useMutation({
+    mutationFn: async (studentId: number) => {
+      return await apiRequest("DELETE", `/api/admin/students/${studentId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Student deleted successfully!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/students"] });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete student",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Generate scratch cards mutation
   const generateCardsMutation = useMutation({
     mutationFn: async ({ count, expiryMonths }: { count: number; expiryMonths: number }) => {
@@ -111,7 +143,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
     },
   });
 
-  // Delete mutations
+  // Generic delete mutation for other items
   const deleteMutation = useMutation({
     mutationFn: async ({ endpoint, id }: { endpoint: string; id: number }) => {
       return await apiRequest("DELETE", `${endpoint}/${id}`);
@@ -122,9 +154,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
         description: "Item deleted successfully!",
       });
       // Invalidate relevant queries
-      if (endpoint.includes("students")) {
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/students"] });
-      } else if (endpoint.includes("results")) {
+      if (endpoint.includes("results")) {
         queryClient.invalidateQueries({ queryKey: ["/api/admin/results"] });
       } else if (endpoint.includes("scratch-cards")) {
         queryClient.invalidateQueries({ queryKey: ["/api/admin/scratch-cards"] });
@@ -332,13 +362,24 @@ export default function Admin({ onNavigate }: DashboardProps) {
                             <td className="p-4">{student.email}</td>
                             <td className="p-4">
                               <div className="flex space-x-2">
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => onNavigate("view-students")}
+                                  title="Edit Student"
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => handleDelete("/api/admin/students", student.id, "student")}
+                                  onClick={() => {
+                                    if (confirm(`Are you sure you want to delete ${student.firstName} ${student.lastName}?`)) {
+                                      deleteStudentMutation.mutate(student.id);
+                                    }
+                                  }}
+                                  title="Delete Student"
+                                  disabled={deleteStudentMutation.isPending}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -359,7 +400,15 @@ export default function Admin({ onNavigate }: DashboardProps) {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Results Management</CardTitle>
-                <Button className="bg-red-600 hover:bg-red-700">
+                <Button 
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => {
+                    toast({
+                      title: "Add Result",
+                      description: "Result creation feature will be implemented",
+                    });
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Result
                 </Button>
@@ -396,16 +445,42 @@ export default function Admin({ onNavigate }: DashboardProps) {
                             <td className="p-4">{result.gpa}/4.0</td>
                             <td className="p-4">
                               <div className="flex space-x-2">
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    toast({
+                                      title: "View Result",
+                                      description: `Viewing result for ${result.studentId}`,
+                                    });
+                                  }}
+                                  title="View Result"
+                                >
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Edit Result",
+                                      description: "Result editing feature will be implemented",
+                                    });
+                                  }}
+                                  title="Edit Result"
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => handleDelete("/api/admin/results", result.id, "result")}
+                                  onClick={() => {
+                                    if (confirm(`Are you sure you want to delete this result?`)) {
+                                      deleteMutation.mutate({ endpoint: "/api/admin/results", id: result.id });
+                                    }
+                                  }}
+                                  title="Delete Result"
+                                  disabled={deleteMutation.isPending}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -476,6 +551,8 @@ export default function Admin({ onNavigate }: DashboardProps) {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleDelete("/api/admin/scratch-cards", card.id, "scratch card")}
+                                title="Delete Scratch Card"
+                                disabled={deleteMutation.isPending}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
