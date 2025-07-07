@@ -256,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parentGuardianEmail: row.guardian_email || '',
         emergencyContact: row.guardian_phone || '',
         enrollmentDate: row.created_at,
-        status: 'active'
+        status: row.status || 'active'
       }));
       
       res.json(students);
@@ -470,7 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         parentGuardianEmail: row.guardian_email || '',
         emergencyContact: row.guardian_phone || '',
         enrollmentDate: row.created_at,
-        status: 'active'
+        status: row.status || 'active'
       }));
       
       res.json(students);
@@ -525,6 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.body.guardianEmail || req.body.parentGuardianEmail) updateData.guardianEmail = req.body.guardianEmail || req.body.parentGuardianEmail;
       if (req.body.medicalConditions) updateData.medicalConditions = req.body.medicalConditions;
       if (req.body.specialNeeds) updateData.specialNeeds = req.body.specialNeeds;
+      if (req.body.status) updateData.status = req.body.status;
       
       console.log("Mapped update data:", updateData);
       
