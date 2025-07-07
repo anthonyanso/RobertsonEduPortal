@@ -507,108 +507,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Updating student with ID:", id);
       console.log("Update data:", req.body);
       
-      // Update directly in database using raw SQL for now
-      const updateFields = [];
-      const updateValues = [];
+      // Map frontend fields to database fields
+      const updateData: any = {};
       
-      if (req.body.firstName) {
-        updateFields.push('first_name = ?');
-        updateValues.push(req.body.firstName);
-      }
-      if (req.body.lastName) {
-        updateFields.push('last_name = ?');
-        updateValues.push(req.body.lastName);
-      }
-      if (req.body.email) {
-        updateFields.push('email = ?');
-        updateValues.push(req.body.email);
-      }
-      if (req.body.phone) {
-        updateFields.push('phone = ?');
-        updateValues.push(req.body.phone);
-      }
-      if (req.body.dateOfBirth) {
-        updateFields.push('date_of_birth = ?');
-        updateValues.push(req.body.dateOfBirth);
-      }
-      if (req.body.gender) {
-        updateFields.push('gender = ?');
-        updateValues.push(req.body.gender);
-      }
-      if (req.body.nationality) {
-        updateFields.push('nationality = ?');
-        updateValues.push(req.body.nationality);
-      }
-      if (req.body.address) {
-        updateFields.push('address = ?');
-        updateValues.push(req.body.address);
-      }
-      if (req.body.gradeLevel) {
-        updateFields.push('grade_level = ?');
-        updateValues.push(req.body.gradeLevel);
-      }
-      if (req.body.fatherName) {
-        updateFields.push('father_name = ?');
-        updateValues.push(req.body.fatherName);
-      }
-      if (req.body.motherName) {
-        updateFields.push('mother_name = ?');
-        updateValues.push(req.body.motherName);
-      }
-      if (req.body.guardianPhone) {
-        updateFields.push('guardian_phone = ?');
-        updateValues.push(req.body.guardianPhone);
-      }
-      if (req.body.guardianEmail) {
-        updateFields.push('guardian_email = ?');
-        updateValues.push(req.body.guardianEmail);
-      }
-      if (req.body.medicalConditions) {
-        updateFields.push('medical_conditions = ?');
-        updateValues.push(req.body.medicalConditions);
-      }
-      if (req.body.specialNeeds) {
-        updateFields.push('special_needs = ?');
-        updateValues.push(req.body.specialNeeds);
-      }
+      if (req.body.firstName) updateData.firstName = req.body.firstName;
+      if (req.body.lastName) updateData.lastName = req.body.lastName;
+      if (req.body.email) updateData.email = req.body.email;
+      if (req.body.phone || req.body.phoneNumber) updateData.phone = req.body.phone || req.body.phoneNumber;
+      if (req.body.dateOfBirth) updateData.dateOfBirth = req.body.dateOfBirth;
+      if (req.body.gender) updateData.gender = req.body.gender;
+      if (req.body.nationality) updateData.nationality = req.body.nationality;
+      if (req.body.address) updateData.address = req.body.address;
+      if (req.body.gradeLevel) updateData.gradeLevel = req.body.gradeLevel;
+      if (req.body.fatherName || req.body.parentGuardianName) updateData.fatherName = req.body.fatherName || req.body.parentGuardianName;
+      if (req.body.motherName) updateData.motherName = req.body.motherName;
+      if (req.body.guardianPhone || req.body.parentGuardianPhone) updateData.guardianPhone = req.body.guardianPhone || req.body.parentGuardianPhone;
+      if (req.body.guardianEmail || req.body.parentGuardianEmail) updateData.guardianEmail = req.body.guardianEmail || req.body.parentGuardianEmail;
+      if (req.body.medicalConditions) updateData.medicalConditions = req.body.medicalConditions;
+      if (req.body.specialNeeds) updateData.specialNeeds = req.body.specialNeeds;
       
-      // Add updated timestamp
-      updateFields.push('updated_at = NOW()');
-      updateValues.push(id); // for WHERE clause
+      console.log("Mapped update data:", updateData);
       
-      const sql = `UPDATE students SET ${updateFields.join(', ')} WHERE id = ? RETURNING *`;
-      console.log("SQL Query:", sql);
-      console.log("Values:", updateValues);
-      
-      const result = await db.execute(sql, updateValues);
-      
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: "Student not found" });
-      }
-      
-      const updatedRow = result.rows[0];
-      const student = {
-        id: updatedRow.id,
-        studentId: updatedRow.student_id,
-        firstName: updatedRow.first_name || '',
-        lastName: updatedRow.last_name || '',
-        email: updatedRow.email || '',
-        phone: updatedRow.phone || '',
-        dateOfBirth: updatedRow.date_of_birth,
-        gender: updatedRow.gender || '',
-        nationality: updatedRow.nationality || '',
-        address: updatedRow.address || '',
-        gradeLevel: updatedRow.grade_level || '',
-        fatherName: updatedRow.father_name || '',
-        motherName: updatedRow.mother_name || '',
-        guardianPhone: updatedRow.guardian_phone || '',
-        guardianEmail: updatedRow.guardian_email || '',
-        medicalConditions: updatedRow.medical_conditions || '',
-        specialNeeds: updatedRow.special_needs || '',
-        createdAt: updatedRow.created_at,
-        updatedAt: updatedRow.updated_at,
-      };
-      
+      // Use storage interface which handles the database mapping
+      const student = await storage.updateStudent(id, updateData);
       console.log("Updated student:", student);
       res.json(student);
     } catch (error) {

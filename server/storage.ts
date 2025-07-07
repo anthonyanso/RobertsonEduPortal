@@ -148,11 +148,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateStudent(id: number, student: Partial<InsertStudent>): Promise<Student> {
+    console.log("Storage updateStudent called with:", { id, student });
+    
     const [updatedStudent] = await db
       .update(students)
       .set({ ...student, updatedAt: new Date() })
       .where(eq(students.id, id))
       .returning();
+    
+    console.log("Storage updateStudent result:", updatedStudent);
     return updatedStudent;
   }
 
