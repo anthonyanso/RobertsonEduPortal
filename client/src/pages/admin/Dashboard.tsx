@@ -433,15 +433,10 @@ export default function Admin({ onNavigate }: DashboardProps) {
                 <CardTitle>Results Management</CardTitle>
                 <Button 
                   className="bg-red-600 hover:bg-red-700"
-                  onClick={() => {
-                    toast({
-                      title: "Add Result",
-                      description: "Result creation feature will be implemented",
-                    });
-                  }}
+                  onClick={() => onNavigate("results")}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Result
+                  Manage Results
                 </Button>
               </CardHeader>
               <CardContent>
@@ -479,12 +474,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {
-                                    toast({
-                                      title: "View Result",
-                                      description: `Viewing result for ${result.studentId}`,
-                                    });
-                                  }}
+                                  onClick={() => onNavigate("results")}
                                   title="View Result"
                                 >
                                   <Eye className="h-4 w-4" />
@@ -492,12 +482,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Edit Result",
-                                      description: "Result editing feature will be implemented",
-                                    });
-                                  }}
+                                  onClick={() => onNavigate("results")}
                                   title="Edit Result"
                                 >
                                   <Edit className="h-4 w-4" />
