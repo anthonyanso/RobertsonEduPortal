@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck } from "lucide-react";
+import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck, Plus, FileText, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
 // @ts-ignore
@@ -9,7 +9,11 @@ import AddStudent from "./AddStudent";
 // @ts-ignore
 import ViewStudents from "./ViewStudents";
 // @ts-ignore  
-import ResultsManagement from "./ResultsManagement";
+import CreateResult from "./CreateResult";
+// @ts-ignore  
+import ViewResults from "./ViewResults";
+// @ts-ignore  
+import ResultAnalytics from "./ResultAnalytics";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -20,6 +24,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [adminUser, setAdminUser] = useState<any>(null);
   const [studentsDropdownOpen, setStudentsDropdownOpen] = useState(false);
+  const [resultsDropdownOpen, setResultsDropdownOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,9 +36,12 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   }, []);
 
   useEffect(() => {
-    // Auto-open students dropdown when a student tab is active
+    // Auto-open dropdowns when related tabs are active
     if (activeTab === "add-student" || activeTab === "view-students") {
       setStudentsDropdownOpen(true);
+    }
+    if (activeTab === "create-result" || activeTab === "view-results" || activeTab === "result-analytics") {
+      setResultsDropdownOpen(true);
     }
   }, [activeTab]);
 
@@ -50,7 +58,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "students", label: "Students", icon: Users, hasDropdown: true },
-    { id: "results", label: "Results", icon: GraduationCap },
+    { id: "results", label: "Results", icon: GraduationCap, hasDropdown: true },
     { id: "scratch-cards", label: "Scratch Cards", icon: CreditCard },
     { id: "news", label: "News", icon: Newspaper },
     { id: "admissions", label: "Admissions", icon: UserPlus },
@@ -61,6 +69,12 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const studentsSubItems = [
     { id: "add-student", label: "Add Student", icon: UserPlus },
     { id: "view-students", label: "View Students", icon: UserCheck },
+  ];
+
+  const resultsSubItems = [
+    { id: "create-result", label: "Create Result", icon: Plus },
+    { id: "view-results", label: "View Results", icon: FileText },
+    { id: "result-analytics", label: "Analytics", icon: BarChart3 },
   ];
 
   return (
@@ -106,12 +120,21 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
                 const Icon = item.icon;
                 
                 if (item.hasDropdown) {
+                  const isStudents = item.id === "students";
+                  const isResults = item.id === "results";
+                  const dropdownOpen = isStudents ? studentsDropdownOpen : resultsDropdownOpen;
+                  const setDropdownOpen = isStudents ? setStudentsDropdownOpen : setResultsDropdownOpen;
+                  const subItems = isStudents ? studentsSubItems : resultsSubItems;
+                  const isActive = isStudents ? 
+                    (activeTab === "add-student" || activeTab === "view-students") :
+                    (activeTab === "create-result" || activeTab === "view-results" || activeTab === "result-analytics");
+                  
                   return (
                     <div key={item.id} className="space-y-1">
                       <button
-                        onClick={() => setStudentsDropdownOpen(!studentsDropdownOpen)}
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
                         className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors ${
-                          activeTab === "add-student" || activeTab === "view-students"
+                          isActive
                             ? "bg-red-50 text-red-600 border-l-4 border-red-600"
                             : "text-gray-600 hover:bg-gray-50"
                         }`}
@@ -121,13 +144,13 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
                           <span className="font-medium">{item.label}</span>
                         </div>
                         <ChevronDown className={`h-4 w-4 transition-transform ${
-                          studentsDropdownOpen ? "transform rotate-180" : ""
+                          dropdownOpen ? "transform rotate-180" : ""
                         }`} />
                       </button>
                       
-                      {studentsDropdownOpen && (
+                      {dropdownOpen && (
                         <div className="ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
-                          {studentsSubItems.map((subItem) => {
+                          {subItems.map((subItem) => {
                             const SubIcon = subItem.icon;
                             return (
                               <button
@@ -176,7 +199,9 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "add-student" && <AddStudent />}
           {activeTab === "view-students" && <ViewStudents />}
           
-          {activeTab === "results" && <ResultsManagement />}
+          {activeTab === "create-result" && <CreateResult />}
+          {activeTab === "view-results" && <ViewResults />}
+          {activeTab === "result-analytics" && <ResultAnalytics />}
           {activeTab === "scratch-cards" && (
             <Card>
               <CardHeader>

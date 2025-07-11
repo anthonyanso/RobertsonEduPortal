@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BarChart3, TrendingUp, Users, Award, PieChart, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, Users, Award, PieChart } from "lucide-react";
 import { useState } from "react";
 
 export default function ResultAnalytics() {

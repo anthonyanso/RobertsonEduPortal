@@ -31,7 +31,7 @@ import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
 import NigerianResultTemplate from "./NigerianResultTemplate";
 
-export default function ViewResultsList() {
+export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSession, setFilterSession] = useState("");
   const [filterTerm, setFilterTerm] = useState("");
@@ -144,24 +144,6 @@ export default function ViewResultsList() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">View Results</h2>
-          <p className="text-gray-600">Browse and manage student academic results</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Export All
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Printer className="h-4 w-4" />
-            Print Report
-          </Button>
-        </div>
-      </div>
-
       {/* Search and Filter */}
       <Card>
         <CardHeader>
@@ -243,68 +225,6 @@ export default function ViewResultsList() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Results Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Results</p>
-                <p className="text-2xl font-bold">{results.length}</p>
-              </div>
-              <div className="p-2 bg-blue-100 rounded-full">
-                <FileText className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Filtered Results</p>
-                <p className="text-2xl font-bold">{filteredResults.length}</p>
-              </div>
-              <div className="p-2 bg-green-100 rounded-full">
-                <Search className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Average Score</p>
-                <p className="text-2xl font-bold">
-                  {results.length > 0 ? 
-                    (results.reduce((sum: number, r: any) => sum + (r.average || 0), 0) / results.length).toFixed(1) : 
-                    '0'}%
-                </p>
-              </div>
-              <div className="p-2 bg-yellow-100 rounded-full">
-                <Badge className="h-5 w-5 text-yellow-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Top Performers</p>
-                <p className="text-2xl font-bold">
-                  {results.filter((r: any) => (r.average || 0) >= 75).length}
-                </p>
-              </div>
-              <div className="p-2 bg-purple-100 rounded-full">
-                <Badge className="h-5 w-5 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Results Table */}
       <Card>

@@ -6,7 +6,6 @@ import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -23,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Plus, X, Save, Calculator, CheckCircle } from "lucide-react";
+import { Plus, X, Save, Calculator, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
@@ -67,13 +66,9 @@ const resultSchema = z.object({
 
 type ResultFormData = z.infer<typeof resultSchema>;
 
-// Nigerian Secondary School Configuration
 const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
 const termOptions = ["First Term", "Second Term", "Third Term"];
-const classOptions = [
-  "JSS 1", "JSS 2", "JSS 3", 
-  "SS 1", "SS 2", "SS 3"
-];
+const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 
 const nigerianSubjects = [
   "Mathematics", "English Language", "Physics", "Chemistry", "Biology",
@@ -87,7 +82,7 @@ const nigerianSubjects = [
 
 const assessmentOptions = ["5 - Excellent", "4 - Very Good", "3 - Good", "2 - Fair", "1 - Poor"];
 
-export default function CreateResultForm() {
+export default function CreateResult() {
   const [subjects, setSubjects] = useState([{ subject: "", ca1: 0, ca2: 0, exam: 0, total: 0, grade: "", position: "" }]);
   const [currentStep, setCurrentStep] = useState(1);
   const { toast } = useToast();
@@ -343,6 +338,7 @@ export default function CreateResultForm() {
                   onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
                   disabled={currentStep === 1}
                 >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
                   Previous
                 </Button>
                 
@@ -354,6 +350,7 @@ export default function CreateResultForm() {
                       className="bg-blue-600 hover:bg-blue-700"
                     >
                       Next
+                      <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   ) : (
                     <Button
