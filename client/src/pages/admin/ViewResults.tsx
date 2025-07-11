@@ -33,9 +33,9 @@ import NigerianResultTemplate from "./NigerianResultTemplate";
 
 export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSession, setFilterSession] = useState("");
-  const [filterTerm, setFilterTerm] = useState("");
-  const [filterClass, setFilterClass] = useState("");
+  const [filterSession, setFilterSession] = useState("all");
+  const [filterTerm, setFilterTerm] = useState("all");
+  const [filterClass, setFilterClass] = useState("all");
   const [selectedResult, setSelectedResult] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -89,9 +89,9 @@ export default function ViewResults() {
                          student?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student?.lastName?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesSession = !filterSession || result.session === filterSession;
-    const matchesTerm = !filterTerm || result.term === filterTerm;
-    const matchesClass = !filterClass || result.class === filterClass;
+    const matchesSession = !filterSession || filterSession === "all" || result.session === filterSession;
+    const matchesTerm = !filterTerm || filterTerm === "all" || result.term === filterTerm;
+    const matchesClass = !filterClass || filterClass === "all" || result.class === filterClass;
     
     return matchesSearch && matchesSession && matchesTerm && matchesClass;
   });
@@ -175,7 +175,7 @@ export default function ViewResults() {
                   <SelectValue placeholder="All Sessions" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Sessions</SelectItem>
+                  <SelectItem value="all">All Sessions</SelectItem>
                   {sessionOptions.map(session => (
                     <SelectItem key={session} value={session}>{session}</SelectItem>
                   ))}
@@ -189,7 +189,7 @@ export default function ViewResults() {
                   <SelectValue placeholder="All Terms" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Terms</SelectItem>
+                  <SelectItem value="all">All Terms</SelectItem>
                   {termOptions.map(term => (
                     <SelectItem key={term} value={term}>{term}</SelectItem>
                   ))}
@@ -203,7 +203,7 @@ export default function ViewResults() {
                   <SelectValue placeholder="All Classes" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Classes</SelectItem>
+                  <SelectItem value="all">All Classes</SelectItem>
                   {classOptions.map(cls => (
                     <SelectItem key={cls} value={cls}>{cls}</SelectItem>
                   ))}
@@ -215,9 +215,9 @@ export default function ViewResults() {
                 variant="outline"
                 onClick={() => {
                   setSearchTerm("");
-                  setFilterSession("");
-                  setFilterTerm("");
-                  setFilterClass("");
+                  setFilterSession("all");
+                  setFilterTerm("all");
+                  setFilterClass("all");
                 }}
                 className="w-full"
               >

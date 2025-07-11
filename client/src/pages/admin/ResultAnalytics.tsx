@@ -12,8 +12,8 @@ import { BarChart3, TrendingUp, Users, Award, PieChart } from "lucide-react";
 import { useState } from "react";
 
 export default function ResultAnalytics() {
-  const [selectedSession, setSelectedSession] = useState("");
-  const [selectedTerm, setSelectedTerm] = useState("");
+  const [selectedSession, setSelectedSession] = useState("all");
+  const [selectedTerm, setSelectedTerm] = useState("all");
 
   const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
   const termOptions = ["First Term", "Second Term", "Third Term"];
@@ -32,8 +32,8 @@ export default function ResultAnalytics() {
 
   // Filter results based on selection
   const filteredResults = results.filter((result: any) => {
-    const matchesSession = !selectedSession || result.session === selectedSession;
-    const matchesTerm = !selectedTerm || result.term === selectedTerm;
+    const matchesSession = !selectedSession || selectedSession === "all" || result.session === selectedSession;
+    const matchesTerm = !selectedTerm || selectedTerm === "all" || result.term === selectedTerm;
     return matchesSession && matchesTerm;
   });
 
@@ -72,7 +72,7 @@ export default function ResultAnalytics() {
               <SelectValue placeholder="All Sessions" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Sessions</SelectItem>
+              <SelectItem value="all">All Sessions</SelectItem>
               {sessionOptions.map(session => (
                 <SelectItem key={session} value={session}>{session}</SelectItem>
               ))}
@@ -84,7 +84,7 @@ export default function ResultAnalytics() {
               <SelectValue placeholder="All Terms" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Terms</SelectItem>
+              <SelectItem value="all">All Terms</SelectItem>
               {termOptions.map(term => (
                 <SelectItem key={term} value={term}>{term}</SelectItem>
               ))}
