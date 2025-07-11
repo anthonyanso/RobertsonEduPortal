@@ -96,6 +96,11 @@ export default function ViewResults() {
     return matchesSearch && matchesSession && matchesTerm && matchesClass;
   });
 
+  // Debug logging
+  console.log('Results data:', results);
+  console.log('Students data:', students);
+  console.log('Filtered results:', filteredResults);
+
   // Get student info
   const getStudentInfo = (studentId: string) => {
     return students.find((s: any) => s.studentId === studentId);

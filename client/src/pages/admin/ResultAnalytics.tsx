@@ -41,18 +41,23 @@ export default function ResultAnalytics() {
   const analytics = {
     totalResults: filteredResults.length,
     averageScore: filteredResults.length > 0 ? 
-      (filteredResults.reduce((sum: number, r: any) => sum + (r.average || 0), 0) / filteredResults.length).toFixed(1) : 0,
-    topPerformers: filteredResults.filter((r: any) => (r.average || 0) >= 75).length,
-    needsImprovement: filteredResults.filter((r: any) => (r.average || 0) < 50).length,
+      (filteredResults.reduce((sum: number, r: any) => sum + (Number(r.average) || 0), 0) / filteredResults.length).toFixed(1) : 0,
+    topPerformers: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 75).length,
+    needsImprovement: filteredResults.filter((r: any) => (Number(r.average) || 0) < 50).length,
     gradeDistribution: {
-      A: filteredResults.filter((r: any) => (r.average || 0) >= 75).length,
-      B: filteredResults.filter((r: any) => (r.average || 0) >= 65 && (r.average || 0) < 75).length,
-      C: filteredResults.filter((r: any) => (r.average || 0) >= 55 && (r.average || 0) < 65).length,
-      D: filteredResults.filter((r: any) => (r.average || 0) >= 45 && (r.average || 0) < 55).length,
-      F: filteredResults.filter((r: any) => (r.average || 0) < 45).length,
+      A: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 75).length,
+      B: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 65 && (Number(r.average) || 0) < 75).length,
+      C: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 55 && (Number(r.average) || 0) < 65).length,
+      D: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 45 && (Number(r.average) || 0) < 55).length,
+      F: filteredResults.filter((r: any) => (Number(r.average) || 0) < 45).length,
     },
     subjectPerformance: getSubjectPerformance(filteredResults),
   };
+
+  // Debug logging
+  console.log('Analytics Results:', results);
+  console.log('Filtered Results:', filteredResults);
+  console.log('Analytics Data:', analytics);
 
   return (
     <div className="space-y-6">
