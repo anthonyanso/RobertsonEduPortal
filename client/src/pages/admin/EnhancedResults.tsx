@@ -860,7 +860,7 @@ export default function EnhancedResults() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="capitalize">{trait}</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
