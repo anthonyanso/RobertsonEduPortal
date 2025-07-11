@@ -58,6 +58,7 @@ export default function ResultAnalytics() {
   console.log('Analytics Results:', results);
   console.log('Filtered Results:', filteredResults);
   console.log('Analytics Data:', analytics);
+  console.log('Results error:', resultsError);
 
   return (
     <div className="space-y-6">
@@ -252,13 +253,13 @@ function getSubjectPerformance(results: any[]) {
   const subjectMap = new Map();
   
   results.forEach(result => {
-    if (result.subjects) {
+    if (result.subjects && Array.isArray(result.subjects)) {
       result.subjects.forEach((subject: any) => {
         if (!subjectMap.has(subject.subject)) {
           subjectMap.set(subject.subject, { total: 0, count: 0 });
         }
         const current = subjectMap.get(subject.subject);
-        current.total += subject.total || 0;
+        current.total += Number(subject.total) || 0;
         current.count += 1;
       });
     }
@@ -267,7 +268,7 @@ function getSubjectPerformance(results: any[]) {
   return Array.from(subjectMap.entries())
     .map(([name, data]: [string, any]) => ({
       name,
-      average: data.total / data.count,
+      average: data.count > 0 ? data.total / data.count : 0,
       count: data.count
     }))
     .sort((a, b) => b.average - a.average);

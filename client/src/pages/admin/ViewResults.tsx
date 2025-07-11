@@ -100,6 +100,9 @@ export default function ViewResults() {
   console.log('Results data:', results);
   console.log('Students data:', students);
   console.log('Filtered results:', filteredResults);
+  console.log('Results loading:', resultsLoading);
+  console.log('Results error:', resultsError);
+  console.log('Students error:', studentsError);
 
   // Get student info
   const getStudentInfo = (studentId: string) => {
@@ -273,10 +276,11 @@ export default function ViewResults() {
                 ) : (
                   filteredResults.map((result: any) => {
                     const student = getStudentInfo(result.studentId);
-                    const overallGrade = result.average >= 75 ? 'A' : 
-                                        result.average >= 70 ? 'B' : 
-                                        result.average >= 65 ? 'C' : 
-                                        result.average >= 60 ? 'D' : 'F';
+                    const avgScore = Number(result.average) || 0;
+                    const overallGrade = avgScore >= 75 ? 'A' : 
+                                        avgScore >= 70 ? 'B' : 
+                                        avgScore >= 65 ? 'C' : 
+                                        avgScore >= 60 ? 'D' : 'F';
                     return (
                       <TableRow key={result.id}>
                         <TableCell>
@@ -315,8 +319,8 @@ export default function ViewResults() {
                         <TableCell>
                           <div className="space-y-1">
                             <div className="text-sm font-medium">Total: {result.totalScore || 0}</div>
-                            <div className="text-xs text-gray-600">Avg: {result.average || 0}%</div>
-                            <div className="text-xs text-gray-600">GPA: {result.gpa || 0}/4.0</div>
+                            <div className="text-xs text-gray-600">Avg: {avgScore}%</div>
+                            <div className="text-xs text-gray-600">GPA: {Number(result.gpa) || 0}/4.0</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -328,7 +332,7 @@ export default function ViewResults() {
                         </TableCell>
                         <TableCell>
                           <Badge className={getGradeColor(overallGrade)}>
-                            {overallGrade} - {getPerformanceLabel(result.average || 0)}
+                            {overallGrade} - {getPerformanceLabel(avgScore)}
                           </Badge>
                         </TableCell>
                         <TableCell>
