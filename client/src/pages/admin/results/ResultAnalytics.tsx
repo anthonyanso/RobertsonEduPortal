@@ -41,18 +41,17 @@ export default function ResultAnalytics() {
   const analytics = {
     totalResults: filteredResults.length,
     averageScore: filteredResults.length > 0 ? 
-      (filteredResults.reduce((sum: number, r: any) => sum + r.average, 0) / filteredResults.length).toFixed(1) : 0,
-    topPerformers: filteredResults.filter((r: any) => r.average >= 75).length,
-    needsImprovement: filteredResults.filter((r: any) => r.average < 50).length,
+      (filteredResults.reduce((sum: number, r: any) => sum + (r.average || 0), 0) / filteredResults.length).toFixed(1) : 0,
+    topPerformers: filteredResults.filter((r: any) => (r.average || 0) >= 75).length,
+    needsImprovement: filteredResults.filter((r: any) => (r.average || 0) < 50).length,
     gradeDistribution: {
-      A: filteredResults.filter((r: any) => r.average >= 75).length,
-      B: filteredResults.filter((r: any) => r.average >= 65 && r.average < 75).length,
-      C: filteredResults.filter((r: any) => r.average >= 55 && r.average < 65).length,
-      D: filteredResults.filter((r: any) => r.average >= 45 && r.average < 55).length,
-      F: filteredResults.filter((r: any) => r.average < 45).length,
+      A: filteredResults.filter((r: any) => (r.average || 0) >= 75).length,
+      B: filteredResults.filter((r: any) => (r.average || 0) >= 65 && (r.average || 0) < 75).length,
+      C: filteredResults.filter((r: any) => (r.average || 0) >= 55 && (r.average || 0) < 65).length,
+      D: filteredResults.filter((r: any) => (r.average || 0) >= 45 && (r.average || 0) < 55).length,
+      F: filteredResults.filter((r: any) => (r.average || 0) < 45).length,
     },
     subjectPerformance: getSubjectPerformance(filteredResults),
-    termTrends: getTermTrends(results),
   };
 
   return (
@@ -61,7 +60,7 @@ export default function ResultAnalytics() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Result Analytics</h2>
-          <p className="text-gray-600">Comprehensive performance analysis and insights</p>
+          <p className="text-gray-600">Performance analysis and insights</p>
         </div>
         
         {/* Filters */}
@@ -105,11 +104,6 @@ export default function ResultAnalytics() {
                 <BarChart3 className="h-6 w-6 text-blue-600" />
               </div>
             </div>
-            <div className="mt-4">
-              <p className="text-xs text-gray-500">
-                {selectedSession || selectedTerm ? 'Filtered view' : 'All time'}
-              </p>
-            </div>
           </CardContent>
         </Card>
 
@@ -123,16 +117,6 @@ export default function ResultAnalytics() {
               <div className="p-3 bg-green-100 rounded-full">
                 <TrendingUp className="h-6 w-6 text-green-600" />
               </div>
-            </div>
-            <div className="mt-4">
-              <Badge className={
-                Number(analytics.averageScore) >= 75 ? 'bg-green-100 text-green-800' :
-                Number(analytics.averageScore) >= 65 ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }>
-                {Number(analytics.averageScore) >= 75 ? 'Excellent' :
-                 Number(analytics.averageScore) >= 65 ? 'Good' : 'Needs Improvement'}
-              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -148,11 +132,6 @@ export default function ResultAnalytics() {
                 <Award className="h-6 w-6 text-purple-600" />
               </div>
             </div>
-            <div className="mt-4">
-              <p className="text-xs text-gray-500">
-                {analytics.totalResults > 0 ? `${((analytics.topPerformers / analytics.totalResults) * 100).toFixed(1)}%` : '0%'} of students
-              </p>
-            </div>
           </CardContent>
         </Card>
 
@@ -166,11 +145,6 @@ export default function ResultAnalytics() {
               <div className="p-3 bg-orange-100 rounded-full">
                 <Users className="h-6 w-6 text-orange-600" />
               </div>
-            </div>
-            <div className="mt-4">
-              <p className="text-xs text-gray-500">
-                {analytics.totalResults > 0 ? `${((analytics.needsImprovement / analytics.totalResults) * 100).toFixed(1)}%` : '0%'} below 50%
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -258,8 +232,8 @@ export default function ResultAnalytics() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">No Data Available</h3>
             <p className="text-gray-500">
               {selectedSession || selectedTerm ? 
-                'No results found for the selected filters. Try adjusting your selection.' :
-                'Start by creating some results to see analytics here.'}
+                'No results found for the selected filters.' :
+                'Start by creating some results to see analytics.'}
             </p>
           </CardContent>
         </Card>
@@ -279,7 +253,7 @@ function getSubjectPerformance(results: any[]) {
           subjectMap.set(subject.subject, { total: 0, count: 0 });
         }
         const current = subjectMap.get(subject.subject);
-        current.total += subject.score;
+        current.total += subject.total || 0;
         current.count += 1;
       });
     }
@@ -292,25 +266,4 @@ function getSubjectPerformance(results: any[]) {
       count: data.count
     }))
     .sort((a, b) => b.average - a.average);
-}
-
-function getTermTrends(results: any[]) {
-  const termMap = new Map();
-  
-  results.forEach(result => {
-    const key = `${result.session}-${result.term}`;
-    if (!termMap.has(key)) {
-      termMap.set(key, { total: 0, count: 0, session: result.session, term: result.term });
-    }
-    const current = termMap.get(key);
-    current.total += result.average;
-    current.count += 1;
-  });
-
-  return Array.from(termMap.values())
-    .map(data => ({
-      ...data,
-      average: data.total / data.count
-    }))
-    .sort((a, b) => a.session.localeCompare(b.session));
 }

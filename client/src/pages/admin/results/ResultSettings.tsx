@@ -21,55 +21,43 @@ import {
   BookOpen, 
   Calculator, 
   GraduationCap, 
-  Award,
-  FileText,
-  Users
+  Award
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ResultSettings() {
-  const [gradingSystem, setGradingSystem] = useState("percentage");
+  const [gradingSystem, setGradingSystem] = useState("nigerian");
   const [passingGrade, setPassingGrade] = useState(40);
   const [customSubjects, setCustomSubjects] = useState([
-    "Mathematics", "English Language", "Physics", "Chemistry", "Biology"
+    "Mathematics", "English Language", "Physics", "Chemistry", "Biology",
+    "Geography", "History", "Economics", "Government", "Literature in English"
   ]);
   const [newSubject, setNewSubject] = useState("");
-  const [resultTemplate, setResultTemplate] = useState("standard");
-  const [autoCalculate, setAutoCalculate] = useState(true);
-  const [showPosition, setShowPosition] = useState(true);
   const [showGPA, setShowGPA] = useState(true);
+  const [showPosition, setShowPosition] = useState(true);
   const [showAttendance, setShowAttendance] = useState(true);
-  const [showConduct, setShowConduct] = useState(true);
+  const [showSkills, setShowSkills] = useState(true);
   const [schoolInfo, setSchoolInfo] = useState({
     name: "Robertson Education",
     address: "Excellence in Education",
     phone: "+234 XXX XXX XXXX",
     email: "info@robertsoneducation.edu",
-    motto: "Nurturing Excellence",
+    motto: "Knowledge • Character • Service",
   });
 
   const { toast } = useToast();
 
-  const gradingScales = {
-    percentage: [
-      { grade: "A", min: 75, max: 100, remark: "Excellent" },
-      { grade: "B+", min: 70, max: 74, remark: "Very Good" },
-      { grade: "B", min: 65, max: 69, remark: "Good" },
-      { grade: "C+", min: 60, max: 64, remark: "Credit" },
-      { grade: "C", min: 55, max: 59, remark: "Pass" },
-      { grade: "D+", min: 50, max: 54, remark: "Fair" },
-      { grade: "D", min: 45, max: 49, remark: "Weak" },
-      { grade: "E", min: 40, max: 44, remark: "Poor" },
-      { grade: "F", min: 0, max: 39, remark: "Fail" },
-    ],
-    letter: [
-      { grade: "A", min: 90, max: 100, remark: "Excellent" },
-      { grade: "B", min: 80, max: 89, remark: "Good" },
-      { grade: "C", min: 70, max: 79, remark: "Average" },
-      { grade: "D", min: 60, max: 69, remark: "Below Average" },
-      { grade: "F", min: 0, max: 59, remark: "Fail" },
-    ],
-  };
+  const nigerianGrades = [
+    { grade: "A1", min: 75, max: 100, remark: "Excellent" },
+    { grade: "B2", min: 70, max: 74, remark: "Very Good" },
+    { grade: "B3", min: 65, max: 69, remark: "Good" },
+    { grade: "C4", min: 60, max: 64, remark: "Credit" },
+    { grade: "C5", min: 55, max: 59, remark: "Credit" },
+    { grade: "C6", min: 50, max: 54, remark: "Credit" },
+    { grade: "D7", min: 45, max: 49, remark: "Pass" },
+    { grade: "E8", min: 40, max: 44, remark: "Pass" },
+    { grade: "F9", min: 0, max: 39, remark: "Fail" },
+  ];
 
   const addSubject = () => {
     if (newSubject.trim() && !customSubjects.includes(newSubject.trim())) {
@@ -83,7 +71,6 @@ export default function ResultSettings() {
   };
 
   const saveSettings = () => {
-    // Here you would save settings to the backend
     toast({
       title: "Settings Saved",
       description: "Your result settings have been updated successfully.",
@@ -91,15 +78,16 @@ export default function ResultSettings() {
   };
 
   const resetToDefaults = () => {
-    setGradingSystem("percentage");
+    setGradingSystem("nigerian");
     setPassingGrade(40);
-    setCustomSubjects(["Mathematics", "English Language", "Physics", "Chemistry", "Biology"]);
-    setResultTemplate("standard");
-    setAutoCalculate(true);
-    setShowPosition(true);
+    setCustomSubjects([
+      "Mathematics", "English Language", "Physics", "Chemistry", "Biology",
+      "Geography", "History", "Economics", "Government", "Literature in English"
+    ]);
     setShowGPA(true);
+    setShowPosition(true);
     setShowAttendance(true);
-    setShowConduct(true);
+    setShowSkills(true);
     toast({
       title: "Settings Reset",
       description: "All settings have been reset to default values.",
@@ -126,28 +114,15 @@ export default function ResultSettings() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Grading System */}
+        {/* Nigerian Grading System */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5" />
-              Grading System
+              Nigerian Grading System
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="grading-system">Grading Scale</Label>
-              <Select value={gradingSystem} onValueChange={setGradingSystem}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select grading system" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="percentage">Percentage Based (0-100)</SelectItem>
-                  <SelectItem value="letter">Letter Grade (A-F)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div>
               <Label htmlFor="passing-grade">Passing Grade</Label>
               <Input
@@ -161,12 +136,20 @@ export default function ResultSettings() {
             </div>
 
             <div>
-              <Label>Grade Scale Preview</Label>
+              <Label>Nigerian Grade Scale</Label>
               <div className="space-y-2 mt-2">
-                {gradingScales[gradingSystem as keyof typeof gradingScales].map((scale, index) => (
+                {nigerianGrades.map((scale, index) => (
                   <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <div className="flex items-center space-x-2">
-                      <Badge>{scale.grade}</Badge>
+                      <Badge className={
+                        scale.grade.includes('A') ? 'bg-green-100 text-green-800' :
+                        scale.grade.includes('B') ? 'bg-blue-100 text-blue-800' :
+                        scale.grade.includes('C') ? 'bg-yellow-100 text-yellow-800' :
+                        scale.grade.includes('D') || scale.grade.includes('E') ? 'bg-orange-100 text-orange-800' :
+                        'bg-red-100 text-red-800'
+                      }>
+                        {scale.grade}
+                      </Badge>
                       <span className="text-sm">{scale.remark}</span>
                     </div>
                     <span className="text-sm text-gray-600">{scale.min}-{scale.max}%</span>
@@ -203,7 +186,7 @@ export default function ResultSettings() {
 
             <div>
               <Label>Available Subjects ({customSubjects.length})</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2 max-h-48 overflow-y-auto">
                 {customSubjects.map((subject, index) => (
                   <Badge key={index} variant="secondary" className="flex items-center gap-1">
                     {subject}
@@ -222,21 +205,21 @@ export default function ResultSettings() {
           </CardContent>
         </Card>
 
-        {/* Result Display Settings */}
+        {/* Display Settings */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Result Display
+              <Settings className="h-5 w-5" />
+              Display Settings
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>Auto-calculate totals</Label>
-                <p className="text-sm text-gray-600">Automatically calculate total scores and averages</p>
+                <Label>Show GPA</Label>
+                <p className="text-sm text-gray-600">Display Grade Point Average</p>
               </div>
-              <Switch checked={autoCalculate} onCheckedChange={setAutoCalculate} />
+              <Switch checked={showGPA} onCheckedChange={setShowGPA} />
             </div>
 
             <div className="flex items-center justify-between">
@@ -249,14 +232,6 @@ export default function ResultSettings() {
 
             <div className="flex items-center justify-between">
               <div>
-                <Label>Show GPA</Label>
-                <p className="text-sm text-gray-600">Display Grade Point Average</p>
-              </div>
-              <Switch checked={showGPA} onCheckedChange={setShowGPA} />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
                 <Label>Show attendance</Label>
                 <p className="text-sm text-gray-600">Include attendance information</p>
               </div>
@@ -265,10 +240,10 @@ export default function ResultSettings() {
 
             <div className="flex items-center justify-between">
               <div>
-                <Label>Show conduct assessment</Label>
-                <p className="text-sm text-gray-600">Include behavioral assessment</p>
+                <Label>Show skills assessment</Label>
+                <p className="text-sm text-gray-600">Include psychomotor and affective skills</p>
               </div>
-              <Switch checked={showConduct} onCheckedChange={setShowConduct} />
+              <Switch checked={showSkills} onCheckedChange={setShowSkills} />
             </div>
           </CardContent>
         </Card>
@@ -291,7 +266,7 @@ export default function ResultSettings() {
             </div>
 
             <div>
-              <Label>Address/Motto</Label>
+              <Label>Address/Tagline</Label>
               <Input
                 value={schoolInfo.address}
                 onChange={(e) => setSchoolInfo({...schoolInfo, address: e.target.value})}
@@ -337,7 +312,7 @@ export default function ResultSettings() {
                 <Calculator className="h-5 w-5 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium">Grading System</p>
-                  <p className="text-lg font-bold capitalize">{gradingSystem}</p>
+                  <p className="text-lg font-bold">Nigerian A1-F9</p>
                 </div>
               </div>
             </div>
@@ -366,9 +341,9 @@ export default function ResultSettings() {
               <div className="flex items-center space-x-2">
                 <Settings className="h-5 w-5 text-orange-600" />
                 <div>
-                  <p className="text-sm font-medium">Features</p>
+                  <p className="text-sm font-medium">Active Features</p>
                   <p className="text-lg font-bold">
-                    {[showPosition, showGPA, showAttendance, showConduct].filter(Boolean).length}/4
+                    {[showGPA, showPosition, showAttendance, showSkills].filter(Boolean).length}/4
                   </p>
                 </div>
               </div>

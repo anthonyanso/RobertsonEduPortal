@@ -25,16 +25,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, Edit, Trash2, Download, Filter, FileText } from "lucide-react";
+import { Search, Eye, Edit, Trash2, Download, Filter, FileText, Printer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
-import ResultTemplate from "@/components/ResultTemplate";
+import NigerianResultTemplate from "./NigerianResultTemplate";
 
-export default function ViewResults() {
+export default function ViewResultsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSession, setFilterSession] = useState("");
   const [filterTerm, setFilterTerm] = useState("");
+  const [filterClass, setFilterClass] = useState("");
   const [selectedResult, setSelectedResult] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -42,6 +43,7 @@ export default function ViewResults() {
 
   const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
   const termOptions = ["First Term", "Second Term", "Third Term"];
+  const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 
   // Fetch results
   const { data: results = [], isLoading: resultsLoading } = useQuery({
@@ -89,8 +91,9 @@ export default function ViewResults() {
     
     const matchesSession = !filterSession || result.session === filterSession;
     const matchesTerm = !filterTerm || result.term === filterTerm;
+    const matchesClass = !filterClass || result.class === filterClass;
     
-    return matchesSearch && matchesSession && matchesTerm;
+    return matchesSearch && matchesSession && matchesTerm && matchesClass;
   });
 
   // Get student info
@@ -122,11 +125,11 @@ export default function ViewResults() {
     setIsViewDialogOpen(true);
   };
 
-  const getPerformanceColor = (average: number) => {
-    if (average >= 75) return 'bg-green-100 text-green-800';
-    if (average >= 70) return 'bg-blue-100 text-blue-800';
-    if (average >= 65) return 'bg-yellow-100 text-yellow-800';
-    if (average >= 60) return 'bg-orange-100 text-orange-800';
+  const getGradeColor = (grade: string) => {
+    if (grade?.includes('A')) return 'bg-green-100 text-green-800';
+    if (grade?.includes('B')) return 'bg-blue-100 text-blue-800';
+    if (grade?.includes('C')) return 'bg-yellow-100 text-yellow-800';
+    if (grade?.includes('D')) return 'bg-orange-100 text-orange-800';
     return 'bg-red-100 text-red-800';
   };
 
@@ -135,6 +138,7 @@ export default function ViewResults() {
     if (average >= 70) return 'Very Good';
     if (average >= 65) return 'Good';
     if (average >= 60) return 'Credit';
+    if (average >= 50) return 'Pass';
     return 'Needs Improvement';
   };
 
@@ -149,11 +153,11 @@ export default function ViewResults() {
         <div className="flex items-center space-x-2">
           <Button variant="outline" className="flex items-center gap-2">
             <Download className="h-4 w-4" />
-            Export
+            Export All
           </Button>
           <Button variant="outline" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Print
+            <Printer className="h-4 w-4" />
+            Print Report
           </Button>
         </div>
       </div>
@@ -163,11 +167,11 @@ export default function ViewResults() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
-            Search & Filter
+            Search & Filter Results
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Search Student</label>
               <div className="relative">
@@ -208,6 +212,20 @@ export default function ViewResults() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Class</label>
+              <Select value={filterClass} onValueChange={setFilterClass}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Classes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Classes</SelectItem>
+                  {classOptions.map(cls => (
+                    <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-end">
               <Button
                 variant="outline"
@@ -215,10 +233,11 @@ export default function ViewResults() {
                   setSearchTerm("");
                   setFilterSession("");
                   setFilterTerm("");
+                  setFilterClass("");
                 }}
                 className="w-full"
               >
-                Clear Filters
+                Clear All
               </Button>
             </div>
           </div>
@@ -259,7 +278,9 @@ export default function ViewResults() {
               <div>
                 <p className="text-sm text-gray-600">Average Score</p>
                 <p className="text-2xl font-bold">
-                  {results.length > 0 ? (results.reduce((sum: number, r: any) => sum + r.average, 0) / results.length).toFixed(1) : '0'}%
+                  {results.length > 0 ? 
+                    (results.reduce((sum: number, r: any) => sum + (r.average || 0), 0) / results.length).toFixed(1) : 
+                    '0'}%
                 </p>
               </div>
               <div className="p-2 bg-yellow-100 rounded-full">
@@ -274,7 +295,7 @@ export default function ViewResults() {
               <div>
                 <p className="text-sm text-gray-600">Top Performers</p>
                 <p className="text-2xl font-bold">
-                  {results.filter((r: any) => r.average >= 75).length}
+                  {results.filter((r: any) => (r.average || 0) >= 75).length}
                 </p>
               </div>
               <div className="p-2 bg-purple-100 rounded-full">
@@ -295,12 +316,12 @@ export default function ViewResults() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Session/Term</TableHead>
+                  <TableHead>Student Information</TableHead>
+                  <TableHead>Class/Session</TableHead>
                   <TableHead>Subjects</TableHead>
                   <TableHead>Performance</TableHead>
                   <TableHead>Position</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Overall Grade</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -327,6 +348,10 @@ export default function ViewResults() {
                 ) : (
                   filteredResults.map((result: any) => {
                     const student = getStudentInfo(result.studentId);
+                    const overallGrade = result.average >= 75 ? 'A' : 
+                                        result.average >= 70 ? 'B' : 
+                                        result.average >= 65 ? 'C' : 
+                                        result.average >= 60 ? 'D' : 'F';
                     return (
                       <TableRow key={result.id}>
                         <TableCell>
@@ -336,14 +361,15 @@ export default function ViewResults() {
                               {student ? `${student.firstName} ${student.lastName}` : 'Student not found'}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {student?.gradeLevel || 'No grade'}
+                              {student?.phoneNumber || 'No contact'}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <div className="text-sm font-medium">{result.session}</div>
-                            <div className="text-xs text-gray-600">{result.term}</div>
+                            <div className="text-sm font-medium">{result.class}</div>
+                            <div className="text-xs text-gray-600">{result.session}</div>
+                            <div className="text-xs text-gray-500">{result.term}</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -351,21 +377,21 @@ export default function ViewResults() {
                             <div className="text-sm font-medium">{result.subjects?.length || 0} subjects</div>
                             {result.subjects && result.subjects.slice(0, 2).map((subject: any, idx: number) => (
                               <div key={idx} className="text-xs text-gray-600">
-                                {subject.subject}: {subject.score} ({subject.grade})
+                                {subject.subject}: {subject.total} ({subject.grade})
                               </div>
                             ))}
                             {result.subjects && result.subjects.length > 2 && (
                               <div className="text-xs text-gray-500">
-                                +{result.subjects.length - 2} more
+                                +{result.subjects.length - 2} more subjects
                               </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
-                            <div className="text-sm font-medium">Total: {result.totalScore}</div>
-                            <div className="text-xs text-gray-600">Avg: {result.average}%</div>
-                            <div className="text-xs text-gray-600">GPA: {result.gpa}/4.0</div>
+                            <div className="text-sm font-medium">Total: {result.totalScore || 0}</div>
+                            <div className="text-xs text-gray-600">Avg: {result.average || 0}%</div>
+                            <div className="text-xs text-gray-600">GPA: {result.gpa || 0}/4.0</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -376,8 +402,8 @@ export default function ViewResults() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className={getPerformanceColor(result.average)}>
-                            {getPerformanceLabel(result.average)}
+                          <Badge className={getGradeColor(overallGrade)}>
+                            {overallGrade} - {getPerformanceLabel(result.average || 0)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -396,7 +422,7 @@ export default function ViewResults() {
                               onClick={() => {
                                 toast({
                                   title: "Edit Result",
-                                  description: "Edit functionality coming soon",
+                                  description: "Edit functionality will be available soon",
                                 });
                               }}
                               title="Edit Result"
@@ -428,12 +454,12 @@ export default function ViewResults() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Academic Result Sheet</DialogTitle>
+            <DialogTitle>Nigerian Secondary School Result Sheet</DialogTitle>
           </DialogHeader>
 
           {selectedResult && (
             <div className="space-y-6">
-              <ResultTemplate 
+              <NigerianResultTemplate 
                 result={selectedResult} 
                 student={getStudentInfo(selectedResult.studentId)} 
               />
@@ -443,7 +469,7 @@ export default function ViewResults() {
                   Close
                 </Button>
                 <Button variant="outline" onClick={() => window.print()}>
-                  <FileText className="h-4 w-4 mr-2" />
+                  <Printer className="h-4 w-4 mr-2" />
                   Print
                 </Button>
                 <Button className="bg-blue-600 hover:bg-blue-700">
