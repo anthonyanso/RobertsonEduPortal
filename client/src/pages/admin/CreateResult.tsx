@@ -391,24 +391,68 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Basic Information</h3>
+      <div className="flex items-center gap-2">
+        <h3 className="text-lg font-semibold">Basic Information</h3>
+        {selectedClass !== "all" && (
+          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+            Filtered: {selectedClass}
+          </span>
+        )}
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           {/* Class Filter */}
           <div>
-            <Label htmlFor="class-filter">Filter Students by Class</Label>
-            <Select value={selectedClass} onValueChange={onClassChange}>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="class-filter">Filter Students by Class</Label>
+              {selectedClass !== "all" && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    onClassChange("all");
+                    form.setValue('class', '');
+                  }}
+                  className="text-xs"
+                >
+                  Clear Filter
+                </Button>
+              )}
+            </div>
+            <Select 
+              value={selectedClass} 
+              onValueChange={(value) => {
+                onClassChange(value);
+                // Auto-set class field when filter is changed
+                if (value !== "all") {
+                  form.setValue('class', value);
+                } else {
+                  form.setValue('class', '');
+                }
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select class to filter" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Classes</SelectItem>
-                {classOptions.map(cls => (
-                  <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                ))}
+                <SelectItem value="all">All Classes ({students.length} students)</SelectItem>
+                {classOptions.map(cls => {
+                  const studentCount = students.filter(s => s.gradeLevel === cls).length;
+                  return (
+                    <SelectItem key={cls} value={cls} disabled={studentCount === 0}>
+                      {cls} ({studentCount} student{studentCount !== 1 ? 's' : ''})
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
+            {selectedClass !== "all" && (
+              <div className="text-xs text-gray-600 mt-1">
+                📍 Showing only students in {selectedClass}
+              </div>
+            )}
           </div>
 
           <FormField
@@ -416,7 +460,14 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
             name="studentId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Student * {selectedClass !== "all" && `(${filteredStudents.length} students in ${selectedClass})`}</FormLabel>
+                <FormLabel>
+                  Student * 
+                  {selectedClass !== "all" && (
+                    <span className="text-sm text-gray-600 ml-2">
+                      ({filteredStudents.length} students in {selectedClass})
+                    </span>
+                  )}
+                </FormLabel>
                 <Select 
                   onValueChange={(value) => {
                     field.onChange(value);
@@ -437,12 +488,18 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
                     {filteredStudents.length > 0 ? (
                       filteredStudents.map((student: any) => (
                         <SelectItem key={student.id} value={student.studentId}>
-                          {student.studentId} - {student.firstName} {student.lastName} ({student.gradeLevel})
+                          <div className="flex flex-col">
+                            <span className="font-medium">{student.firstName} {student.lastName}</span>
+                            <span className="text-sm text-gray-500">{student.studentId} • {student.gradeLevel}</span>
+                          </div>
                         </SelectItem>
                       ))
                     ) : (
                       <SelectItem value="none" disabled>
-                        No students found in {selectedClass}
+                        <div className="flex items-center gap-2">
+                          <span>No students found in {selectedClass}</span>
+                          <span className="text-xs text-gray-400">Try a different class</span>
+                        </div>
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -552,6 +609,42 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
           />
         </div>
       </div>
+      
+      {/* Selection Summary */}
+      {(form.watch('studentId') || form.watch('class') || form.watch('session') || form.watch('term')) && (
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h4 className="font-medium text-sm mb-2">Selection Summary:</h4>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            {form.watch('studentId') && (
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span>Student: {
+                  students.find(s => s.studentId === form.watch('studentId'))?.firstName + ' ' + 
+                  students.find(s => s.studentId === form.watch('studentId'))?.lastName
+                }</span>
+              </div>
+            )}
+            {form.watch('class') && (
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span>Class: {form.watch('class')}</span>
+              </div>
+            )}
+            {form.watch('session') && (
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                <span>Session: {form.watch('session')}</span>
+              </div>
+            )}
+            {form.watch('term') && (
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <span>Term: {form.watch('term')}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
