@@ -565,7 +565,7 @@ export default function EnhancedResults() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Student *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select student" />
@@ -590,7 +590,7 @@ export default function EnhancedResults() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Session *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select session" />
@@ -613,7 +613,7 @@ export default function EnhancedResults() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Term *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select term" />
