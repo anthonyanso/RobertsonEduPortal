@@ -85,6 +85,7 @@ const assessmentOptions = ["5 - Excellent", "4 - Very Good", "3 - Good", "2 - Fa
 export default function CreateResult() {
   const [subjects, setSubjects] = useState([{ subject: "", ca1: 0, ca2: 0, exam: 0, total: 0, grade: "", position: "" }]);
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedClass, setSelectedClass] = useState("all");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -272,7 +273,7 @@ export default function CreateResult() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <BasicInformationStep form={form} students={students} />;
+        return <BasicInformationStep form={form} students={students} selectedClass={selectedClass} onClassChange={setSelectedClass} />;
       case 2:
         return <AcademicScoresStep subjects={subjects} onAdd={addSubject} onRemove={removeSubject} onUpdate={updateSubject} />;
       case 3:
@@ -377,31 +378,73 @@ export default function CreateResult() {
 }
 
 // Step Components
-function BasicInformationStep({ form, students }: { form: any, students: any[] }) {
+function BasicInformationStep({ form, students, selectedClass, onClassChange }: { 
+  form: any, 
+  students: any[], 
+  selectedClass: string, 
+  onClassChange: (className: string) => void 
+}) {
+  // Filter students by selected class
+  const filteredStudents = selectedClass === "all" 
+    ? students 
+    : students.filter((student: any) => student.gradeLevel === selectedClass);
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">Basic Information</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
+          {/* Class Filter */}
+          <div>
+            <Label htmlFor="class-filter">Filter Students by Class</Label>
+            <Select value={selectedClass} onValueChange={onClassChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select class to filter" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Classes</SelectItem>
+                {classOptions.map(cls => (
+                  <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <FormField
             control={form.control}
             name="studentId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Student *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || ""}>
+                <FormLabel>Student * {selectedClass !== "all" && `(${filteredStudents.length} students in ${selectedClass})`}</FormLabel>
+                <Select 
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    // Auto-set class when student is selected
+                    const selectedStudent = students.find(s => s.studentId === value);
+                    if (selectedStudent) {
+                      form.setValue('class', selectedStudent.gradeLevel);
+                    }
+                  }} 
+                  value={field.value || ""}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select student" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {students.map((student: any) => (
-                      <SelectItem key={student.id} value={student.studentId}>
-                        {student.studentId} - {student.firstName} {student.lastName}
+                    {filteredStudents.length > 0 ? (
+                      filteredStudents.map((student: any) => (
+                        <SelectItem key={student.id} value={student.studentId}>
+                          {student.studentId} - {student.firstName} {student.lastName} ({student.gradeLevel})
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        No students found in {selectedClass}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
