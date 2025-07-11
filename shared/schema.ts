@@ -80,6 +80,7 @@ export const results = pgTable("results", {
   studentId: varchar("student_id").notNull(),
   session: varchar("session").notNull(),
   term: varchar("term").notNull(),
+  class: varchar("class").notNull(), // JSS 1, JSS 2, JSS 3, SS 1, SS 2, SS 3
   subjects: jsonb("subjects").notNull(), // Array of {subject, score, grade, remark}
   totalScore: integer("total_score"),
   average: decimal("average", { precision: 5, scale: 2 }),
@@ -90,7 +91,8 @@ export const results = pgTable("results", {
   principalComment: text("principal_comment"),
   nextTermBegins: varchar("next_term_begins"),
   attendance: jsonb("attendance"), // {present, absent, total}
-  conduct: jsonb("conduct"), // {punctuality, neatness, politeness, honesty, leadership, sportsmanship}
+  psychomotor: jsonb("psychomotor"), // {handWriting, drawing, painting, sports, speaking, handling}
+  affective: jsonb("affective"), // {punctuality, attendance, attentiveness, neatness, politeness, honesty, relationship, selfControl, leadership}
   remarks: text("remarks"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
