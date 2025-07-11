@@ -9,7 +9,7 @@ import AddStudent from "./AddStudent";
 // @ts-ignore
 import ViewStudents from "./ViewStudents";
 // @ts-ignore
-import SimpleResults from "./SimpleResults";
+import EnhancedResults from "./EnhancedResults";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -176,7 +176,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "add-student" && <AddStudent />}
           {activeTab === "view-students" && <ViewStudents />}
           
-          {activeTab === "results" && <SimpleResults />}
+          {activeTab === "results" && <EnhancedResults />}
           {activeTab === "scratch-cards" && (
             <Card>
               <CardHeader>

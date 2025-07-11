@@ -85,6 +85,12 @@ export const results = pgTable("results", {
   average: decimal("average", { precision: 5, scale: 2 }),
   gpa: decimal("gpa", { precision: 3, scale: 2 }),
   position: integer("position"),
+  outOf: integer("out_of"), // Total students in class
+  classTeacher: varchar("class_teacher"),
+  principalComment: text("principal_comment"),
+  nextTermBegins: varchar("next_term_begins"),
+  attendance: jsonb("attendance"), // {present, absent, total}
+  conduct: jsonb("conduct"), // {punctuality, neatness, politeness, honesty, leadership, sportsmanship}
   remarks: text("remarks"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
