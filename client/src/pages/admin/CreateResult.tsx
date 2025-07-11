@@ -441,7 +441,7 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value="" disabled>
+                      <SelectItem value="none" disabled>
                         No students found in {selectedClass}
                       </SelectItem>
                     )}
