@@ -46,13 +46,13 @@ export default function ViewResults() {
   const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 
   // Fetch results
-  const { data: results = [], isLoading: resultsLoading } = useQuery({
+  const { data: results = [], isLoading: resultsLoading, error: resultsError } = useQuery({
     queryKey: ["/api/admin/results"],
     retry: false,
   });
 
   // Fetch students
-  const { data: students = [] } = useQuery({
+  const { data: students = [], error: studentsError } = useQuery({
     queryKey: ["/api/admin/students"],
     retry: false,
   });
@@ -96,13 +96,7 @@ export default function ViewResults() {
     return matchesSearch && matchesSession && matchesTerm && matchesClass;
   });
 
-  // Debug logging
-  console.log('Results data:', results);
-  console.log('Students data:', students);
-  console.log('Filtered results:', filteredResults);
-  console.log('Results loading:', resultsLoading);
-  console.log('Results error:', resultsError);
-  console.log('Students error:', studentsError);
+
 
   // Get student info
   const getStudentInfo = (studentId: string) => {

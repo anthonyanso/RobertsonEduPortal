@@ -19,13 +19,13 @@ export default function ResultAnalytics() {
   const termOptions = ["First Term", "Second Term", "Third Term"];
 
   // Fetch results
-  const { data: results = [] } = useQuery({
+  const { data: results = [], error: resultsError } = useQuery({
     queryKey: ["/api/admin/results"],
     retry: false,
   });
 
   // Fetch students
-  const { data: students = [] } = useQuery({
+  const { data: students = [], error: studentsError } = useQuery({
     queryKey: ["/api/admin/students"],
     retry: false,
   });
@@ -54,11 +54,7 @@ export default function ResultAnalytics() {
     subjectPerformance: getSubjectPerformance(filteredResults),
   };
 
-  // Debug logging
-  console.log('Analytics Results:', results);
-  console.log('Filtered Results:', filteredResults);
-  console.log('Analytics Data:', analytics);
-  console.log('Results error:', resultsError);
+
 
   return (
     <div className="space-y-6">
