@@ -1,0 +1,460 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Search, Eye, Edit, Trash2, Download, Filter, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import Swal from 'sweetalert2';
+import ResultTemplate from "@/components/ResultTemplate";
+
+export default function ViewResults() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterSession, setFilterSession] = useState("");
+  const [filterTerm, setFilterTerm] = useState("");
+  const [selectedResult, setSelectedResult] = useState<any>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
+  const termOptions = ["First Term", "Second Term", "Third Term"];
+
+  // Fetch results
+  const { data: results = [], isLoading: resultsLoading } = useQuery({
+    queryKey: ["/api/admin/results"],
+    retry: false,
+  });
+
+  // Fetch students
+  const { data: students = [] } = useQuery({
+    queryKey: ["/api/admin/students"],
+    retry: false,
+  });
+
+  // Delete result mutation
+  const deleteResultMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest("DELETE", `/api/admin/results/${id}`);
+    },
+    onSuccess: () => {
+      Swal.fire({
+        title: 'Deleted!',
+        text: 'Result deleted successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/results"] });
+    },
+    onError: () => {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to delete result.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
+      });
+    },
+  });
+
+  // Filter results
+  const filteredResults = results.filter((result: any) => {
+    const student = students.find((s: any) => s.studentId === result.studentId);
+    const matchesSearch = result.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         student?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         student?.lastName?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesSession = !filterSession || result.session === filterSession;
+    const matchesTerm = !filterTerm || result.term === filterTerm;
+    
+    return matchesSearch && matchesSession && matchesTerm;
+  });
+
+  // Get student info
+  const getStudentInfo = (studentId: string) => {
+    return students.find((s: any) => s.studentId === studentId);
+  };
+
+  // Handle delete
+  const handleDelete = async (id: number) => {
+    const result = await Swal.fire({
+      title: 'Delete Result?',
+      text: 'Are you sure you want to delete this result? This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      deleteResultMutation.mutate(id);
+    }
+  };
+
+  // View result
+  const viewResult = (result: any) => {
+    setSelectedResult(result);
+    setIsViewDialogOpen(true);
+  };
+
+  const getPerformanceColor = (average: number) => {
+    if (average >= 75) return 'bg-green-100 text-green-800';
+    if (average >= 70) return 'bg-blue-100 text-blue-800';
+    if (average >= 65) return 'bg-yellow-100 text-yellow-800';
+    if (average >= 60) return 'bg-orange-100 text-orange-800';
+    return 'bg-red-100 text-red-800';
+  };
+
+  const getPerformanceLabel = (average: number) => {
+    if (average >= 75) return 'Excellent';
+    if (average >= 70) return 'Very Good';
+    if (average >= 65) return 'Good';
+    if (average >= 60) return 'Credit';
+    return 'Needs Improvement';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">View Results</h2>
+          <p className="text-gray-600">Browse and manage student academic results</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Print
+          </Button>
+        </div>
+      </div>
+
+      {/* Search and Filter */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Search & Filter
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Search Student</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search by ID or name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Session</label>
+              <Select value={filterSession} onValueChange={setFilterSession}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Sessions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Sessions</SelectItem>
+                  {sessionOptions.map(session => (
+                    <SelectItem key={session} value={session}>{session}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Term</label>
+              <Select value={filterTerm} onValueChange={setFilterTerm}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Terms" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Terms</SelectItem>
+                  {termOptions.map(term => (
+                    <SelectItem key={term} value={term}>{term}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterSession("");
+                  setFilterTerm("");
+                }}
+                className="w-full"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Results Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Results</p>
+                <p className="text-2xl font-bold">{results.length}</p>
+              </div>
+              <div className="p-2 bg-blue-100 rounded-full">
+                <FileText className="h-5 w-5 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Filtered Results</p>
+                <p className="text-2xl font-bold">{filteredResults.length}</p>
+              </div>
+              <div className="p-2 bg-green-100 rounded-full">
+                <Search className="h-5 w-5 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Average Score</p>
+                <p className="text-2xl font-bold">
+                  {results.length > 0 ? (results.reduce((sum: number, r: any) => sum + r.average, 0) / results.length).toFixed(1) : '0'}%
+                </p>
+              </div>
+              <div className="p-2 bg-yellow-100 rounded-full">
+                <Badge className="h-5 w-5 text-yellow-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Top Performers</p>
+                <p className="text-2xl font-bold">
+                  {results.filter((r: any) => r.average >= 75).length}
+                </p>
+              </div>
+              <div className="p-2 bg-purple-100 rounded-full">
+                <Badge className="h-5 w-5 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Results Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Academic Results ({filteredResults.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Session/Term</TableHead>
+                  <TableHead>Subjects</TableHead>
+                  <TableHead>Performance</TableHead>
+                  <TableHead>Position</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {resultsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <span className="ml-2">Loading results...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredResults.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                      <div className="flex flex-col items-center">
+                        <FileText className="h-12 w-12 text-gray-400 mb-4" />
+                        <p>No results found matching your criteria.</p>
+                        <p className="text-sm">Try adjusting your search filters.</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredResults.map((result: any) => {
+                    const student = getStudentInfo(result.studentId);
+                    return (
+                      <TableRow key={result.id}>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="font-medium">{result.studentId}</div>
+                            <div className="text-sm text-gray-600">
+                              {student ? `${student.firstName} ${student.lastName}` : 'Student not found'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {student?.gradeLevel || 'No grade'}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium">{result.session}</div>
+                            <div className="text-xs text-gray-600">{result.term}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium">{result.subjects?.length || 0} subjects</div>
+                            {result.subjects && result.subjects.slice(0, 2).map((subject: any, idx: number) => (
+                              <div key={idx} className="text-xs text-gray-600">
+                                {subject.subject}: {subject.score} ({subject.grade})
+                              </div>
+                            ))}
+                            {result.subjects && result.subjects.length > 2 && (
+                              <div className="text-xs text-gray-500">
+                                +{result.subjects.length - 2} more
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="text-sm font-medium">Total: {result.totalScore}</div>
+                            <div className="text-xs text-gray-600">Avg: {result.average}%</div>
+                            <div className="text-xs text-gray-600">GPA: {result.gpa}/4.0</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {result.position && result.outOf ? 
+                              `${result.position}/${result.outOf}` : 
+                              result.position || 'N/A'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getPerformanceColor(result.average)}>
+                            {getPerformanceLabel(result.average)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => viewResult(result)}
+                              title="View Result"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                toast({
+                                  title: "Edit Result",
+                                  description: "Edit functionality coming soon",
+                                });
+                              }}
+                              title="Edit Result"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleDelete(result.id)}
+                              title="Delete Result"
+                              disabled={deleteResultMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* View Result Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Academic Result Sheet</DialogTitle>
+          </DialogHeader>
+
+          {selectedResult && (
+            <div className="space-y-6">
+              <ResultTemplate 
+                result={selectedResult} 
+                student={getStudentInfo(selectedResult.studentId)} 
+              />
+              
+              <div className="flex justify-end space-x-4 border-t pt-4">
+                <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                  Close
+                </Button>
+                <Button variant="outline" onClick={() => window.print()}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Print
+                </Button>
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
