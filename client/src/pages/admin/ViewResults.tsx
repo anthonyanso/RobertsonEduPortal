@@ -79,8 +79,8 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.setLineWidth(2);
     doc.rect(10, 5, pageWidth - 20, 50);
     
-    // Add logo (reduced size to match passport photo)
-    doc.addImage(img, "PNG", 15, 10, 12, 12);
+    // Add logo (medium size to match passport photo)
+    doc.addImage(img, "PNG", 15, 10, 16, 16);
     
     // Header section
     doc.setFontSize(16);
@@ -99,10 +99,10 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
     
     // Add passport photo placeholder (same size as logo)
-    doc.rect(pageWidth - 27, 10, 12, 12);
-    doc.setFontSize(4);
-    doc.text("PASSPORT", pageWidth - 21, 15, { align: "center" });
-    doc.text("PHOTO", pageWidth - 21, 18, { align: "center" });
+    doc.rect(pageWidth - 31, 10, 16, 16);
+    doc.setFontSize(5);
+    doc.text("PASSPORT", pageWidth - 23, 16, { align: "center" });
+    doc.text("PHOTO", pageWidth - 23, 20, { align: "center" });
     
     // Result title with border
     doc.setLineWidth(1);
@@ -951,8 +951,8 @@ export default function ViewResults() {
                             
                             .passport-section {
                               flex-shrink: 0;
-                              width: 18px;
-                              height: 18px;
+                              width: 28px;
+                              height: 28px;
                               border: 2px solid #999;
                               display: flex;
                               align-items: center;
@@ -960,7 +960,7 @@ export default function ViewResults() {
                             }
                             
                             .passport-placeholder {
-                              font-size: 4pt;
+                              font-size: 6pt;
                               color: #999;
                               text-align: center;
                             }
@@ -1171,8 +1171,8 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <div class="print-logo-container" style="width: 18px !important; height: 18px !important; border: 2px solid #000; display: flex; align-items: center; justify-content: center; background: white;">
-                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" style="width: 18px !important; height: 18px !important; max-width: 18px !important; max-height: 18px !important; object-fit: contain; display: block; opacity: 1; visibility: visible;" />
+                                  <div class="print-logo-container" style="width: 28px !important; height: 28px !important; border: 2px solid #000; display: flex; align-items: center; justify-content: center; background: white;">
+                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" style="width: 28px !important; height: 28px !important; max-width: 28px !important; max-height: 28px !important; object-fit: contain; display: block; opacity: 1; visibility: visible;" />
                                   </div>
                                 </div>
                                 <div class="school-info">
@@ -1181,8 +1181,8 @@ export default function ViewResults() {
                                   <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
                                   <div class="school-motto">"Knowledge • Character • Service"</div>
                                 </div>
-                                <div class="passport-section" style="width: 18px !important; height: 18px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                  <div class="passport-placeholder" style="font-size: 4pt !important; color: #999; text-align: center;">PASSPORT</div>
+                                <div class="passport-section" style="width: 28px !important; height: 28px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                  <div class="passport-placeholder" style="font-size: 6pt !important; color: #999; text-align: center;">PASSPORT</div>
                                 </div>
                               </div>
                               <div class="result-title">
