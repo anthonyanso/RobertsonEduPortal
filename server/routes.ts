@@ -602,6 +602,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.body.medicalConditions) updateData.medicalConditions = req.body.medicalConditions;
       if (req.body.specialNeeds) updateData.specialNeeds = req.body.specialNeeds;
       if (req.body.status) updateData.status = req.body.status;
+      if (req.body.passportPhoto !== undefined) updateData.passportPhoto = req.body.passportPhoto;
       
       console.log("Mapped update data:", updateData);
       
