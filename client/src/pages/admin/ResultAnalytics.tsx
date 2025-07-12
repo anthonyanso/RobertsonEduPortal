@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -8,12 +11,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BarChart3, TrendingUp, Users, Award, PieChart } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { BarChart3, TrendingUp, Users, Award, PieChart, Edit } from "lucide-react";
 import { useState } from "react";
 
 export default function ResultAnalytics() {
   const [selectedSession, setSelectedSession] = useState("all");
   const [selectedTerm, setSelectedTerm] = useState("all");
+  const [isGradeSettingsOpen, setIsGradeSettingsOpen] = useState(false);
+  const [gradeSettings, setGradeSettings] = useState({
+    A: { min: 70, max: 100, name: "Distinction" },
+    B: { min: 55, max: 69, name: "Credit" },
+    C: { min: 40, max: 54, name: "Pass" },
+    D: { min: 30, max: 39, name: "Fail" },
+    F: { min: 0, max: 29, name: "Fail" },
+  });
 
   const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
   const termOptions = ["First Term", "Second Term", "Third Term"];
@@ -37,19 +55,34 @@ export default function ResultAnalytics() {
     return matchesSession && matchesTerm;
   });
 
-  // Calculate analytics
+  // Calculate analytics using dynamic grade settings
   const analytics = {
     totalResults: filteredResults.length,
     averageScore: filteredResults.length > 0 ? 
       (filteredResults.reduce((sum: number, r: any) => sum + (Number(r.average) || 0), 0) / filteredResults.length).toFixed(1) : 0,
-    topPerformers: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 75).length,
-    needsImprovement: filteredResults.filter((r: any) => (Number(r.average) || 0) < 50).length,
+    topPerformers: filteredResults.filter((r: any) => (Number(r.average) || 0) >= gradeSettings.A.min).length,
+    needsImprovement: filteredResults.filter((r: any) => (Number(r.average) || 0) < gradeSettings.C.min).length,
     gradeDistribution: {
-      A: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 75).length,
-      B: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 65 && (Number(r.average) || 0) < 75).length,
-      C: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 55 && (Number(r.average) || 0) < 65).length,
-      D: filteredResults.filter((r: any) => (Number(r.average) || 0) >= 45 && (Number(r.average) || 0) < 55).length,
-      F: filteredResults.filter((r: any) => (Number(r.average) || 0) < 45).length,
+      A: filteredResults.filter((r: any) => {
+        const avg = Number(r.average) || 0;
+        return avg >= gradeSettings.A.min && avg <= gradeSettings.A.max;
+      }).length,
+      B: filteredResults.filter((r: any) => {
+        const avg = Number(r.average) || 0;
+        return avg >= gradeSettings.B.min && avg <= gradeSettings.B.max;
+      }).length,
+      C: filteredResults.filter((r: any) => {
+        const avg = Number(r.average) || 0;
+        return avg >= gradeSettings.C.min && avg <= gradeSettings.C.max;
+      }).length,
+      D: filteredResults.filter((r: any) => {
+        const avg = Number(r.average) || 0;
+        return avg >= gradeSettings.D.min && avg <= gradeSettings.D.max;
+      }).length,
+      F: filteredResults.filter((r: any) => {
+        const avg = Number(r.average) || 0;
+        return avg >= gradeSettings.F.min && avg <= gradeSettings.F.max;
+      }).length,
     },
     subjectPerformance: getSubjectPerformance(filteredResults),
   };
@@ -155,9 +188,74 @@ export default function ResultAnalytics() {
       {/* Grade Distribution */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PieChart className="h-5 w-5" />
-            Grade Distribution
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <PieChart className="h-5 w-5" />
+              Grade Distribution
+            </div>
+            <Dialog open={isGradeSettingsOpen} onOpenChange={setIsGradeSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Grades
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Edit Grade Distribution Settings</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  {Object.entries(gradeSettings).map(([grade, settings]) => (
+                    <div key={grade} className="grid grid-cols-4 gap-4 items-center p-3 border rounded-lg">
+                      <div className="font-medium">Grade {grade}</div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`${grade}-name`}>Name</Label>
+                        <Input
+                          id={`${grade}-name`}
+                          value={settings.name}
+                          onChange={(e) => setGradeSettings(prev => ({
+                            ...prev,
+                            [grade]: { ...prev[grade as keyof typeof prev], name: e.target.value }
+                          }))}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`${grade}-min`}>Min %</Label>
+                        <Input
+                          id={`${grade}-min`}
+                          type="number"
+                          value={settings.min}
+                          onChange={(e) => setGradeSettings(prev => ({
+                            ...prev,
+                            [grade]: { ...prev[grade as keyof typeof prev], min: parseInt(e.target.value) || 0 }
+                          }))}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`${grade}-max`}>Max %</Label>
+                        <Input
+                          id={`${grade}-max`}
+                          type="number"
+                          value={settings.max}
+                          onChange={(e) => setGradeSettings(prev => ({
+                            ...prev,
+                            [grade]: { ...prev[grade as keyof typeof prev], max: parseInt(e.target.value) || 0 }
+                          }))}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={() => setIsGradeSettingsOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => setIsGradeSettingsOpen(false)}>
+                      Save Settings
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -175,11 +273,10 @@ export default function ResultAnalytics() {
                     Grade {grade}
                   </Badge>
                   <span className="text-sm text-gray-600">
-                    {grade === 'A' ? '75-100%' :
-                     grade === 'B' ? '65-74%' :
-                     grade === 'C' ? '55-64%' :
-                     grade === 'D' ? '45-54%' :
-                     'Below 45%'}
+                    {gradeSettings[grade as keyof typeof gradeSettings].name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    ({gradeSettings[grade as keyof typeof gradeSettings].min}-{gradeSettings[grade as keyof typeof gradeSettings].max}%)
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">

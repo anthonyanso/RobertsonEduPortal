@@ -160,6 +160,9 @@ Changelog:
   - Removed unnecessary nested folders and duplicate management interfaces
   - Enhanced Create Result page with class-based student filtering for multi-class management
   - Added auto-population of class field when student is selected for streamlined workflow
+  - Updated Grade Distribution in Analytics page with customizable Nigerian grading system
+  - Added editable grade settings: 70-100% (Distinction), 55-69% (Credit), 40-54% (Pass), 30-39% (Fail), 0-29% (Fail)
+  - Implemented dynamic grade calculation based on user-defined grade ranges
 
 ## User Preferences
 
