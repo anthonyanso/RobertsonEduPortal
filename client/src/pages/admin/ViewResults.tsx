@@ -216,9 +216,9 @@ export default function ViewResults() {
     // Header section with logo and passport area
     let yPos = 20;
     
-    // School logo placeholder (left side)
-    doc.setFillColor(30, 58, 138);
-    doc.rect(20, yPos, 25, 25, 'F');
+    // School logo (left side) - Red circle with white text
+    doc.setFillColor(220, 38, 38); // Red color
+    doc.circle(32.5, yPos + 12.5, 12.5, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
@@ -1232,12 +1232,18 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <svg class="school-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="64" height="64" rx="8" fill="#1e3a8a"/>
-                                    <path d="M32 12L44 18V32C44 40 32 48 32 48C32 48 20 40 20 32V18L32 12Z" fill="white"/>
-                                    <path d="M32 20L38 22V30C38 34 32 38 32 38C32 38 26 34 26 30V22L32 20Z" fill="#1e3a8a"/>
-                                    <circle cx="32" cy="28" r="3" fill="white"/>
-                                    <text x="32" y="58" text-anchor="middle" fill="white" font-size="8" font-weight="bold">RE</text>
+                                  <svg class="school-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="40" cy="40" r="38" fill="#DC2626" stroke="#B91C1C" stroke-width="2"/>
+                                    <rect x="20" y="25" width="40" height="30" rx="2" fill="white"/>
+                                    <rect x="22" y="27" width="36" height="26" rx="1" fill="#DC2626"/>
+                                    <rect x="24" y="29" width="32" height="4" fill="white"/>
+                                    <rect x="24" y="35" width="32" height="4" fill="white"/>
+                                    <rect x="24" y="41" width="32" height="4" fill="white"/>
+                                    <rect x="24" y="47" width="32" height="4" fill="white"/>
+                                    <circle cx="40" cy="15" r="3" fill="#DC2626"/>
+                                    <path d="M35 15 L40 10 L45 15 Z" fill="#DC2626"/>
+                                    <text x="40" y="67" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">ROBERTSON</text>
+                                    <text x="40" y="75" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="6">EDUCATION</text>
                                   </svg>
                                 </div>
                                 <div class="school-info">
