@@ -38,8 +38,10 @@ import { Search, Eye, Edit, Trash2, Filter, FileText, Printer, Calculator, Save,
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
 
 import NigerianResultTemplate from "./NigerianResultTemplate";
+import logoUrl from "@assets/logo_1751823007371.png";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -64,7 +66,284 @@ const editResultSchema = z.object({
   nextTermBegins: z.string().optional(),
 });
 
-
+// PDF Download Function
+const downloadResultAsPDF = (result: any, student: any) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let currentY = 10; // Track current Y position
+  
+  // Helper function to check if content fits on current page
+  const checkPageSpace = (requiredHeight: number) => {
+    if (currentY + requiredHeight > pageHeight - 20) {
+      doc.addPage();
+      currentY = 20; // Reset Y position for new page
+      return true; // Page was added
+    }
+    return false; // Content fits on current page
+  };
+  
+  // Load logo and add to PDF
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = function() {
+    // Header Border
+    doc.setLineWidth(2);
+    doc.rect(10, 5, pageWidth - 20, 50);
+    
+    // Add logo (optimal size to match passport photo)
+    doc.addImage(img, "PNG", 15, 10, 32, 32);
+    
+    // Header section
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
+    
+    doc.setFontSize(11);
+    doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 26, { align: "center" });
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 32, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
+    
+    // Add passport photo placeholder (same size as logo)
+    doc.rect(pageWidth - 47, 10, 32, 32);
+    doc.setFontSize(7);
+    doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
+    doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
+    
+    // Result title with border
+    currentY = 60;
+    doc.setLineWidth(1);
+    doc.rect(10, currentY, pageWidth - 20, 15);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, currentY + 8, { align: "center" });
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, currentY + 13, { align: "center" });
+    
+    currentY += 20;
+    
+    // Student information section
+    let yPos = 85;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    
+    // Student info with dotted lines
+    const studentInfo = [
+      { label: "Student's Name:", value: student ? student.firstName + ' ' + student.lastName : 'N/A', x: 15 },
+      { label: "Session:", value: result.session, x: 120 },
+      { label: "Admission No:", value: result.studentId, x: 15 },
+      { label: "Term:", value: result.term, x: 120 },
+      { label: "Class:", value: result.class, x: 15 },
+      { label: "No. in Class:", value: result.totalInClass?.toString() || 'N/A', x: 120 },
+      { label: "Age:", value: student ? (new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()).toString() : 'N/A', x: 15 },
+      { label: "Position:", value: result.position ? `${result.position} out of ${result.totalInClass || 'N/A'}` : 'N/A', x: 120 }
+    ];
+    
+    studentInfo.forEach((info, index) => {
+      const currentY = yPos + Math.floor(index / 2) * 7;
+      doc.setFont("helvetica", "bold");
+      doc.text(info.label, info.x, currentY);
+      doc.setFont("helvetica", "normal");
+      
+      // Draw dotted line
+      const labelWidth = doc.getTextWidth(info.label);
+      const lineStart = info.x + labelWidth + 5;
+      const lineEnd = info.x === 15 ? 110 : pageWidth - 15;
+      
+      for (let x = lineStart; x < lineEnd; x += 3) {
+        doc.circle(x, currentY - 1, 0.3, 'F');
+      }
+      
+      doc.text(info.value, lineStart + 5, currentY);
+    });
+    
+    // Academic Performance Table
+    yPos += 35;
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("ACADEMIC PERFORMANCE", pageWidth / 2, yPos, { align: "center" });
+    
+    yPos += 6;
+    
+    // Table setup
+    const tableStartX = 15;
+    const tableWidth = pageWidth - 30;
+    const headers = ["SUBJECTS", "1st CA", "2nd CA", "EXAM (60)", "TOTAL (100)", "GRADE", "REMARK", "POSITION"];
+    const colWidths = [32, 18, 18, 20, 22, 18, 30, 17];
+    
+    // Draw table header
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.rect(tableStartX, yPos, tableWidth, 8);
+    
+    let xPos = tableStartX;
+    headers.forEach((header, index) => {
+      doc.text(header, xPos + colWidths[index] / 2, yPos + 5, { align: "center" });
+      if (index < headers.length - 1) {
+        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 8);
+      }
+      xPos += colWidths[index];
+    });
+    
+    yPos += 8;
+    
+    // Table data
+    doc.setFont("helvetica", "normal");
+    result.subjects.forEach((subject: any, index: number) => {
+      const rowHeight = 6;
+      doc.rect(tableStartX, yPos, tableWidth, rowHeight);
+      
+      xPos = tableStartX;
+      const values = [
+        subject.subject,
+        subject.ca1?.toString() || '0',
+        subject.ca2?.toString() || '0',
+        subject.exam?.toString() || '0',
+        subject.total?.toString() || '0',
+        subject.grade || 'N/A',
+        subject.remark || 'Good',
+        (index + 1).toString()
+      ];
+      
+      values.forEach((value, i) => {
+        const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
+        const align = i === 0 ? undefined : { align: "center" };
+        doc.text(value, textX, yPos + 4, align);
+        if (i < values.length - 1) {
+          doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + rowHeight);
+        }
+        xPos += colWidths[i];
+      });
+      
+      yPos += rowHeight;
+    });
+    
+    // Total marks row
+    const totalMarks = result.subjects.reduce((sum: number, subject: any) => sum + subject.total, 0);
+    doc.setFont("helvetica", "bold");
+    doc.rect(tableStartX, yPos, tableWidth, 8);
+    
+    xPos = tableStartX;
+    const totalRowValues = ["TOTAL MARKS OBTAINED", "", "", "", totalMarks.toString(), "", "", ""];
+    totalRowValues.forEach((value, i) => {
+      if (value) {
+        const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
+        const align = i === 0 ? undefined : { align: "center" };
+        doc.text(value, textX, yPos + 5, align);
+      }
+      if (i < totalRowValues.length - 1) {
+        doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + 8);
+      }
+      xPos += colWidths[i];
+    });
+    
+    // Performance Summary
+    yPos += 12;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    
+    const percentage = ((totalMarks / (result.subjects.length * 100)) * 100).toFixed(1);
+    const gradePoints = result.subjects.reduce((sum: number, subject: any) => {
+      const gradeValue = subject.grade === 'A' ? 4 : subject.grade === 'B' ? 3 : subject.grade === 'C' ? 2 : subject.grade === 'D' ? 1 : 0;
+      return sum + gradeValue;
+    }, 0);
+    const cgpa = (gradePoints / result.subjects.length).toFixed(2);
+    
+    // Performance boxes
+    const perfBoxWidth = 32;
+    const perfBoxHeight = 16;
+    const perfBoxSpacing = 6;
+    const startX = (pageWidth - (4 * perfBoxWidth + 3 * perfBoxSpacing)) / 2;
+    
+    const perfData = [
+      { label: "TOTAL MARKS", value: totalMarks.toString() },
+      { label: "PERCENTAGE", value: percentage + "%" },
+      { label: "CGPA", value: cgpa },
+      { label: "POSITION", value: result.position ? `${result.position}/${result.totalInClass}` : 'N/A' }
+    ];
+    
+    perfData.forEach((data, index) => {
+      const boxX = startX + index * (perfBoxWidth + perfBoxSpacing);
+      doc.rect(boxX, yPos, perfBoxWidth, perfBoxHeight);
+      doc.setFontSize(6);
+      doc.text(data.label, boxX + perfBoxWidth / 2, yPos + 5, { align: "center" });
+      doc.setFontSize(9);
+      doc.text(data.value, boxX + perfBoxWidth / 2, yPos + 12, { align: "center" });
+    });
+    
+    // Comments Section
+    currentY = yPos + 25;
+    checkPageSpace(45); // Check if comments section fits
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    
+    // Class Teacher's Comment
+    doc.text("CLASS TEACHER'S REMARK:", 15, currentY);
+    doc.rect(15, currentY + 3, pageWidth - 30, 12);
+    doc.setFont("helvetica", "normal");
+    doc.text(result.classTeacher || 'Keep up the good work!', 17, currentY + 10);
+    
+    currentY += 18;
+    
+    // Principal's Comment  
+    doc.setFont("helvetica", "bold");
+    doc.text("PRINCIPAL'S REMARK:", 15, currentY);
+    doc.rect(15, currentY + 3, pageWidth - 30, 12);
+    doc.setFont("helvetica", "normal");
+    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, currentY + 10);
+    
+    currentY += 22;
+    
+    // Signature Section
+    checkPageSpace(30); // Check if signature section fits
+    
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    
+    // Signature boxes
+    const sigBoxWidth = 55;
+    const sigBoxHeight = 20;
+    const sigSpacing = 5;
+    const sigStartX = (pageWidth - (3 * sigBoxWidth + 2 * sigSpacing)) / 2;
+    
+    const signatures = [
+      "CLASS TEACHER'S SIGNATURE",
+      "PRINCIPAL'S SIGNATURE", 
+      "PARENT/GUARDIAN'S SIGNATURE"
+    ];
+    
+    signatures.forEach((sig, index) => {
+      const boxX = sigStartX + index * (sigBoxWidth + sigSpacing);
+      doc.rect(boxX, currentY, sigBoxWidth, sigBoxHeight);
+      doc.text(sig, boxX + sigBoxWidth / 2, currentY + 7, { align: "center" });
+      doc.line(boxX + 5, currentY + 15, boxX + sigBoxWidth - 5, currentY + 15);
+      doc.text("Date: __________", boxX + sigBoxWidth / 2, currentY + 18, { align: "center" });
+    });
+    
+    currentY += 25;
+    
+    // Footer
+    checkPageSpace(15); // Check if footer fits
+    
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, pageWidth / 2, currentY, { align: "center" });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, currentY + 6, { align: "center" });
+    
+    // Save PDF
+    const fileName = `${student ? student.firstName + '_' + student.lastName : result.studentId}_Result.pdf`;
+    doc.save(fileName);
+  };
+  
+  // Load logo from assets
+  img.src = logoUrl;
+};
 
 export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -632,6 +911,499 @@ export default function ViewResults() {
                   Close
                 </Button>
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => {
+                  // Create a new window for printing
+                  const printWindow = window.open('', '_blank', 'width=800,height=600');
+                  if (printWindow && selectedResult) {
+                    const student = getStudentInfo(selectedResult.studentId);
+                    
+                    // Create the print content
+                    const printContent = `
+                      <!DOCTYPE html>
+                      <html>
+                        <head>
+                          <title>Student Result - ${student ? student.firstName + ' ' + student.lastName : selectedResult.studentId}</title>
+                          <style>
+                            * {
+                              margin: 0;
+                              padding: 0;
+                              box-sizing: border-box;
+                            }
+                            
+                            body {
+                              font-family: 'Times New Roman', serif;
+                              line-height: 1.4;
+                              color: #000;
+                              background: white;
+                              -webkit-print-color-adjust: exact !important;
+                              color-adjust: exact !important;
+                              print-color-adjust: exact !important;
+                            }
+                            
+                            @media print {
+                              @page {
+                                size: A4;
+                                margin: 0.5in;
+                              }
+                              
+                              body {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                              }
+                              
+                              .container {
+                                max-width: none;
+                                margin: 0;
+                                padding: 0;
+                              }
+                              
+                              img {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                display: block !important;
+                                opacity: 1 !important;
+                                visibility: visible !important;
+                                max-width: 100% !important;
+                                height: auto !important;
+                              }
+                              
+                              .performance-summary,
+                              .comments,
+                              .signatures {
+                                page-break-inside: avoid;
+                              }
+                              
+                              .result-table {
+                                page-break-inside: auto;
+                              }
+                              
+                              .footer {
+                                page-break-inside: avoid;
+                                page-break-before: avoid;
+                              }
+                            }
+                            
+                            .container {
+                              max-width: 800px;
+                              margin: 0 auto;
+                              padding: 15px;
+                            }
+                            
+                            .logo-image {
+                              width: 65px !important;
+                              height: 65px !important;
+                              max-width: 65px !important;
+                              max-height: 65px !important;
+                              object-fit: contain !important;
+                              display: block !important;
+                              opacity: 1 !important;
+                              visibility: visible !important;
+                              -webkit-print-color-adjust: exact !important;
+                              color-adjust: exact !important;
+                              print-color-adjust: exact !important;
+                              border: 2px solid #000;
+                            }
+                            
+                            .passport-placeholder {
+                              width: 65px !important;
+                              height: 65px !important;
+                              border: 2px solid #999;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              text-align: center;
+                              background: white;
+                              flex-shrink: 0;
+                              font-size: 10pt !important;
+                              -webkit-print-color-adjust: exact !important;
+                              color-adjust: exact !important;
+                            }
+                            
+                            .header {
+                              border: 3px double #000;
+                              padding: 15px;
+                              margin-bottom: 15px;
+                              text-align: center;
+                            }
+                            
+                            .header-content {
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                            }
+                            
+                            .school-name {
+                              font-size: 20pt;
+                              font-weight: bold;
+                              color: #c41e3a;
+                              margin-bottom: 5px;
+                            }
+                            
+                            .school-address {
+                              font-size: 12pt;
+                              color: #666;
+                              margin-bottom: 3px;
+                            }
+                            
+                            .school-contact {
+                              font-size: 10pt;
+                              color: #666;
+                              margin-bottom: 3px;
+                            }
+                            
+                            .school-motto {
+                              font-size: 14pt;
+                              font-style: italic;
+                              color: #c41e3a;
+                              font-weight: bold;
+                            }
+                            
+                            .result-title {
+                              background: #f0f0f0;
+                              padding: 12px;
+                              text-align: center;
+                              font-size: 16pt;
+                              font-weight: bold;
+                            }
+                            
+                            .student-info {
+                              display: grid;
+                              grid-template-columns: 1fr 1fr;
+                              gap: 20px;
+                              margin: 15px 0;
+                            }
+                            
+                            .info-row {
+                              display: flex;
+                              margin-bottom: 5px;
+                            }
+                            
+                            .info-label {
+                              font-weight: bold;
+                              min-width: 120px;
+                            }
+                            
+                            .info-value {
+                              flex-grow: 1;
+                              padding-left: 8px;
+                            }
+                            
+                            .section-title {
+                              background: #f5f5f5;
+                              padding: 8px;
+                              text-align: center;
+                              font-size: 12pt;
+                              font-weight: bold;
+                              margin: 15px 0 8px 0;
+                            }
+                            
+                            .result-table {
+                              width: 100%;
+                              border-collapse: collapse;
+                              margin-bottom: 12px;
+                              page-break-inside: auto;
+                            }
+                            
+                            .result-table th,
+                            .result-table td {
+                              border: 1px solid #000;
+                              padding: 4px;
+                              text-align: center;
+                              font-size: 10pt;
+                              page-break-inside: avoid;
+                            }
+                            
+                            .result-table th {
+                              background: #f5f5f5;
+                              font-weight: bold;
+                            }
+                            
+                            .result-table td:first-child {
+                              text-align: left;
+                              padding-left: 8px;
+                            }
+                            
+                            .result-table tfoot td {
+                              background: #f5f5f5;
+                              font-weight: bold;
+                            }
+                            
+                            .performance-summary {
+                              display: grid;
+                              grid-template-columns: 1fr 1fr 1fr 1fr;
+                              gap: 8px;
+                              margin: 12px 0;
+                            }
+                            
+                            .performance-card {
+                              border: 1px solid #000;
+                              padding: 8px;
+                              text-align: center;
+                            }
+                            
+                            .performance-label {
+                              font-size: 9pt;
+                              font-weight: bold;
+                              margin-bottom: 3px;
+                            }
+                            
+                            .performance-value {
+                              font-size: 14pt;
+                              font-weight: bold;
+                            }
+                            
+                            .comments {
+                              margin: 12px 0;
+                            }
+                            
+                            .comment-box {
+                              border: 1px solid #000;
+                              padding: 8px;
+                              margin-bottom: 8px;
+                              min-height: 40px;
+                              background: #f9f9f9;
+                            }
+                            
+                            .comment-title {
+                              font-weight: bold;
+                              margin-bottom: 5px;
+                            }
+                            
+                            .signatures {
+                              margin-top: 15px;
+                            }
+                            
+                            .signature-table {
+                              width: 100%;
+                              border-collapse: collapse;
+                            }
+                            
+                            .signature-table td {
+                              border: 1px solid #000;
+                              padding: 20px 8px 8px 8px;
+                              text-align: center;
+                              vertical-align: bottom;
+                            }
+                            
+                            .signature-line {
+                              border-top: 1px solid #000;
+                              padding-top: 5px;
+                              margin-top: 20px;
+                            }
+                            
+                            .footer {
+                              border-top: 2px solid #000;
+                              padding-top: 8px;
+                              margin-top: 12px;
+                              text-align: center;
+                            }
+                            
+                            .footer-info {
+                              font-size: 9pt;
+                              color: #666;
+                              margin-top: 5px;
+                            }
+                          </style>
+                        </head>
+                        <body>
+                          <div class="container">
+                            <div class="header">
+                              <div class="header-content">
+                                <div class="logo-section">
+                                  <div class="print-logo-container" style="width: 65px !important; height: 65px !important; border: 2px solid #000; display: flex; align-items: center; justify-content: center; background: white;">
+                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" style="width: 65px !important; height: 65px !important; max-width: 65px !important; max-height: 65px !important; object-fit: contain; display: block; opacity: 1; visibility: visible;" />
+                                  </div>
+                                </div>
+                                <div class="school-info">
+                                  <div class="school-name">ROBERTSON EDUCATION</div>
+                                  <div class="school-address">Excellence in Education - Nurturing Tomorrow's Leaders</div>
+                                  <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
+                                  <div class="school-motto">"Knowledge • Character • Service"</div>
+                                </div>
+                                <div class="passport-section" style="width: 65px !important; height: 65px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                  <div class="passport-placeholder" style="font-size: 10pt !important; line-height: 1.2; color: #666;">
+                                    PASSPORT<br/>PHOTO
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div class="result-title">
+                              CONTINUOUS ASSESSMENT REPORT SHEET<br/>
+                              Academic Session: ${selectedResult.session} | ${selectedResult.term}
+                            </div>
+                            
+                            <div class="student-info">
+                              <div>
+                                <div class="info-row">
+                                  <span class="info-label">Student's Name:</span>
+                                  <span class="info-value">${student ? student.firstName + ' ' + student.lastName : 'N/A'}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Admission No:</span>
+                                  <span class="info-value">${selectedResult.studentId}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Class:</span>
+                                  <span class="info-value">${selectedResult.class}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Age:</span>
+                                  <span class="info-value">${student ? (new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()) : 'N/A'}</span>
+                                </div>
+                              </div>
+                              <div>
+                                <div class="info-row">
+                                  <span class="info-label">Session:</span>
+                                  <span class="info-value">${selectedResult.session}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Term:</span>
+                                  <span class="info-value">${selectedResult.term}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">No. in Class:</span>
+                                  <span class="info-value">${selectedResult.totalInClass || 'N/A'}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Position:</span>
+                                  <span class="info-value">${selectedResult.position ? selectedResult.position + ' out of ' + (selectedResult.totalInClass || 'N/A') : 'N/A'}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div class="section-title">ACADEMIC PERFORMANCE</div>
+                            
+                            <table class="result-table">
+                              <thead>
+                                <tr>
+                                  <th>SUBJECTS</th>
+                                  <th>1st CA (20)</th>
+                                  <th>2nd CA (20)</th>
+                                  <th>EXAM (60)</th>
+                                  <th>TOTAL (100)</th>
+                                  <th>GRADE</th>
+                                  <th>REMARK</th>
+                                  <th>POSITION</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                ${selectedResult.subjects.map((subject, index) => `
+                                  <tr>
+                                    <td>${subject.subject}</td>
+                                    <td>${subject.ca1 || 0}</td>
+                                    <td>${subject.ca2 || 0}</td>
+                                    <td>${subject.exam || 0}</td>
+                                    <td>${subject.total || 0}</td>
+                                    <td>${subject.grade || 'N/A'}</td>
+                                    <td>${subject.remark || 'Good'}</td>
+                                    <td>${index + 1}</td>
+                                  </tr>
+                                `).join('')}
+                              </tbody>
+                              <tfoot>
+                                <tr>
+                                  <td colspan="4" style="text-align: left; padding-left: 8px;"><strong>TOTAL MARKS OBTAINED</strong></td>
+                                  <td><strong>${selectedResult.subjects.reduce((sum, subject) => sum + subject.total, 0)}</strong></td>
+                                  <td colspan="3"></td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                            
+                            <div class="performance-summary">
+                              <div class="performance-card">
+                                <div class="performance-label">TOTAL MARKS</div>
+                                <div class="performance-value">${selectedResult.subjects.reduce((sum, subject) => sum + subject.total, 0)}</div>
+                              </div>
+                              <div class="performance-card">
+                                <div class="performance-label">PERCENTAGE</div>
+                                <div class="performance-value">${((selectedResult.subjects.reduce((sum, subject) => sum + subject.total, 0) / (selectedResult.subjects.length * 100)) * 100).toFixed(1)}%</div>
+                              </div>
+                              <div class="performance-card">
+                                <div class="performance-label">CGPA</div>
+                                <div class="performance-value">${(selectedResult.subjects.reduce((sum, subject) => {
+                                  const gradeValue = subject.grade === 'A' ? 4 : subject.grade === 'B' ? 3 : subject.grade === 'C' ? 2 : subject.grade === 'D' ? 1 : 0;
+                                  return sum + gradeValue;
+                                }, 0) / selectedResult.subjects.length).toFixed(2)}</div>
+                              </div>
+                              <div class="performance-card">
+                                <div class="performance-label">POSITION</div>
+                                <div class="performance-value">${selectedResult.position ? selectedResult.position + '/' + selectedResult.totalInClass : 'N/A'}</div>
+                              </div>
+                            </div>
+                            
+                            <div class="comments">
+                              <div class="comment-box">
+                                <div class="comment-title">CLASS TEACHER'S REMARK:</div>
+                                <div>${selectedResult.classTeacher || 'Keep up the good work!'}</div>
+                              </div>
+                              <div class="comment-box">
+                                <div class="comment-title">PRINCIPAL'S REMARK:</div>
+                                <div>${selectedResult.principalComment || 'Excellent performance. Continue to strive for excellence.'}</div>
+                              </div>
+                            </div>
+                            
+                            <div class="signatures">
+                              <table class="signature-table">
+                                <tr>
+                                  <td width="33%">
+                                    <div>
+                                      <strong>CLASS TEACHER'S SIGNATURE</strong>
+                                    </div>
+                                    <div class="signature-line">
+                                      Date: _____________
+                                    </div>
+                                  </td>
+                                  <td width="33%">
+                                    <div>
+                                      <strong>PRINCIPAL'S SIGNATURE</strong>
+                                    </div>
+                                    <div class="signature-line">
+                                      Date: _____________
+                                    </div>
+                                  </td>
+                                  <td width="33%">
+                                    <div>
+                                      <strong>PARENT/GUARDIAN'S SIGNATURE</strong>
+                                    </div>
+                                    <div class="signature-line">
+                                      Date: _____________
+                                    </div>
+                                  </td>
+                                </tr>
+                              </table>
+                            </div>
+                            
+                            <div class="footer">
+                              <div>
+                                <strong>Next Term Begins:</strong> ${selectedResult.nextTermBegins || 'Date to be announced'}
+                              </div>
+                              <div class="footer-info">
+                                This is a computer-generated result sheet from Robertson Education Management System.<br>
+                                Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}
+                              </div>
+                            </div>
+                          </div>
+                        </body>
+                      </html>
+                    `;
+                    
+                    // Write content to print window
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    
+                    // Wait for content to load then print
+                    printWindow.onload = function() {
+                      printWindow.print();
+                      printWindow.close();
+                    };
+                  }
+                }}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Result
+                </Button>
+                
+                <Button variant="outline" onClick={() => {
                   // Create a new window for printing
                   const printWindow = window.open('', '_blank', 'width=800,height=600');
                   if (printWindow && selectedResult) {
