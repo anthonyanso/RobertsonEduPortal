@@ -207,76 +207,107 @@ export default function ViewResults() {
     // Set font
     doc.setFont('helvetica', 'normal');
     
-    // Add header
-    doc.setFontSize(20);
+    // Add header with proper spacing and formatting
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
     doc.setTextColor(30, 58, 138); // Blue color
     doc.text('ROBERTSON EDUCATION', 105, 20, { align: 'center' });
     
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text('Excellence in Education - Nurturing Tomorrow\'s Leaders', 105, 30, { align: 'center' });
-    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, 38, { align: 'center' });
-    doc.text('"Knowledge • Character • Service"', 105, 46, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Excellence in Education - Nurturing Tomorrow\'s Leaders', 105, 28, { align: 'center' });
+    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, 34, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('"Knowledge • Character • Service"', 105, 40, { align: 'center' });
     
-    // Add border
+    // Add decorative border
+    doc.setLineWidth(0.5);
+    doc.rect(15, 10, 180, 35);
     doc.setLineWidth(1);
-    doc.rect(10, 55, 190, 10);
+    doc.rect(16, 11, 178, 33);
     
-    // Result title
+    // Result title with better formatting
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 105, 61, { align: 'center' });
-    doc.setFontSize(12);
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, 105, 69, { align: 'center' });
+    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 105, 56, { align: 'center' });
+    doc.setFontSize(11);
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, 105, 63, { align: 'center' });
     
-    // Student information
+    // Student information with improved layout
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     
-    let yPos = 85;
+    let yPos = 78;
     const leftCol = 20;
     const rightCol = 110;
     
+    // Create student info section with borders
+    doc.setLineWidth(0.5);
+    doc.rect(15, yPos - 5, 180, 32);
+    
+    yPos += 5;
     // Left column
     doc.text(`Student's Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, leftCol, yPos);
-    doc.text(`Admission No: ${result.studentId}`, leftCol, yPos + 8);
-    doc.text(`Class: ${result.class}`, leftCol, yPos + 16);
-    doc.text(`Age: ${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, leftCol, yPos + 24);
+    doc.text(`Admission No: ${result.studentId}`, leftCol, yPos + 7);
+    doc.text(`Class: ${result.class}`, leftCol, yPos + 14);
+    doc.text(`Age: ${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, leftCol, yPos + 21);
     
     // Right column
     doc.text(`Session: ${result.session}`, rightCol, yPos);
-    doc.text(`Term: ${result.term}`, rightCol, yPos + 8);
-    doc.text(`No. in Class: ${result.outOf || 'N/A'}`, rightCol, yPos + 16);
-    doc.text(`Position: ${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, rightCol, yPos + 24);
+    doc.text(`Term: ${result.term}`, rightCol, yPos + 7);
+    doc.text(`No. in Class: ${result.outOf || 'N/A'}`, rightCol, yPos + 14);
+    doc.text(`Position: ${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, rightCol, yPos + 21);
     
-    // Academic Performance Table
+    // Academic Performance Table with better formatting
     yPos = 125;
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('ACADEMIC PERFORMANCE', 105, yPos, { align: 'center' });
     
-    yPos += 10;
+    yPos += 8;
     doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
     
-    // Table headers
-    const headers = ['SUBJECTS', '1st CA', '2nd CA', 'EXAM', 'TOTAL', 'GRADE', 'REMARK'];
-    const colWidths = [60, 18, 18, 18, 18, 18, 40];
-    let xPos = 20;
+    // Enhanced table headers
+    const headers = ['SUBJECTS', '1st CA\n(20)', '2nd CA\n(20)', 'EXAM\n(60)', 'TOTAL\n(100)', 'GRADE', 'REMARK', 'POSITION'];
+    const colWidths = [45, 16, 16, 16, 16, 16, 30, 16];
+    let xPos = 15;
+    
+    // Draw header row with gray background
+    doc.setFillColor(240, 240, 240);
+    doc.rect(xPos, yPos, colWidths.reduce((a, b) => a + b, 0), 12, 'F');
     
     headers.forEach((header, index) => {
-      doc.rect(xPos, yPos, colWidths[index], 8);
-      doc.text(header, xPos + colWidths[index]/2, yPos + 5, { align: 'center' });
+      doc.setLineWidth(0.5);
+      doc.rect(xPos, yPos, colWidths[index], 12);
+      
+      // Handle multi-line headers
+      const lines = header.split('\n');
+      if (lines.length > 1) {
+        doc.text(lines[0], xPos + colWidths[index]/2, yPos + 4, { align: 'center' });
+        doc.text(lines[1], xPos + colWidths[index]/2, yPos + 8, { align: 'center' });
+      } else {
+        doc.text(header, xPos + colWidths[index]/2, yPos + 7, { align: 'center' });
+      }
       xPos += colWidths[index];
     });
     
-    yPos += 8;
+    yPos += 12;
+    doc.setFont('helvetica', 'normal');
     
-    // Table data
-    if (result.subjects) {
-      result.subjects.forEach((subject: any) => {
-        xPos = 20;
+    // Table data with alternating row colors
+    if (result.subjects && result.subjects.length > 0) {
+      result.subjects.forEach((subject: any, index: number) => {
+        // Alternating row colors
+        if (index % 2 === 0) {
+          doc.setFillColor(248, 248, 248);
+          doc.rect(15, yPos, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
+        }
+        
+        xPos = 15;
         const rowData = [
-          subject.subject,
+          subject.subject || 'N/A',
           (subject.ca1 || 0).toString(),
           (subject.ca2 || 0).toString(),
           (subject.exam || 0).toString(),
@@ -285,67 +316,105 @@ export default function ViewResults() {
           subject.remark || (subject.grade?.includes('A') ? 'Excellent' : 
                            subject.grade?.includes('B') ? 'Good' : 
                            subject.grade?.includes('C') ? 'Credit' : 
-                           subject.grade?.includes('D') ? 'Pass' : 'Fail')
+                           subject.grade?.includes('D') ? 'Pass' : 'Fail'),
+          (subject.position || (index + 1)).toString()
         ];
         
-        rowData.forEach((data, index) => {
-          doc.rect(xPos, yPos, colWidths[index], 8);
-          if (index === 0) {
+        rowData.forEach((data, colIndex) => {
+          doc.setLineWidth(0.5);
+          doc.rect(xPos, yPos, colWidths[colIndex], 8);
+          if (colIndex === 0) {
             doc.text(data, xPos + 2, yPos + 5);
           } else {
-            doc.text(data, xPos + colWidths[index]/2, yPos + 5, { align: 'center' });
+            doc.text(data, xPos + colWidths[colIndex]/2, yPos + 5, { align: 'center' });
           }
-          xPos += colWidths[index];
+          xPos += colWidths[colIndex];
         });
         
         yPos += 8;
       });
     }
     
-    // Summary row
-    xPos = 20;
+    // Summary row with bold formatting
+    xPos = 15;
     doc.setFont('helvetica', 'bold');
-    doc.rect(xPos, yPos, colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3], 8);
-    doc.text('TOTAL', xPos + (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])/2, yPos + 5, { align: 'center' });
-    xPos += colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3];
+    doc.setFillColor(220, 220, 220);
+    doc.rect(xPos, yPos, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
     
+    // Total label
+    const totalColWidth = colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3];
+    doc.rect(xPos, yPos, totalColWidth, 8);
+    doc.text('TOTAL', xPos + totalColWidth/2, yPos + 5, { align: 'center' });
+    xPos += totalColWidth;
+    
+    // Total score
     doc.rect(xPos, yPos, colWidths[4], 8);
     doc.text((result.totalScore || 0).toString(), xPos + colWidths[4]/2, yPos + 5, { align: 'center' });
     xPos += colWidths[4];
     
+    // Grade column
     doc.rect(xPos, yPos, colWidths[5], 8);
     doc.text('-', xPos + colWidths[5]/2, yPos + 5, { align: 'center' });
     xPos += colWidths[5];
     
+    // Average column
     doc.rect(xPos, yPos, colWidths[6], 8);
     doc.text(`AVG: ${result.average || 0}%`, xPos + colWidths[6]/2, yPos + 5, { align: 'center' });
+    xPos += colWidths[6];
+    
+    // GPA column
+    doc.rect(xPos, yPos, colWidths[7], 8);
+    doc.text(`GPA: ${result.gpa || 0}`, xPos + colWidths[7]/2, yPos + 5, { align: 'center' });
     
     yPos += 20;
     
-    // Performance Summary
+    // Performance Summary with enhanced formatting
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
     doc.text('PERFORMANCE SUMMARY', 105, yPos, { align: 'center' });
-    yPos += 10;
+    yPos += 8;
     
-    doc.setFontSize(10);
-    doc.text(`Total Score: ${result.totalScore || 0}`, 30, yPos);
-    doc.text(`Average: ${result.average || 0}%`, 80, yPos);
-    doc.text(`Grade Point: ${result.gpa || 0}/4.0`, 130, yPos);
-    doc.text(`Overall Grade: ${result.average >= 70 ? 'A' : result.average >= 60 ? 'B' : result.average >= 50 ? 'C' : result.average >= 40 ? 'D' : 'F'}`, 180, yPos);
+    // Performance boxes
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const performanceData = [
+      { label: 'TOTAL SCORE', value: result.totalScore || 0 },
+      { label: 'AVERAGE', value: `${result.average || 0}%` },
+      { label: 'GRADE POINT', value: `${result.gpa || 0}/4.0` },
+      { label: 'OVERALL GRADE', value: result.average >= 70 ? 'A' : result.average >= 60 ? 'B' : result.average >= 50 ? 'C' : result.average >= 40 ? 'D' : 'F' }
+    ];
     
-    yPos += 20;
+    const boxWidth = 40;
+    const boxHeight = 15;
+    let boxX = 25;
     
-    // Comments
+    performanceData.forEach((item) => {
+      doc.setLineWidth(0.5);
+      doc.rect(boxX, yPos, boxWidth, boxHeight);
+      doc.setFont('helvetica', 'bold');
+      doc.text(item.label, boxX + boxWidth/2, yPos + 4, { align: 'center' });
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text(item.value.toString(), boxX + boxWidth/2, yPos + 11, { align: 'center' });
+      doc.setFontSize(9);
+      boxX += boxWidth + 5;
+    });
+    
+    yPos += 25;
+    
+    // Comments section with improved formatting
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('COMMENTS', 105, yPos, { align: 'center' });
-    yPos += 10;
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('CLASS TEACHER\'S COMMENT:', 20, yPos);
     yPos += 8;
-    doc.rect(20, yPos, 170, 15);
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CLASS TEACHER\'S COMMENT:', 20, yPos);
+    yPos += 5;
+    doc.setLineWidth(0.5);
+    doc.rect(20, yPos, 170, 12);
+    doc.setFont('helvetica', 'normal');
     const teacherComment = result.classTeacher ? 
       `${result.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
         result.average >= 70 ? 'Very good performance. You can do better.' : 
@@ -357,38 +426,93 @@ export default function ViewResults() {
        result.average >= 65 ? 'Good performance. Work harder.' : 
        result.average >= 60 ? 'Fair performance. You need to improve.' : 
        'Poor performance. You need serious improvement.');
-    doc.text(teacherComment, 22, yPos + 5);
     
-    yPos += 25;
+    // Split long comments into multiple lines
+    const commentLines = doc.splitTextToSize(teacherComment, 165);
+    commentLines.forEach((line: string, index: number) => {
+      doc.text(line, 22, yPos + 4 + (index * 4));
+    });
+    
+    yPos += 18;
+    doc.setFont('helvetica', 'bold');
     doc.text('PRINCIPAL\'S COMMENT:', 20, yPos);
-    yPos += 8;
-    doc.rect(20, yPos, 170, 15);
-    doc.text(result.principalComment || 'Keep up the good work and continue to strive for excellence.', 22, yPos + 5);
+    yPos += 5;
+    doc.rect(20, yPos, 170, 12);
+    doc.setFont('helvetica', 'normal');
+    const principalComment = result.principalComment || 'Keep up the good work and continue to strive for excellence.';
+    const principalLines = doc.splitTextToSize(principalComment, 165);
+    principalLines.forEach((line: string, index: number) => {
+      doc.text(line, 22, yPos + 4 + (index * 4));
+    });
     
     yPos += 25;
     
-    // Signatures
+    // Signatures section
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('SIGNATURES', 105, yPos, { align: 'center' });
-    yPos += 10;
+    yPos += 8;
     
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text('Class Teacher\'s Signature: _______________', 20, yPos);
-    doc.text('Principal\'s Signature: _______________', 110, yPos);
-    yPos += 15;
-    doc.text('Parent/Guardian\'s Signature: _______________', 20, yPos);
-    doc.text('Date: _______________', 110, yPos);
+    doc.setLineWidth(0.5);
     
-    yPos += 20;
+    // Signature boxes
+    doc.rect(20, yPos, 50, 20);
+    doc.rect(80, yPos, 50, 20);
+    doc.rect(140, yPos, 50, 20);
+    
+    doc.text('Class Teacher\'s Signature', 45, yPos + 5, { align: 'center' });
+    doc.text('Principal\'s Signature', 105, yPos + 5, { align: 'center' });
+    doc.text('Parent/Guardian\'s Signature', 165, yPos + 5, { align: 'center' });
+    
+    doc.text('Date: ___________', 45, yPos + 15, { align: 'center' });
+    doc.text('Date: ___________', 105, yPos + 15, { align: 'center' });
+    doc.text('Date: ___________', 165, yPos + 15, { align: 'center' });
+    
+    yPos += 30;
+    
+    // Additional information
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
     doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, 20, yPos);
     
+    // Skills Assessment (if available)
+    if (result.skillsAssessment) {
+      yPos += 10;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('SKILLS ASSESSMENT:', 20, yPos);
+      yPos += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      
+      Object.entries(result.skillsAssessment).forEach(([skill, rating]: [string, any]) => {
+        doc.text(`${skill}: ${rating}`, 25, yPos);
+        yPos += 4;
+      });
+    }
+    
+    // Attendance information (if available)
+    if (result.attendance) {
+      yPos += 5;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ATTENDANCE RECORD:', 20, yPos);
+      yPos += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(`Days Present: ${result.attendance.present || 0}`, 25, yPos);
+      doc.text(`Days Absent: ${result.attendance.absent || 0}`, 25, yPos + 4);
+      doc.text(`Times Late: ${result.attendance.late || 0}`, 25, yPos + 8);
+    }
+    
     // Footer
-    yPos += 15;
+    yPos += 20;
     doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
     doc.text('This is a computer-generated result sheet from Robertson Education Management System.', 105, yPos, { align: 'center' });
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 105, yPos + 5, { align: 'center' });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 105, yPos + 4, { align: 'center' });
     
     // Save the PDF
     const fileName = `Result_${student ? student.firstName + '_' + student.lastName : result.studentId}_${result.session}_${result.term}.pdf`;
