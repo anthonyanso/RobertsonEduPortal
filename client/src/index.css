@@ -334,8 +334,8 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      width: 25px !important;
-      height: 25px !important;
+      width: 18px !important;
+      height: 18px !important;
       opacity: 1 !important;
       visibility: visible !important;
     }
@@ -346,10 +346,10 @@
       color-adjust: exact !important;
       print-color-adjust: exact !important;
       display: block !important;
-      width: 25px !important;
-      height: 25px !important;
-      max-width: 25px !important;
-      max-height: 25px !important;
+      width: 18px !important;
+      height: 18px !important;
+      max-width: 18px !important;
+      max-height: 18px !important;
       object-fit: contain !important;
       opacity: 1 !important;
       visibility: visible !important;

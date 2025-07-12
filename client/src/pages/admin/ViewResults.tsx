@@ -951,8 +951,8 @@ export default function ViewResults() {
                             
                             .passport-section {
                               flex-shrink: 0;
-                              width: 60px;
-                              height: 60px;
+                              width: 18px;
+                              height: 18px;
                               border: 2px solid #999;
                               display: flex;
                               align-items: center;
@@ -960,7 +960,7 @@ export default function ViewResults() {
                             }
                             
                             .passport-placeholder {
-                              font-size: 8pt;
+                              font-size: 4pt;
                               color: #999;
                               text-align: center;
                             }
