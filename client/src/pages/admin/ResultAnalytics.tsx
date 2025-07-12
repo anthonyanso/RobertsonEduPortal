@@ -26,11 +26,11 @@ export default function ResultAnalytics() {
   const [selectedTerm, setSelectedTerm] = useState("all");
   const [isGradeSettingsOpen, setIsGradeSettingsOpen] = useState(false);
   const [gradeSettings, setGradeSettings] = useState({
-    A: { min: 70, max: 100, name: "Distinction" },
-    B: { min: 55, max: 69, name: "Credit" },
-    C: { min: 40, max: 54, name: "Pass" },
-    D: { min: 30, max: 39, name: "Fail" },
-    F: { min: 0, max: 29, name: "Fail" },
+    A: { min: 75, max: 100, name: "Excellent" },
+    B: { min: 65, max: 74, name: "Very Good" },
+    C: { min: 55, max: 64, name: "Good" },
+    D: { min: 45, max: 54, name: "Fair" },
+    F: { min: 0, max: 44, name: "Poor" },
   });
 
   const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
