@@ -209,39 +209,38 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
         display: none !important;
       }
       
-      /* Print logo text styles */
-      .print-logo-text {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: #dc2626 !important;
-        color: white !important;
-        font-size: 7px !important;
-        font-weight: bold !important;
-        line-height: 1.1 !important;
-        width: 48px !important;
-        height: 48px !important;
-        border: 2px solid #dc2626 !important;
-        -webkit-print-color-adjust: exact !important;
-        color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-      }
-      
       /* Force print text logo to display */
       @media print {
-        .print:hidden {
+        .print-logo-text {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          background: #dc2626 !important;
+          color: white !important;
+          font-size: 7px !important;
+          font-weight: bold !important;
+          line-height: 1.1 !important;
+          width: 48px !important;
+          height: 48px !important;
+          border: 2px solid #dc2626 !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          z-index: 10 !important;
+        }
+        
+        .logo-container img {
           display: none !important;
         }
         
-        .print:flex {
-          display: flex !important;
-        }
-        
-        .logo-container .print-logo-text {
-          display: flex !important;
+        .logo-container {
+          position: relative !important;
         }
       }
       
@@ -331,7 +330,7 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
             />
             
             {/* Simple text-based logo for print - guaranteed to work */}
-            <div className="hidden print:flex text-xs text-center text-white font-bold bg-red-600 w-12 h-12 flex-col items-center justify-center border-2 border-red-600 print-logo-text" style={{
+            <div className="print-logo-text" style={{
               fontSize: '7px',
               lineHeight: '1.1',
               display: 'none',
