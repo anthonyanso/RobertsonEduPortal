@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { UserCheck, Search, Edit, Trash2, ChevronLeft, ChevronRight, MoreHorizontal, Eye } from "lucide-react";
+import { UserCheck, Search, Edit, Trash2, ChevronLeft, ChevronRight, MoreHorizontal, Eye, Upload, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Swal from 'sweetalert2';
 import {
@@ -66,6 +66,7 @@ const studentEditSchema = z.object({
   emergencyContact: z.string().min(10, "Emergency contact is required"),
   enrollmentDate: z.string().min(1, "Enrollment date is required"),
   status: z.enum(["active", "inactive", "graduated", "transferred"]),
+  passportPhoto: z.string().optional(),
 });
 
 type StudentEditData = z.infer<typeof studentEditSchema>;
@@ -88,6 +89,7 @@ interface Student {
   emergencyContact: string;
   enrollmentDate: string;
   status: string;
+  passportPhoto?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -102,11 +104,58 @@ export default function ViewStudents() {
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [passportPhoto, setPassportPhoto] = useState<string>("");
+  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const form = useForm<StudentEditData>({
     resolver: zodResolver(studentEditSchema),
   });
+
+  // Handle passport photo upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload an image file (JPG, PNG, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        setPassportPhoto(base64String);
+        setPhotoPreview(base64String);
+        form.setValue('passportPhoto', base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = () => {
+    setPassportPhoto("");
+    setPhotoPreview("");
+    form.setValue('passportPhoto', "");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   // Fetch students
   const { data: students = [], isLoading: studentsLoading } = useQuery<Student[]>({
@@ -139,6 +188,8 @@ export default function ViewStudents() {
       });
       setEditingStudent(null);
       setEditDialogOpen(false);
+      setPhotoPreview("");
+      setPassportPhoto("");
       form.reset();
     },
     onError: (error: Error) => {
@@ -207,6 +258,15 @@ export default function ViewStudents() {
 
   const handleEdit = (student: Student) => {
     setEditingStudent(student);
+    // Set passport photo preview if available
+    if (student.passportPhoto) {
+      setPhotoPreview(student.passportPhoto);
+      setPassportPhoto(student.passportPhoto);
+    } else {
+      setPhotoPreview("");
+      setPassportPhoto("");
+    }
+    
     form.reset({
       studentId: student.studentId,
       firstName: student.firstName,
@@ -224,6 +284,7 @@ export default function ViewStudents() {
       emergencyContact: student.emergencyContact,
       enrollmentDate: student.enrollmentDate,
       status: student.status as "active" | "inactive" | "graduated" | "transferred",
+      passportPhoto: student.passportPhoto || "",
     });
     setEditDialogOpen(true);
   };
@@ -772,6 +833,53 @@ export default function ViewStudents() {
               />
             </div>
 
+            {/* Passport Photo Upload */}
+            <div className="space-y-3">
+              <Label htmlFor="edit-passportPhoto">Passport Photo</Label>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    id="edit-passportPhoto"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {photoPreview ? "Change Passport Photo" : "Upload Passport Photo"}
+                  </Button>
+                </div>
+                {photoPreview && (
+                  <div className="relative">
+                    <img
+                      src={photoPreview}
+                      alt="Passport Photo Preview"
+                      className="w-20 h-20 object-cover rounded-lg border border-gray-300"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                      onClick={removePhoto}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-gray-500">
+                Upload a clear passport photo of the student. Max file size: 5MB
+              </p>
+            </div>
+
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
@@ -786,6 +894,8 @@ export default function ViewStudents() {
                 onClick={() => {
                   setEditDialogOpen(false);
                   setEditingStudent(null);
+                  setPhotoPreview("");
+                  setPassportPhoto("");
                   form.reset();
                 }}
               >
