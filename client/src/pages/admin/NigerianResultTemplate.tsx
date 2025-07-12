@@ -3,28 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/logo_1751823007371.png";
 
-// Utility function to convert image to base64 for better print compatibility
-const convertImageToBase64 = (imageUrl: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const base64 = canvas.toDataURL('image/png');
-        resolve(base64);
-      } else {
-        reject(new Error('Failed to get canvas context'));
-      }
-    };
-    img.onerror = reject;
-    img.src = imageUrl;
-  });
-};
+
 
 interface NigerianResultTemplateProps {
   result: any;
@@ -33,20 +12,6 @@ interface NigerianResultTemplateProps {
 }
 
 export default function NigerianResultTemplate({ result, student, schoolInfo }: NigerianResultTemplateProps) {
-  const [logoBase64, setLogoBase64] = React.useState<string>(logoUrl);
-
-  // Convert logo to base64 for better print compatibility
-  React.useEffect(() => {
-    convertImageToBase64(logoUrl)
-      .then(base64 => {
-        setLogoBase64(base64);
-      })
-      .catch(error => {
-        console.error('Error converting logo to base64:', error);
-        // Fallback to original URL
-        setLogoBase64(logoUrl);
-      });
-  }, []);
 
   // Print-specific CSS
   const printStyles = `
@@ -342,7 +307,7 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
           <div className="logo-container h-12 w-12 flex items-center justify-center border border-gray-300 print-logo">
             {/* Regular image for screen display */}
             <img 
-              src={logoBase64} 
+              src={logoUrl} 
               alt="School Logo" 
               className="h-12 w-12 object-contain screen-logo" 
             />
