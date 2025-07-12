@@ -38,6 +38,7 @@ import { Search, Eye, Edit, Trash2, Download, Filter, FileText, Printer, Calcula
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
 import NigerianResultTemplate from "./NigerianResultTemplate";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -197,6 +198,201 @@ export default function ViewResults() {
   // Get student info
   const getStudentInfo = (studentId: string) => {
     return students.find((s: any) => s.studentId === studentId);
+  };
+
+  // Generate PDF function
+  const generateResultPDF = (result: any, student: any) => {
+    const doc = new jsPDF();
+    
+    // Set font
+    doc.setFont('helvetica', 'normal');
+    
+    // Add header
+    doc.setFontSize(20);
+    doc.setTextColor(30, 58, 138); // Blue color
+    doc.text('ROBERTSON EDUCATION', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Excellence in Education - Nurturing Tomorrow\'s Leaders', 105, 30, { align: 'center' });
+    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, 38, { align: 'center' });
+    doc.text('"Knowledge • Character • Service"', 105, 46, { align: 'center' });
+    
+    // Add border
+    doc.setLineWidth(1);
+    doc.rect(10, 55, 190, 10);
+    
+    // Result title
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 105, 61, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, 105, 69, { align: 'center' });
+    
+    // Student information
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    
+    let yPos = 85;
+    const leftCol = 20;
+    const rightCol = 110;
+    
+    // Left column
+    doc.text(`Student's Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, leftCol, yPos);
+    doc.text(`Admission No: ${result.studentId}`, leftCol, yPos + 8);
+    doc.text(`Class: ${result.class}`, leftCol, yPos + 16);
+    doc.text(`Age: ${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, leftCol, yPos + 24);
+    
+    // Right column
+    doc.text(`Session: ${result.session}`, rightCol, yPos);
+    doc.text(`Term: ${result.term}`, rightCol, yPos + 8);
+    doc.text(`No. in Class: ${result.outOf || 'N/A'}`, rightCol, yPos + 16);
+    doc.text(`Position: ${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, rightCol, yPos + 24);
+    
+    // Academic Performance Table
+    yPos = 125;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ACADEMIC PERFORMANCE', 105, yPos, { align: 'center' });
+    
+    yPos += 10;
+    doc.setFontSize(9);
+    
+    // Table headers
+    const headers = ['SUBJECTS', '1st CA', '2nd CA', 'EXAM', 'TOTAL', 'GRADE', 'REMARK'];
+    const colWidths = [60, 18, 18, 18, 18, 18, 40];
+    let xPos = 20;
+    
+    headers.forEach((header, index) => {
+      doc.rect(xPos, yPos, colWidths[index], 8);
+      doc.text(header, xPos + colWidths[index]/2, yPos + 5, { align: 'center' });
+      xPos += colWidths[index];
+    });
+    
+    yPos += 8;
+    
+    // Table data
+    if (result.subjects) {
+      result.subjects.forEach((subject: any) => {
+        xPos = 20;
+        const rowData = [
+          subject.subject,
+          (subject.ca1 || 0).toString(),
+          (subject.ca2 || 0).toString(),
+          (subject.exam || 0).toString(),
+          (subject.total || 0).toString(),
+          subject.grade || 'N/A',
+          subject.remark || (subject.grade?.includes('A') ? 'Excellent' : 
+                           subject.grade?.includes('B') ? 'Good' : 
+                           subject.grade?.includes('C') ? 'Credit' : 
+                           subject.grade?.includes('D') ? 'Pass' : 'Fail')
+        ];
+        
+        rowData.forEach((data, index) => {
+          doc.rect(xPos, yPos, colWidths[index], 8);
+          if (index === 0) {
+            doc.text(data, xPos + 2, yPos + 5);
+          } else {
+            doc.text(data, xPos + colWidths[index]/2, yPos + 5, { align: 'center' });
+          }
+          xPos += colWidths[index];
+        });
+        
+        yPos += 8;
+      });
+    }
+    
+    // Summary row
+    xPos = 20;
+    doc.setFont('helvetica', 'bold');
+    doc.rect(xPos, yPos, colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3], 8);
+    doc.text('TOTAL', xPos + (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])/2, yPos + 5, { align: 'center' });
+    xPos += colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3];
+    
+    doc.rect(xPos, yPos, colWidths[4], 8);
+    doc.text((result.totalScore || 0).toString(), xPos + colWidths[4]/2, yPos + 5, { align: 'center' });
+    xPos += colWidths[4];
+    
+    doc.rect(xPos, yPos, colWidths[5], 8);
+    doc.text('-', xPos + colWidths[5]/2, yPos + 5, { align: 'center' });
+    xPos += colWidths[5];
+    
+    doc.rect(xPos, yPos, colWidths[6], 8);
+    doc.text(`AVG: ${result.average || 0}%`, xPos + colWidths[6]/2, yPos + 5, { align: 'center' });
+    
+    yPos += 20;
+    
+    // Performance Summary
+    doc.setFontSize(12);
+    doc.text('PERFORMANCE SUMMARY', 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.text(`Total Score: ${result.totalScore || 0}`, 30, yPos);
+    doc.text(`Average: ${result.average || 0}%`, 80, yPos);
+    doc.text(`Grade Point: ${result.gpa || 0}/4.0`, 130, yPos);
+    doc.text(`Overall Grade: ${result.average >= 70 ? 'A' : result.average >= 60 ? 'B' : result.average >= 50 ? 'C' : result.average >= 40 ? 'D' : 'F'}`, 180, yPos);
+    
+    yPos += 20;
+    
+    // Comments
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('COMMENTS', 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('CLASS TEACHER\'S COMMENT:', 20, yPos);
+    yPos += 8;
+    doc.rect(20, yPos, 170, 15);
+    const teacherComment = result.classTeacher ? 
+      `${result.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
+        result.average >= 70 ? 'Very good performance. You can do better.' : 
+        result.average >= 65 ? 'Good performance. Work harder.' : 
+        result.average >= 60 ? 'Fair performance. You need to improve.' : 
+        'Poor performance. You need serious improvement.'} - ${result.classTeacher}` : 
+      (result.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
+       result.average >= 70 ? 'Very good performance. You can do better.' : 
+       result.average >= 65 ? 'Good performance. Work harder.' : 
+       result.average >= 60 ? 'Fair performance. You need to improve.' : 
+       'Poor performance. You need serious improvement.');
+    doc.text(teacherComment, 22, yPos + 5);
+    
+    yPos += 25;
+    doc.text('PRINCIPAL\'S COMMENT:', 20, yPos);
+    yPos += 8;
+    doc.rect(20, yPos, 170, 15);
+    doc.text(result.principalComment || 'Keep up the good work and continue to strive for excellence.', 22, yPos + 5);
+    
+    yPos += 25;
+    
+    // Signatures
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SIGNATURES', 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Class Teacher\'s Signature: _______________', 20, yPos);
+    doc.text('Principal\'s Signature: _______________', 110, yPos);
+    yPos += 15;
+    doc.text('Parent/Guardian\'s Signature: _______________', 20, yPos);
+    doc.text('Date: _______________', 110, yPos);
+    
+    yPos += 20;
+    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, 20, yPos);
+    
+    // Footer
+    yPos += 15;
+    doc.setFontSize(8);
+    doc.text('This is a computer-generated result sheet from Robertson Education Management System.', 105, yPos, { align: 'center' });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 105, yPos + 5, { align: 'center' });
+    
+    // Save the PDF
+    const fileName = `Result_${student ? student.firstName + '_' + student.lastName : result.studentId}_${result.session}_${result.term}.pdf`;
+    doc.save(fileName);
   };
 
   // Edit result mutation
@@ -1095,7 +1291,12 @@ export default function ViewResults() {
                   <Printer className="h-4 w-4 mr-2" />
                   Print Result
                 </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => {
+                  if (selectedResult) {
+                    const student = getStudentInfo(selectedResult.studentId);
+                    generateResultPDF(selectedResult, student);
+                  }
+                }}>
                   <Download className="h-4 w-4 mr-2" />
                   Download PDF
                 </Button>
