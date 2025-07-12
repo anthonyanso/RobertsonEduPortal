@@ -3,6 +3,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/logo_1751823007371.png";
 
+// Utility function to convert image to base64 for better print compatibility
+const convertImageToBase64 = (imageUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const base64 = canvas.toDataURL('image/png');
+        resolve(base64);
+      } else {
+        reject(new Error('Failed to get canvas context'));
+      }
+    };
+    img.onerror = reject;
+    img.src = imageUrl;
+  });
+};
+
 interface NigerianResultTemplateProps {
   result: any;
   student: any;
@@ -10,6 +33,21 @@ interface NigerianResultTemplateProps {
 }
 
 export default function NigerianResultTemplate({ result, student, schoolInfo }: NigerianResultTemplateProps) {
+  const [logoBase64, setLogoBase64] = React.useState<string>(logoUrl);
+
+  // Convert logo to base64 for better print compatibility
+  React.useEffect(() => {
+    convertImageToBase64(logoUrl)
+      .then(base64 => {
+        setLogoBase64(base64);
+      })
+      .catch(error => {
+        console.error('Error converting logo to base64:', error);
+        // Fallback to original URL
+        setLogoBase64(logoUrl);
+      });
+  }, []);
+
   // Print-specific CSS
   const printStyles = `
     @media print {
@@ -82,6 +120,22 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
         -webkit-print-color-adjust: exact !important;
         color-adjust: exact !important;
         print-color-adjust: exact !important;
+        object-fit: contain !important;
+        border: none !important;
+        background: transparent !important;
+      }
+      
+      /* Force all images to display in print */
+      img[src*="logo"] {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        width: 40px !important;
+        height: 40px !important;
+        object-fit: contain !important;
       }
       
       img {
@@ -161,7 +215,22 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <img src={logoUrl} alt="School Logo" className="h-12 w-12 object-contain print-logo" style={{display: 'block', opacity: 1, visibility: 'visible'}} />
+          <img 
+            src={logoBase64} 
+            alt="School Logo" 
+            className="h-12 w-12 object-contain print-logo" 
+            style={{
+              display: 'block', 
+              opacity: 1, 
+              visibility: 'visible',
+              WebkitPrintColorAdjust: 'exact',
+              colorAdjust: 'exact',
+              printColorAdjust: 'exact'
+            }} 
+            onError={(e) => {
+              console.error('Logo failed to load:', e);
+            }}
+          />
           <div className="text-center flex-1">
             <h1 className="text-lg font-bold text-blue-900 print-title">{defaultSchoolInfo.name}</h1>
             <p className="text-xs text-gray-600">{defaultSchoolInfo.address}</p>

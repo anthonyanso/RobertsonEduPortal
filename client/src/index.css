@@ -275,6 +275,28 @@
       height: auto !important;
     }
     
+    /* Specific styles for school logo in print */
+    .school-logo {
+      width: 30px !important;
+      height: 30px !important;
+      object-fit: contain !important;
+      display: block !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    
+    /* Ensure logo container prints properly */
+    .logo-container {
+      display: block !important;
+      width: 30px !important;
+      height: 30px !important;
+      background: transparent !important;
+      border: none !important;
+    }
+    
     .print-logo {
       width: 40px !important;
       height: 40px !important;
