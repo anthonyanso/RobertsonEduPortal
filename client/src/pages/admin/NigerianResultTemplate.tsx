@@ -304,11 +304,19 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <div className="h-12 w-12 border-2 border-black flex items-center justify-center">
+          <div className="h-12 w-12 border-2 border-black flex items-center justify-center bg-white print-logo-container">
             <img 
               src={logoUrl} 
               alt="Robertson Education Centre" 
-              className="h-12 w-12 object-contain" 
+              className="h-12 w-12 object-contain print-logo"
+              style={{ 
+                display: 'block',
+                opacity: 1,
+                visibility: 'visible',
+                maxWidth: '48px',
+                maxHeight: '48px',
+                objectFit: 'contain'
+              }}
             />
           </div>
           <div className="text-center flex-1">

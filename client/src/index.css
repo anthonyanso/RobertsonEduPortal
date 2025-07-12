@@ -299,6 +299,42 @@
       print-color-adjust: exact !important;
       opacity: 1 !important;
       visibility: visible !important;
+      display: block !important;
+      max-width: none !important;
+      max-height: none !important;
+      width: auto !important;
+      height: auto !important;
+    }
+    
+    /* Force logo to print */
+    img[alt="Robertson Education Centre"], .print-logo {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+      width: 48px !important;
+      height: 48px !important;
+      object-fit: contain !important;
+      filter: none !important;
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Force container to print */
+    .print-logo-container {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      background: white !important;
+      border: 2px solid #000 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 48px !important;
+      height: 48px !important;
     }
     
     /* Ensure logo container prints properly */
