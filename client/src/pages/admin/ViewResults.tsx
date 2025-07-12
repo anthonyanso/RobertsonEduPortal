@@ -42,7 +42,7 @@ import jsPDF from 'jspdf';
 
 import NigerianResultTemplate from "./NigerianResultTemplate";
 import logoUrl from "@assets/logo_1751823007371.png";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
