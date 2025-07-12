@@ -1171,8 +1171,8 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <div class="print-logo-container">
-                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" />
+                                  <div class="print-logo-container" style="width: 18px !important; height: 18px !important; border: 2px solid #000; display: flex; align-items: center; justify-content: center; background: white;">
+                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" style="width: 18px !important; height: 18px !important; max-width: 18px !important; max-height: 18px !important; object-fit: contain; display: block; opacity: 1; visibility: visible;" />
                                   </div>
                                 </div>
                                 <div class="school-info">
@@ -1181,8 +1181,8 @@ export default function ViewResults() {
                                   <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
                                   <div class="school-motto">"Knowledge • Character • Service"</div>
                                 </div>
-                                <div class="passport-section">
-                                  <div class="passport-placeholder">PASSPORT</div>
+                                <div class="passport-section" style="width: 18px !important; height: 18px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                  <div class="passport-placeholder" style="font-size: 4pt !important; color: #999; text-align: center;">PASSPORT</div>
                                 </div>
                               </div>
                               <div class="result-title">
