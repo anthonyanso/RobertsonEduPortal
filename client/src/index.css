@@ -357,6 +357,37 @@
       print-color-adjust: exact !important;
     }
     
+    /* Force SVG to display in print */
+    .print\:block {
+      display: block !important;
+    }
+    
+    svg.print\:block, .print-svg-logo {
+      display: block !important;
+      width: 48px !important;
+      height: 48px !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    .print-svg-logo rect {
+      fill: #dc2626 !important;
+      stroke: #000 !important;
+      stroke-width: 2 !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    .print-svg-logo text {
+      fill: white !important;
+      font-weight: bold !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
     /* Ensure logo container prints properly */
     .logo-container, .print-logo-container {
       display: flex !important;
