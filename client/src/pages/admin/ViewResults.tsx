@@ -80,7 +80,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.rect(10, 5, pageWidth - 20, 50);
     
     // Add logo (reduced size to match passport photo)
-    doc.addImage(img, "PNG", 15, 10, 20, 20);
+    doc.addImage(img, "PNG", 15, 10, 15, 15);
     
     // Header section
     doc.setFontSize(16);
@@ -99,10 +99,10 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
     
     // Add passport photo placeholder (same size as logo)
-    doc.rect(pageWidth - 35, 10, 20, 20);
-    doc.setFontSize(6);
-    doc.text("PASSPORT", pageWidth - 25, 18, { align: "center" });
-    doc.text("PHOTOGRAPH", pageWidth - 25, 23, { align: "center" });
+    doc.rect(pageWidth - 30, 10, 15, 15);
+    doc.setFontSize(5);
+    doc.text("PASSPORT", pageWidth - 22.5, 16, { align: "center" });
+    doc.text("PHOTOGRAPH", pageWidth - 22.5, 20, { align: "center" });
     
     // Result title with border
     doc.setLineWidth(1);
