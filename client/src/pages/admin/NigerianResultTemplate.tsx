@@ -209,38 +209,56 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
         display: none !important;
       }
       
-      /* Force print text logo to display */
+      /* Foolproof print logo using CSS content */
       @media print {
-        .print-logo-text {
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: center !important;
-          justify-content: center !important;
-          background: #dc2626 !important;
-          color: white !important;
-          font-size: 7px !important;
-          font-weight: bold !important;
-          line-height: 1.1 !important;
-          width: 48px !important;
-          height: 48px !important;
-          border: 2px solid #dc2626 !important;
-          -webkit-print-color-adjust: exact !important;
-          color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          z-index: 10 !important;
-        }
-        
-        .logo-container img {
+        .screen-logo {
           display: none !important;
         }
         
         .logo-container {
           position: relative !important;
+          width: 48px !important;
+          height: 48px !important;
+          border: 2px solid #000 !important;
+          background: #dc2626 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        
+        .logo-container::before {
+          content: "ROBERTSON" !important;
+          position: absolute !important;
+          top: 8px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          color: white !important;
+          font-size: 6px !important;
+          font-weight: bold !important;
+          line-height: 1 !important;
+          text-align: center !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        
+        .logo-container::after {
+          content: "EDUCATION CENTRE" !important;
+          position: absolute !important;
+          bottom: 8px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          color: white !important;
+          font-size: 5px !important;
+          font-weight: bold !important;
+          line-height: 1 !important;
+          text-align: center !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
       }
       
@@ -326,22 +344,8 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
             <img 
               src={logoBase64} 
               alt="School Logo" 
-              className="h-12 w-12 object-contain print:hidden" 
+              className="h-12 w-12 object-contain screen-logo" 
             />
-            
-            {/* Simple text-based logo for print - guaranteed to work */}
-            <div className="print-logo-text" style={{
-              fontSize: '7px',
-              lineHeight: '1.1',
-              display: 'none',
-              WebkitPrintColorAdjust: 'exact',
-              colorAdjust: 'exact',
-              printColorAdjust: 'exact'
-            }}>
-              <div>ROBERTSON</div>
-              <div>EDUCATION</div>
-              <div>CENTRE</div>
-            </div>
           </div>
           <div className="text-center flex-1">
             <h1 className="text-lg font-bold text-blue-900 print-title">{defaultSchoolInfo.name}</h1>
