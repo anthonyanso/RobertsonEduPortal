@@ -163,6 +163,14 @@ Changelog:
   - Updated Grade Distribution in Analytics page with customizable Nigerian grading system
   - Added editable grade settings: 70-100% (Distinction), 55-69% (Credit), 40-54% (Pass), 30-39% (Fail), 0-29% (Fail)
   - Implemented dynamic grade calculation based on user-defined grade ranges
+- July 12, 2025. Restored PDF download functionality with Robertson Education logo
+  - Added comprehensive PDF download function using jsPDF library
+  - Integrated authentic Robertson Education logo (red shield design) into PDF generation
+  - Created downloadResultAsPDF function with proper logo loading and positioning
+  - Added "Download PDF" button alongside existing "Print Result" button
+  - Implemented complete result formatting in PDF including header, student info, grades table, and signatures
+  - Enhanced print CSS with extensive !important rules to force logo display in print mode
+  - Added browser-specific image printing fixes for maximum compatibility
 
 ## User Preferences
 

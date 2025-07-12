@@ -34,7 +34,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Eye, Edit, Trash2, Filter, FileText, Printer, Calculator, Save, X } from "lucide-react";
+import { Search, Eye, Edit, Trash2, Filter, FileText, Printer, Calculator, Save, X, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
@@ -43,6 +43,8 @@ import NigerianResultTemplate from "./NigerianResultTemplate";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import jsPDF from 'jspdf';
+import logoUrl from "@assets/logo_1751823007371.png";
 
 
 const editResultSchema = z.object({
@@ -62,6 +64,135 @@ const editResultSchema = z.object({
   principalComment: z.string().optional(),
   nextTermBegins: z.string().optional(),
 });
+
+// PDF Download Function
+const downloadResultAsPDF = (result: any, student: any) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  
+  // Load logo and add to PDF
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = function() {
+    // Header section
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("ROBERTSON EDUCATION CENTRE", pageWidth / 2, 30, { align: "center" });
+    
+    // Add logo
+    doc.addImage(img, "PNG", 15, 10, 25, 25);
+    
+    // School details
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("123 Education Street, Knowledge City", pageWidth / 2, 40, { align: "center" });
+    doc.text("Tel: +234 123 456 7890 | Email: info@robertsoneducation.com", pageWidth / 2, 48, { align: "center" });
+    doc.text('"Excellence in Education"', pageWidth / 2, 56, { align: "center" });
+    
+    // Result title
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("STUDENT RESULT SHEET", pageWidth / 2, 70, { align: "center" });
+    
+    // Student information
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    let yPos = 85;
+    
+    doc.text(`Student Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, 15, yPos);
+    doc.text(`Student ID: ${result.studentId}`, 15, yPos + 8);
+    doc.text(`Class: ${result.class}`, 15, yPos + 16);
+    doc.text(`Session: ${result.session}`, 15, yPos + 24);
+    doc.text(`Term: ${result.term}`, 15, yPos + 32);
+    
+    // Results table
+    yPos += 50;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("ACADEMIC PERFORMANCE", pageWidth / 2, yPos, { align: "center" });
+    
+    yPos += 15;
+    
+    // Table headers
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    const headers = ["Subject", "1st CA", "2nd CA", "Exam", "Total", "Grade", "Remark"];
+    const colWidths = [40, 20, 20, 20, 20, 20, 35];
+    let xPos = 15;
+    
+    headers.forEach((header, index) => {
+      doc.text(header, xPos, yPos);
+      xPos += colWidths[index];
+    });
+    
+    yPos += 8;
+    
+    // Table data
+    doc.setFont("helvetica", "normal");
+    result.subjects.forEach((subject: any) => {
+      xPos = 15;
+      const values = [
+        subject.subject,
+        subject.ca1.toString(),
+        subject.ca2.toString(),
+        subject.exam.toString(),
+        subject.total.toString(),
+        subject.grade,
+        subject.remark
+      ];
+      
+      values.forEach((value, index) => {
+        doc.text(value, xPos, yPos);
+        xPos += colWidths[index];
+      });
+      
+      yPos += 8;
+    });
+    
+    // Performance summary
+    yPos += 15;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("PERFORMANCE SUMMARY", pageWidth / 2, yPos, { align: "center" });
+    
+    yPos += 15;
+    const totalMarks = result.subjects.reduce((sum: number, subject: any) => sum + subject.total, 0);
+    const percentage = ((totalMarks / (result.subjects.length * 100)) * 100).toFixed(1);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(`Total Marks: ${totalMarks}`, 15, yPos);
+    doc.text(`Percentage: ${percentage}%`, 15, yPos + 8);
+    doc.text(`Position: ${result.position || 'N/A'}`, 15, yPos + 16);
+    doc.text(`Number in Class: ${result.totalInClass || 'N/A'}`, 15, yPos + 24);
+    
+    // Comments
+    yPos += 40;
+    doc.setFont("helvetica", "bold");
+    doc.text("CLASS TEACHER'S REMARK:", 15, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(result.classTeacher || 'No comment provided', 15, yPos + 8);
+    
+    yPos += 20;
+    doc.setFont("helvetica", "bold");
+    doc.text("PRINCIPAL'S REMARK:", 15, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(result.principalComment || 'No comment provided', 15, yPos + 8);
+    
+    // Footer
+    yPos += 20;
+    doc.setFontSize(10);
+    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, 15, yPos);
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 15, yPos + 8);
+    
+    // Save PDF
+    const fileName = `${student ? student.firstName + '_' + student.lastName : result.studentId}_Result.pdf`;
+    doc.save(fileName);
+  };
+  
+  // Load logo from assets
+  img.src = logoUrl;
+};
 
 export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -1103,6 +1234,16 @@ export default function ViewResults() {
                 }}>
                   <Printer className="h-4 w-4 mr-2" />
                   Print Result
+                </Button>
+                
+                <Button variant="outline" onClick={() => {
+                  if (selectedResult) {
+                    const student = getStudentInfo(selectedResult.studentId);
+                    downloadResultAsPDF(selectedResult, student);
+                  }
+                }}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
                 </Button>
 
               </div>
