@@ -304,24 +304,45 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <div className="h-12 w-12 border-2 border-black flex items-center justify-center bg-white print-logo-container">
+          <div 
+            className="h-12 w-12 border-2 border-black flex items-center justify-center bg-red-600 text-white print-logo-simple"
+            style={{
+              width: '48px',
+              height: '48px',
+              backgroundColor: '#dc2626',
+              border: '2px solid #000',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative'
+            }}
+          >
             {/* Screen version: Original logo */}
             <img 
               src={logoUrl} 
               alt="Robertson Education Centre" 
-              className="h-12 w-12 object-contain print:hidden"
+              className="h-12 w-12 object-contain absolute print:hidden"
             />
             
-            {/* Print version: SVG logo that will always work */}
-            <svg 
-              className="hidden print:block h-12 w-12 print-svg-logo" 
-              viewBox="0 0 48 48"
+            {/* Print version: Force display with inline styles */}
+            <div 
+              className="hidden print:flex flex-col items-center justify-center text-center text-white font-bold text-xs leading-tight"
+              style={{ 
+                display: 'none', 
+                color: 'white', 
+                fontWeight: 'bold', 
+                fontSize: '10px', 
+                lineHeight: '1', 
+                textAlign: 'center',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
             >
-              <rect x="0" y="0" width="48" height="48" fill="#dc2626" stroke="#000" strokeWidth="2"/>
-              <text x="24" y="16" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">ROBERTSON</text>
-              <text x="24" y="26" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold">EDUCATION</text>
-              <text x="24" y="36" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold">CENTRE</text>
-            </svg>
+              <span style={{ color: 'white', fontSize: '8px', fontWeight: 'bold' }}>ROBERTSON</span>
+              <span style={{ color: 'white', fontSize: '8px', fontWeight: 'bold' }}>EDUCATION</span>
+              <span style={{ color: 'white', fontSize: '8px', fontWeight: 'bold' }}>CENTRE</span>
+            </div>
           </div>
           <div className="text-center flex-1">
             <h1 className="text-lg font-bold text-blue-900 print-title">{defaultSchoolInfo.name}</h1>
