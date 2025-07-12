@@ -1402,563 +1402,6 @@ export default function ViewResults() {
                   <Printer className="h-4 w-4 mr-2" />
                   Print Result
                 </Button>
-                
-                <Button variant="outline" onClick={() => {
-                  // Create a new window for printing
-                  const printWindow = window.open('', '_blank', 'width=800,height=600');
-                  if (printWindow && selectedResult) {
-                    const student = getStudentInfo(selectedResult.studentId);
-                    
-                    // Create the print content
-                    const printContent = `
-                      <!DOCTYPE html>
-                      <html>
-                        <head>
-                          <title>Student Result - ${student ? student.firstName + ' ' + student.lastName : selectedResult.studentId}</title>
-                          <style>
-                            * {
-                              margin: 0;
-                              padding: 0;
-                              box-sizing: border-box;
-                            }
-                            
-                            body {
-                              font-family: 'Times New Roman', serif;
-                              font-size: 12pt;
-                              line-height: 1.2;
-                              color: #000;
-                              background: #fff;
-                            }
-                            
-                            /* Print-specific page break rules */
-                            @media print {
-                              body {
-                                margin: 0;
-                                padding: 0;
-                              }
-                              
-                              .container {
-                                padding: 10px;
-                              }
-                              
-                              .header {
-                                page-break-inside: avoid;
-                                page-break-after: avoid;
-                              }
-                              
-                              .student-info {
-                                page-break-inside: avoid;
-                              }
-                              
-                              .result-table {
-                                page-break-inside: auto;
-                              }
-                              
-                              .result-table tr {
-                                page-break-inside: avoid;
-                              }
-                              
-                              .performance-summary {
-                                page-break-inside: avoid;
-                                page-break-before: avoid;
-                              }
-                              
-                              .comments {
-                                page-break-inside: avoid;
-                                page-break-before: avoid;
-                              }
-                              
-                              .signatures {
-                                page-break-inside: avoid;
-                                page-break-before: avoid;
-                              }
-                              
-                              .footer {
-                                page-break-inside: avoid;
-                                page-break-before: avoid;
-                              }
-                            }
-                            
-                            .container {
-                              max-width: 800px;
-                              margin: 0 auto;
-                              padding: 15px;
-                            }
-                            
-                            /* Page break handling for print */
-                            .section-title {
-                              page-break-inside: avoid;
-                              page-break-after: avoid;
-                            }
-                            
-                            .comments {
-                              page-break-inside: avoid;
-                            }
-                            
-                            .signatures {
-                              page-break-inside: avoid;
-                            }
-                            
-                            .performance-summary {
-                              page-break-inside: avoid;
-                            }
-                            
-                            .result-table {
-                              page-break-inside: auto;
-                            }
-                            
-                            .footer {
-                              page-break-inside: avoid;
-                            }
-                            
-                            .header {
-                              border: 3px double #000;
-                              padding: 15px;
-                              margin-bottom: 15px;
-                              text-align: center;
-                            }
-                            
-                            .header-content {
-                              display: flex;
-                              align-items: center;
-                              justify-content: space-between;
-                              margin-bottom: 15px;
-                            }
-                            
-                            .logo-section {
-                              flex-shrink: 0;
-                            }
-                            
-                            .school-logo {
-                              width: 60px;
-                              height: 60px;
-                              object-fit: contain;
-                            }
-                            
-                            .school-info {
-                              flex-grow: 1;
-                              text-align: center;
-                              margin: 0 20px;
-                            }
-                            
-                            .passport-section {
-                              flex-shrink: 0;
-                              width: 65px;
-                              height: 65px;
-                              border: 2px solid #999;
-                              display: flex;
-                              align-items: center;
-                              justify-content: center;
-                            }
-                            
-                            .passport-placeholder {
-                              font-size: 10pt;
-                              color: #999;
-                              text-align: center;
-                            }
-                            
-                            .school-name {
-                              font-size: 24pt;
-                              font-weight: bold;
-                              color: #1e3a8a;
-                              margin-bottom: 5px;
-                            }
-                            
-                            .school-address {
-                              font-size: 12pt;
-                              color: #666;
-                              margin-bottom: 3px;
-                            }
-                            
-                            .school-contact {
-                              font-size: 10pt;
-                              color: #666;
-                              margin-bottom: 5px;
-                            }
-                            
-                            .school-motto {
-                              font-size: 10pt;
-                              font-weight: bold;
-                              color: #1e40af;
-                            }
-                            
-                            .result-title {
-                              border-top: 2px solid #000;
-                              border-bottom: 2px solid #000;
-                              padding: 10px;
-                              margin-top: 15px;
-                              font-size: 16pt;
-                              font-weight: bold;
-                            }
-                            
-                            .student-info {
-                              display: grid;
-                              grid-template-columns: 1fr 1fr;
-                              gap: 20px;
-                              margin: 15px 0;
-                            }
-                            
-                            .info-row {
-                              display: flex;
-                              margin-bottom: 5px;
-                            }
-                            
-                            .info-label {
-                              font-weight: bold;
-                              width: 120px;
-                              flex-shrink: 0;
-                            }
-                            
-                            .info-value {
-                              border-bottom: 1px dotted #999;
-                              flex-grow: 1;
-                              padding-left: 8px;
-                            }
-                            
-                            .section-title {
-                              background: #f5f5f5;
-                              padding: 8px;
-                              text-align: center;
-                              font-size: 12pt;
-                              font-weight: bold;
-                              margin: 15px 0 8px 0;
-                            }
-                            
-                            .result-table {
-                              width: 100%;
-                              border-collapse: collapse;
-                              margin-bottom: 12px;
-                              page-break-inside: auto;
-                            }
-                            
-                            .result-table th,
-                            .result-table td {
-                              border: 1px solid #000;
-                              padding: 4px;
-                              text-align: center;
-                              font-size: 10pt;
-                              page-break-inside: avoid;
-                            }
-                            
-                            .result-table th {
-                              background: #f0f0f0;
-                              font-weight: bold;
-                            }
-                            
-                            .result-table .subject-name {
-                              text-align: left;
-                              font-weight: bold;
-                            }
-                            
-                            .summary-row {
-                              background: #f5f5f5;
-                              font-weight: bold;
-                            }
-                            
-                            .performance-summary {
-                              display: grid;
-                              grid-template-columns: 1fr 1fr 1fr 1fr;
-                              gap: 8px;
-                              margin: 12px 0;
-                            }
-                            
-                            .performance-card {
-                              border: 1px solid #000;
-                              padding: 8px;
-                              text-align: center;
-                            }
-                            
-                            .performance-label {
-                              font-size: 9pt;
-                              font-weight: bold;
-                              margin-bottom: 3px;
-                            }
-                            
-                            .performance-value {
-                              font-size: 14pt;
-                              font-weight: bold;
-                            }
-                            
-                            .comments {
-                              margin: 12px 0;
-                            }
-                            
-                            .comment-box {
-                              border: 1px solid #000;
-                              padding: 8px;
-                              margin-bottom: 8px;
-                              min-height: 40px;
-                              background: #f9f9f9;
-                            }
-                            
-                            .comment-title {
-                              font-weight: bold;
-                              margin-bottom: 5px;
-                            }
-                            
-                            .signatures {
-                              margin-top: 15px;
-                            }
-                            
-                            .signature-table {
-                              width: 100%;
-                              border-collapse: collapse;
-                            }
-                            
-                            .signature-table td {
-                              border: 1px solid #000;
-                              padding: 20px 8px 8px 8px;
-                              text-align: center;
-                              vertical-align: bottom;
-                            }
-                            
-                            .signature-line {
-                              border-top: 1px solid #000;
-                              padding-top: 5px;
-                              margin-top: 20px;
-                            }
-                            
-                            .footer {
-                              border-top: 2px solid #000;
-                              padding-top: 8px;
-                              margin-top: 12px;
-                              text-align: center;
-                            }
-                            
-                            .footer-info {
-                              font-size: 9pt;
-                              color: #666;
-                              margin-top: 5px;
-                            }
-                            
-                            @media print {
-                              @page {
-                                size: A4;
-                                margin: 0.5in;
-                              }
-                              
-                              body {
-                                -webkit-print-color-adjust: exact;
-                                color-adjust: exact;
-                              }
-                              
-                              .container {
-                                max-width: none;
-                                margin: 0;
-                                padding: 0;
-                              }
-                              
-                              img {
-                                -webkit-print-color-adjust: exact !important;
-                                color-adjust: exact !important;
-                                print-color-adjust: exact !important;
-                                display: block !important;
-                                opacity: 1 !important;
-                                visibility: visible !important;
-                                max-width: 100% !important;
-                                height: auto !important;
-                              }
-                            }
-                          </style>
-                        </head>
-                        <body>
-                          <div class="container">
-                            <div class="header">
-                              <div class="header-content">
-                                <div class="logo-section">
-                                  <div class="print-logo-container" style="width: 65px !important; height: 65px !important; border: 2px solid #000; display: flex; align-items: center; justify-content: center; background: white;">
-                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" style="width: 65px !important; height: 65px !important; max-width: 65px !important; max-height: 65px !important; object-fit: contain; display: block; opacity: 1; visibility: visible;" />
-                                  </div>
-                                </div>
-                                <div class="school-info">
-                                  <div class="school-name">ROBERTSON EDUCATION</div>
-                                  <div class="school-address">Excellence in Education - Nurturing Tomorrow's Leaders</div>
-                                  <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
-                                  <div class="school-motto">"Knowledge • Character • Service"</div>
-                                </div>
-                                <div class="passport-section" style="width: 65px !important; height: 65px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                  <div class="passport-placeholder" style="font-size: 10pt !important; color: #999; text-align: center;">PASSPORT</div>
-                                </div>
-                              </div>
-                              <div class="result-title">
-                                CONTINUOUS ASSESSMENT REPORT SHEET<br>
-                                Academic Session: ${selectedResult.session} | ${selectedResult.term}
-                              </div>
-                            </div>
-                            
-                            <div class="student-info">
-                              <div>
-                                <div class="info-row">
-                                  <span class="info-label">Student's Name:</span>
-                                  <span class="info-value">${student ? student.firstName + ' ' + student.lastName : 'N/A'}</span>
-                                </div>
-                                <div class="info-row">
-                                  <span class="info-label">Admission No:</span>
-                                  <span class="info-value">${selectedResult.studentId}</span>
-                                </div>
-                                <div class="info-row">
-                                  <span class="info-label">Class:</span>
-                                  <span class="info-value">${selectedResult.class}</span>
-                                </div>
-                                <div class="info-row">
-                                  <span class="info-label">Age:</span>
-                                  <span class="info-value">${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}</span>
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <div class="info-row">
-                                  <span class="info-label">Session:</span>
-                                  <span class="info-value">${selectedResult.session}</span>
-                                </div>
-                                <div class="info-row">
-                                  <span class="info-label">Term:</span>
-                                  <span class="info-value">${selectedResult.term}</span>
-                                </div>
-                                <div class="info-row">
-                                  <span class="info-label">No. in Class:</span>
-                                  <span class="info-value">${selectedResult.outOf || 'N/A'}</span>
-                                </div>
-                                <div class="info-row">
-                                  <span class="info-label">Position:</span>
-                                  <span class="info-value">${selectedResult.position && selectedResult.outOf ? selectedResult.position + ' out of ' + selectedResult.outOf : 'N/A'}</span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div class="section-title">ACADEMIC PERFORMANCE</div>
-                            <table class="result-table">
-                              <thead>
-                                <tr>
-                                  <th>SUBJECTS</th>
-                                  <th>1st CA<br>(20)</th>
-                                  <th>2nd CA<br>(20)</th>
-                                  <th>EXAM<br>(60)</th>
-                                  <th>TOTAL<br>(100)</th>
-                                  <th>GRADE</th>
-                                  <th>REMARK</th>
-                                  <th>POSITION</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                ${selectedResult.subjects?.map((subject, index) => `
-                                  <tr>
-                                    <td class="subject-name">${subject.subject}</td>
-                                    <td>${subject.ca1 || 0}</td>
-                                    <td>${subject.ca2 || 0}</td>
-                                    <td>${subject.exam || 0}</td>
-                                    <td><strong>${subject.total || 0}</strong></td>
-                                    <td><strong>${subject.grade || 'N/A'}</strong></td>
-                                    <td>${subject.remark || (subject.grade?.includes('A') ? 'Excellent' : subject.grade?.includes('B') ? 'Good' : subject.grade?.includes('C') ? 'Credit' : subject.grade?.includes('D') ? 'Pass' : 'Fail')}</td>
-                                    <td>${subject.position || (index + 1)}</td>
-                                  </tr>
-                                `).join('') || ''}
-                                <tr class="summary-row">
-                                  <td colspan="4" style="text-align: center;"><strong>TOTAL</strong></td>
-                                  <td><strong>${selectedResult.totalScore || 0}</strong></td>
-                                  <td>-</td>
-                                  <td><strong>AVG: ${selectedResult.average || 0}%</strong></td>
-                                  <td><strong>GPA: ${selectedResult.gpa || 0}</strong></td>
-                                </tr>
-                              </tbody>
-                            </table>
-                            
-                            <div class="performance-summary">
-                              <div class="performance-card">
-                                <div class="performance-label">TOTAL SCORE</div>
-                                <div class="performance-value">${selectedResult.totalScore || 0}</div>
-                              </div>
-                              <div class="performance-card">
-                                <div class="performance-label">AVERAGE</div>
-                                <div class="performance-value">${selectedResult.average || 0}%</div>
-                              </div>
-                              <div class="performance-card">
-                                <div class="performance-label">GRADE POINT</div>
-                                <div class="performance-value">${selectedResult.gpa || 0}/4.0</div>
-                              </div>
-                              <div class="performance-card">
-                                <div class="performance-label">OVERALL GRADE</div>
-                                <div class="performance-value">${selectedResult.average >= 70 ? 'A' : selectedResult.average >= 60 ? 'B' : selectedResult.average >= 50 ? 'C' : selectedResult.average >= 40 ? 'D' : 'F'}</div>
-                              </div>
-                            </div>
-                            
-                            <div class="section-title">COMMENTS</div>
-                            <div class="comments">
-                              <div class="comment-title">CLASS TEACHER'S COMMENT:</div>
-                              <div class="comment-box">
-                                ${selectedResult.classTeacher ? 
-                                  `${selectedResult.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
-                                    selectedResult.average >= 70 ? 'Very good performance. You can do better.' : 
-                                    selectedResult.average >= 65 ? 'Good performance. Work harder.' : 
-                                    selectedResult.average >= 60 ? 'Fair performance. You need to improve.' : 
-                                    'Poor performance. You need serious improvement.'} - ${selectedResult.classTeacher}` : 
-                                  (selectedResult.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
-                                   selectedResult.average >= 70 ? 'Very good performance. You can do better.' : 
-                                   selectedResult.average >= 65 ? 'Good performance. Work harder.' : 
-                                   selectedResult.average >= 60 ? 'Fair performance. You need to improve.' : 
-                                   'Poor performance. You need serious improvement.')}
-                              </div>
-                              
-                              <div class="comment-title">PRINCIPAL'S COMMENT:</div>
-                              <div class="comment-box">
-                                ${selectedResult.principalComment || 'Keep up the good work and continue to strive for excellence.'}
-                              </div>
-                            </div>
-                            
-                            <div class="section-title">SIGNATURES</div>
-                            <div class="signatures">
-                              <table class="signature-table">
-                                <tr>
-                                  <td>
-                                    <div class="signature-line">
-                                      <strong>Class Teacher's Signature</strong><br>
-                                      Date: _____________
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <div class="signature-line">
-                                      <strong>Principal's Signature</strong><br>
-                                      Date: _____________
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <div class="signature-line">
-                                      <strong>Parent/Guardian's Signature</strong><br>
-                                      Date: _____________
-                                    </div>
-                                  </td>
-                                </tr>
-                              </table>
-                            </div>
-                            
-                            <div class="footer">
-                              <div>
-                                <strong>Next Term Begins:</strong> ${selectedResult.nextTermBegins || 'Date to be announced'}
-                              </div>
-                              <div class="footer-info">
-                                This is a computer-generated result sheet from Robertson Education Management System.<br>
-                                Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}
-                              </div>
-                            </div>
-                          </div>
-                        </body>
-                      </html>
-                    `;
-                    
-                    // Write content to print window
-                    printWindow.document.write(printContent);
-                    printWindow.document.close();
-                    
-                    // Wait for content to load then print
-                    printWindow.onload = function() {
-                      printWindow.print();
-                      printWindow.close();
-                    };
-                  }
-                }}>
-                  <Printer className="h-4 w-4 mr-2" />
-                  Print Result
-                </Button>
               </div>
             </div>
           )}
@@ -1999,290 +1442,273 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
   onCancel: () => void;
   isLoading: boolean;
 }) {
-  const [currentSubjects, setCurrentSubjects] = useState(result.subjects || []);
-  const { toast } = useToast();
-  const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
-  const termOptions = ["First Term", "Second Term", "Third Term"];
-  const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
-
-  const form = useForm({
+  const form = useForm<any>({
     resolver: zodResolver(editResultSchema),
     defaultValues: {
-      session: result.session || "",
-      term: result.term || "",
-      class: result.class || "",
-      subjects: result.subjects || [],
-      classTeacher: result.classTeacher || "",
-      principalComment: result.principalComment || "",
-      nextTermBegins: result.nextTermBegins || "",
+      session: result.session,
+      term: result.term,
+      class: result.class,
+      subjects: result.subjects,
+      classTeacher: result.classTeacher || '',
+      principalComment: result.principalComment || '',
+      nextTermBegins: result.nextTermBegins || '',
     },
   });
 
-  const calculateGrade = (score: number) => {
-    if (score >= 75) return 'A';
-    if (score >= 70) return 'B';
-    if (score >= 65) return 'C';
-    if (score >= 60) return 'D';
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "subjects",
+  });
+
+  const calculateGrade = (total: number) => {
+    if (total >= 70) return 'A';
+    if (total >= 60) return 'B';
+    if (total >= 50) return 'C';
+    if (total >= 40) return 'D';
     return 'F';
   };
 
-  const getRemark = (score: number) => {
-    if (score >= 75) return 'Excellent';
-    if (score >= 70) return 'Very Good';
-    if (score >= 65) return 'Good';
-    if (score >= 60) return 'Credit';
-    if (score >= 50) return 'Pass';
-    return 'Needs Improvement';
-  };
-
-  const updateSubject = (index: number, field: string, value: any) => {
-    const newSubjects = [...currentSubjects];
-    newSubjects[index] = { ...newSubjects[index], [field]: value };
-    
-    // Recalculate total and grade when CA or exam scores change
-    if (field === 'ca1' || field === 'ca2' || field === 'exam') {
-      const ca1 = field === 'ca1' ? value : newSubjects[index].ca1 || 0;
-      const ca2 = field === 'ca2' ? value : newSubjects[index].ca2 || 0;
-      const exam = field === 'exam' ? value : newSubjects[index].exam || 0;
-      const total = ca1 + ca2 + exam;
-      
-      newSubjects[index].total = total;
-      newSubjects[index].grade = calculateGrade(total);
-      newSubjects[index].remark = getRemark(total);
-    }
-    
-    setCurrentSubjects(newSubjects);
-    form.setValue('subjects', newSubjects);
-  };
-
-  const addSubject = () => {
-    const newSubject = {
-      subject: '',
-      ca1: 0,
-      ca2: 0,
-      exam: 0,
-      total: 0,
-      grade: 'F',
-      remark: 'Needs Improvement',
-    };
-    const newSubjects = [...currentSubjects, newSubject];
-    setCurrentSubjects(newSubjects);
-    form.setValue('subjects', newSubjects);
-  };
-
-  const removeSubject = (index: number) => {
-    const newSubjects = currentSubjects.filter((_, i) => i !== index);
-    setCurrentSubjects(newSubjects);
-    form.setValue('subjects', newSubjects);
+  const calculateRemark = (total: number) => {
+    if (total >= 70) return 'Excellent';
+    if (total >= 60) return 'Very Good';
+    if (total >= 50) return 'Good';
+    if (total >= 40) return 'Pass';
+    return 'Fail';
   };
 
   const handleSubmit = (data: any) => {
-    console.log("Form data:", data);
-    console.log("Current subjects:", currentSubjects);
-    
-    // Calculate overall performance
-    const validSubjects = currentSubjects.filter(s => s.subject && s.total > 0);
-    const totalScore = validSubjects.reduce((sum, subject) => sum + subject.total, 0);
-    const average = validSubjects.length > 0 ? totalScore / validSubjects.length : 0;
-    const gpa = average >= 75 ? 4.0 : 
-                average >= 70 ? 3.5 : 
-                average >= 65 ? 3.0 : 
-                average >= 60 ? 2.5 : 
-                average >= 55 ? 2.0 : 
-                average >= 50 ? 1.5 : 
-                average >= 45 ? 1.0 : 0.0;
-
-    const finalData = {
+    const processedData = {
       ...data,
-      subjects: currentSubjects,
-      totalScore,
-      average: Number(average.toFixed(2)),
-      gpa: Number(gpa.toFixed(2)),
-      subjectCount: validSubjects.length
+      subjects: data.subjects.map((subject: any) => ({
+        ...subject,
+        total: subject.ca1 + subject.ca2 + subject.exam,
+        grade: calculateGrade(subject.ca1 + subject.ca2 + subject.exam),
+        remark: calculateRemark(subject.ca1 + subject.ca2 + subject.exam),
+      })),
     };
-
-    console.log("Final data to submit:", finalData);
-    onSubmit(finalData);
+    onSubmit(processedData);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-        console.log("Form validation errors:", errors);
-        toast({
-          title: "Validation Error",
-          description: "Please check all required fields",
-          variant: "destructive"
-        });
-      })} className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-3 gap-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={form.control}
             name="session"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Session</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select session" />
                     </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {sessionOptions.map(session => (
-                      <SelectItem key={session} value={session}>{session}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectContent>
+                      <SelectItem value="2023/2024">2023/2024</SelectItem>
+                      <SelectItem value="2024/2025">2024/2025</SelectItem>
+                      <SelectItem value="2025/2026">2025/2026</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="term"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Term</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select term" />
                     </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {termOptions.map(term => (
-                      <SelectItem key={term} value={term}>{term}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectContent>
+                      <SelectItem value="First Term">First Term</SelectItem>
+                      <SelectItem value="Second Term">Second Term</SelectItem>
+                      <SelectItem value="Third Term">Third Term</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="class"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Class</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {classOptions.map(cls => (
-                      <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Subjects */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Academic Subjects</h3>
-            <Button type="button" onClick={addSubject} size="sm">
-              Add Subject
-            </Button>
-          </div>
-          
-          <div className="space-y-3">
-            {currentSubjects.map((subject, index) => (
-              <Card key={index} className="p-4">
-                <div className="grid grid-cols-7 gap-4 items-end">
-                  <div>
-                    <label className="text-sm font-medium">Subject</label>
-                    <Input
-                      value={subject.subject}
-                      onChange={(e) => updateSubject(index, 'subject', e.target.value)}
-                      placeholder="Subject name"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">CA1 (20)</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="20"
-                      value={subject.ca1}
-                      onChange={(e) => updateSubject(index, 'ca1', Number(e.target.value))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">CA2 (20)</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="20"
-                      value={subject.ca2}
-                      onChange={(e) => updateSubject(index, 'ca2', Number(e.target.value))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Exam (60)</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="60"
-                      value={subject.exam}
-                      onChange={(e) => updateSubject(index, 'exam', Number(e.target.value))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Total</label>
-                    <Input value={subject.total} disabled />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Grade</label>
-                    <Input value={subject.grade} disabled />
-                  </div>
-                  <div>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeSubject(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Additional Information */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="classTeacher"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Class Teacher</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter class teacher name" />
+                    <SelectContent>
+                      <SelectItem value="JSS 1">JSS 1</SelectItem>
+                      <SelectItem value="JSS 2">JSS 2</SelectItem>
+                      <SelectItem value="JSS 3">JSS 3</SelectItem>
+                      <SelectItem value="SS 1">SS 1</SelectItem>
+                      <SelectItem value="SS 2">SS 2</SelectItem>
+                      <SelectItem value="SS 3">SS 3</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Subjects</h3>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => append({ subject: '', ca1: 0, ca2: 0, exam: 0, total: 0, grade: '', remark: '' })}
+            >
+              Add Subject
+            </Button>
+          </div>
+
+          {fields.map((field, index) => (
+            <div key={field.id} className="grid grid-cols-1 md:grid-cols-7 gap-4 p-4 border rounded-lg">
+              <FormField
+                control={form.control}
+                name={`subjects.${index}.subject`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Subject name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`subjects.${index}.ca1`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CA1 (20)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        min="0" 
+                        max="20" 
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`subjects.${index}.ca2`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CA2 (20)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        min="0" 
+                        max="20" 
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`subjects.${index}.exam`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Exam (60)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        min="0" 
+                        max="60" 
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center justify-center pt-6">
+                <Badge variant="secondary">
+                  Total: {(form.watch(`subjects.${index}.ca1`) || 0) + 
+                         (form.watch(`subjects.${index}.ca2`) || 0) + 
+                         (form.watch(`subjects.${index}.exam`) || 0)}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-center pt-6">
+                <Badge variant="outline">
+                  Grade: {calculateGrade((form.watch(`subjects.${index}.ca1`) || 0) + 
+                                       (form.watch(`subjects.${index}.ca2`) || 0) + 
+                                       (form.watch(`subjects.${index}.exam`) || 0))}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-center pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => remove(index)}
+                  disabled={fields.length === 1}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="nextTermBegins"
+            name="classTeacher"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Next Term Begins</FormLabel>
+                <FormLabel>Class Teacher's Comment</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g., Monday, 15th January, 2024" />
+                  <Textarea {...field} placeholder="Class teacher's comment" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="principalComment"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Principal's Comment</FormLabel>
+                <FormControl>
+                  <Textarea {...field} placeholder="Principal's comment" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -2292,27 +1718,26 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
 
         <FormField
           control={form.control}
-          name="principalComment"
+          name="nextTermBegins"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Principal's Comment</FormLabel>
+              <FormLabel>Next Term Begins</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder="Enter principal's comment" />
+                <Input {...field} placeholder="Date next term begins" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Form Actions */}
-        <div className="flex justify-end space-x-4 border-t pt-4 mt-6">
+        <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <Calculator className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
               </>
             ) : (
