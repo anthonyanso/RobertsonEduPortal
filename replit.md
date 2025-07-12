@@ -178,6 +178,9 @@ Changelog:
   - Enhanced passport text size to 10pt for excellent readability
   - Removed PDF download functionality and button per user request to streamline interface
   - Updated print button to blue color for improved visual design
+  - Corrected implementation: Kept PDF functionality available but removed duplicate print buttons
+  - Fixed print button to work properly with HTML print preview
+  - Removed white print button, keeping only the blue one for clean interface
 
 ## User Preferences
 

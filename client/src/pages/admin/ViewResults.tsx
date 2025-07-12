@@ -1959,9 +1959,6 @@ export default function ViewResults() {
                   <Printer className="h-4 w-4 mr-2" />
                   Print Result
                 </Button>
-                
-
-
               </div>
             </div>
           )}
