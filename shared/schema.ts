@@ -178,7 +178,7 @@ export const schoolInfo = pgTable("school_info", {
 });
 
 // Insert schemas
-export const insertStudentSchema = createInsertSchema(students).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertStudentSchema = createInsertSchema(students).omit({ id: true, studentId: true, createdAt: true, updatedAt: true });
 export const insertResultSchema = createInsertSchema(results).omit({ id: true, createdAt: true, updatedAt: true }).extend({
   average: z.string().or(z.number().transform(String)),
   gpa: z.string().or(z.number().transform(String)),
