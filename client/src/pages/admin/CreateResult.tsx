@@ -236,7 +236,7 @@ export default function CreateResult() {
     };
   };
 
-  const onSubmit = (data: ResultFormData) => {
+  const onSubmit = async (data: ResultFormData) => {
     const validSubjects = subjects.filter(s => s.subject && s.total > 0);
     const processedSubjects = validSubjects.map((subject, index) => ({
       subject: subject.subject,

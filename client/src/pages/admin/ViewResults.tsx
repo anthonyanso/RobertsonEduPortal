@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, Edit, Trash2, Download, Filter, FileText, Printer } from "lucide-react";
+import { Search, Eye, Edit, Trash2, Download, Filter, FileText, Printer, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
@@ -103,6 +103,35 @@ export default function ViewResults() {
     return students.find((s: any) => s.studentId === studentId);
   };
 
+  // Recalculate positions mutation
+  const recalculatePositionsMutation = useMutation({
+    mutationFn: async ({ class: className, session, term }: { class: string, session: string, term: string }) => {
+      return await apiRequest("POST", "/api/admin/results/recalculate-positions", {
+        class: className,
+        session,
+        term
+      });
+    },
+    onSuccess: () => {
+      Swal.fire({
+        title: 'Success!',
+        text: 'Class positions recalculated successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/results"] });
+    },
+    onError: () => {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to recalculate positions.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
+      });
+    },
+  });
+
   // Handle delete
   const handleDelete = async (id: number) => {
     const result = await Swal.fire({
@@ -118,6 +147,63 @@ export default function ViewResults() {
 
     if (result.isConfirmed) {
       deleteResultMutation.mutate(id);
+    }
+  };
+
+  // Handle recalculate positions
+  const handleRecalculatePositions = async () => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Recalculate Class Positions',
+      html: `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Class</label>
+            <select id="class" class="w-full p-2 border rounded-md">
+              <option value="">Select Class</option>
+              ${classOptions.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Session</label>
+            <select id="session" class="w-full p-2 border rounded-md">
+              <option value="">Select Session</option>
+              ${sessionOptions.map(sess => `<option value="${sess}">${sess}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Term</label>
+            <select id="term" class="w-full p-2 border rounded-md">
+              <option value="">Select Term</option>
+              ${termOptions.map(term => `<option value="${term}">${term}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Recalculate',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#3b82f6',
+      preConfirm: () => {
+        const classValue = (document.getElementById('class') as HTMLSelectElement).value;
+        const sessionValue = (document.getElementById('session') as HTMLSelectElement).value;
+        const termValue = (document.getElementById('term') as HTMLSelectElement).value;
+        
+        if (!classValue || !sessionValue || !termValue) {
+          Swal.showValidationMessage('Please select all fields');
+          return false;
+        }
+        
+        return {
+          class: classValue,
+          session: sessionValue,
+          term: termValue
+        };
+      }
+    });
+
+    if (formValues) {
+      recalculatePositionsMutation.mutate(formValues);
     }
   };
 
@@ -231,7 +317,17 @@ export default function ViewResults() {
       {/* Results Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Academic Results ({filteredResults.length})</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Academic Results ({filteredResults.length})</CardTitle>
+            <Button
+              onClick={handleRecalculatePositions}
+              disabled={recalculatePositionsMutation.isPending}
+              className="flex items-center gap-2"
+            >
+              <Calculator className="h-4 w-4" />
+              {recalculatePositionsMutation.isPending ? 'Recalculating...' : 'Recalculate Positions'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

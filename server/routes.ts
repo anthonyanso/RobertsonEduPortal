@@ -19,6 +19,39 @@ import { generateUniqueStudentId } from "./utils/studentIdGenerator";
 import { db } from "./db";
 import { students } from "@shared/schema";
 
+// Function to calculate class positions based on performance
+async function calculateClassPositions(className: string, session: string, term: string) {
+  try {
+    // Get all results for the same class, session, and term
+    const allResults = await storage.getResults();
+    const classResults = allResults.filter((result: any) => 
+      result.class === className && 
+      result.session === session && 
+      result.term === term
+    );
+    
+    // Sort by average score (descending)
+    const sortedResults = classResults.sort((a: any, b: any) => {
+      const avgA = parseFloat(a.average) || 0;
+      const avgB = parseFloat(b.average) || 0;
+      return avgB - avgA;
+    });
+    
+    // Update positions
+    for (let i = 0; i < sortedResults.length; i++) {
+      const result = sortedResults[i];
+      await storage.updateResult(result.id, {
+        position: i + 1,
+        outOf: sortedResults.length
+      });
+    }
+    
+    console.log(`Updated positions for ${sortedResults.length} students in ${className} - ${session} ${term}`);
+  } catch (error) {
+    console.error("Error calculating class positions:", error);
+  }
+}
+
 // Note: Temporarily removing auth middleware to fix corruption
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -564,7 +597,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/results', isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertResultSchema.parse(req.body);
+      
+      // Create the result first
       const result = await storage.createResult(validatedData);
+      
+      // Calculate class position based on average performance
+      await calculateClassPositions(validatedData.class, validatedData.session, validatedData.term);
+      
       res.json(result);
     } catch (error) {
       console.error("Error creating result:", error);
@@ -577,10 +616,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const validatedData = insertResultSchema.partial().parse(req.body);
       const result = await storage.updateResult(id, validatedData);
+      
+      // Recalculate positions if class, session, or term is updated
+      if (validatedData.class || validatedData.session || validatedData.term) {
+        const fullResult = await storage.getResult(id);
+        if (fullResult) {
+          await calculateClassPositions(fullResult.class, fullResult.session, fullResult.term);
+        }
+      }
+      
       res.json(result);
     } catch (error) {
       console.error("Error updating result:", error);
       res.status(500).json({ message: "Failed to update result" });
+    }
+  });
+
+  // Add endpoint to recalculate class positions
+  app.post('/api/admin/results/recalculate-positions', isAdminAuthenticated, async (req, res) => {
+    try {
+      const { class: className, session, term } = req.body;
+      
+      if (!className || !session || !term) {
+        return res.status(400).json({ message: "Class, session, and term are required" });
+      }
+      
+      await calculateClassPositions(className, session, term);
+      res.json({ message: "Positions recalculated successfully" });
+    } catch (error) {
+      console.error("Error recalculating positions:", error);
+      res.status(500).json({ message: "Failed to recalculate positions" });
     }
   });
 

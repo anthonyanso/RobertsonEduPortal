@@ -110,7 +110,7 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
           <div className="flex">
             <span className="font-semibold w-32">Position:</span>
             <span className="border-b border-dotted border-gray-400 flex-1 pl-2">
-              {result.position || 'N/A'}
+              {result.position && result.outOf ? `${result.position} out of ${result.outOf}` : 'N/A'}
             </span>
           </div>
         </div>
