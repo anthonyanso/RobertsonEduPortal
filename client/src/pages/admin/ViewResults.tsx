@@ -70,6 +70,17 @@ const downloadResultAsPDF = (result: any, student: any) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+  let currentY = 10; // Track current Y position
+  
+  // Helper function to check if content fits on current page
+  const checkPageSpace = (requiredHeight: number) => {
+    if (currentY + requiredHeight > pageHeight - 20) {
+      doc.addPage();
+      currentY = 20; // Reset Y position for new page
+      return true; // Page was added
+    }
+    return false; // Content fits on current page
+  };
   
   // Load logo and add to PDF
   const img = new Image();
@@ -105,12 +116,15 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
     
     // Result title with border
+    currentY = 60;
     doc.setLineWidth(1);
-    doc.rect(10, 60, pageWidth - 20, 15);
+    doc.rect(10, currentY, pageWidth - 20, 15);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 68, { align: "center" });
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 73, { align: "center" });
+    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, currentY + 8, { align: "center" });
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, currentY + 13, { align: "center" });
+    
+    currentY += 20;
     
     // Student information section
     let yPos = 85;
@@ -262,26 +276,32 @@ const downloadResultAsPDF = (result: any, student: any) => {
     });
     
     // Comments Section
-    yPos += 35;
+    currentY = yPos + 35;
+    checkPageSpace(60); // Check if comments section fits
+    
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     
     // Class Teacher's Comment
-    doc.text("CLASS TEACHER'S REMARK:", 15, yPos);
-    doc.rect(15, yPos + 3, pageWidth - 30, 15);
+    doc.text("CLASS TEACHER'S REMARK:", 15, currentY);
+    doc.rect(15, currentY + 3, pageWidth - 30, 15);
     doc.setFont("helvetica", "normal");
-    doc.text(result.classTeacher || 'Keep up the good work!', 17, yPos + 12);
+    doc.text(result.classTeacher || 'Keep up the good work!', 17, currentY + 12);
     
-    // Principal's Comment
-    yPos += 25;
+    currentY += 20;
+    
+    // Principal's Comment  
     doc.setFont("helvetica", "bold");
-    doc.text("PRINCIPAL'S REMARK:", 15, yPos);
-    doc.rect(15, yPos + 3, pageWidth - 30, 15);
+    doc.text("PRINCIPAL'S REMARK:", 15, currentY);
+    doc.rect(15, currentY + 3, pageWidth - 30, 15);
     doc.setFont("helvetica", "normal");
-    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, yPos + 12);
+    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, currentY + 12);
+    
+    currentY += 30;
     
     // Signature Section
-    yPos += 30;
+    checkPageSpace(40); // Check if signature section fits
+    
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     
@@ -299,18 +319,21 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     signatures.forEach((sig, index) => {
       const boxX = sigStartX + index * (sigBoxWidth + sigSpacing);
-      doc.rect(boxX, yPos, sigBoxWidth, sigBoxHeight);
-      doc.text(sig, boxX + sigBoxWidth / 2, yPos + 8, { align: "center" });
-      doc.line(boxX + 5, yPos + 18, boxX + sigBoxWidth - 5, yPos + 18);
-      doc.text("Date: __________", boxX + sigBoxWidth / 2, yPos + 22, { align: "center" });
+      doc.rect(boxX, currentY, sigBoxWidth, sigBoxHeight);
+      doc.text(sig, boxX + sigBoxWidth / 2, currentY + 8, { align: "center" });
+      doc.line(boxX + 5, currentY + 18, boxX + sigBoxWidth - 5, currentY + 18);
+      doc.text("Date: __________", boxX + sigBoxWidth / 2, currentY + 22, { align: "center" });
     });
     
+    currentY += 35;
+    
     // Footer
-    yPos += 35;
+    checkPageSpace(15); // Check if footer fits
+    
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, pageWidth / 2, yPos, { align: "center" });
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, yPos + 6, { align: "center" });
+    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, pageWidth / 2, currentY, { align: "center" });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, currentY + 6, { align: "center" });
     
     // Save PDF
     const fileName = `${student ? student.firstName + '_' + student.lastName : result.studentId}_Result.pdf`;
@@ -913,10 +936,85 @@ export default function ViewResults() {
                               background: #fff;
                             }
                             
+                            /* Print-specific page break rules */
+                            @media print {
+                              body {
+                                margin: 0;
+                                padding: 0;
+                              }
+                              
+                              .container {
+                                padding: 10px;
+                              }
+                              
+                              .header {
+                                page-break-inside: avoid;
+                                page-break-after: avoid;
+                              }
+                              
+                              .student-info {
+                                page-break-inside: avoid;
+                              }
+                              
+                              .result-table {
+                                page-break-inside: auto;
+                              }
+                              
+                              .result-table tr {
+                                page-break-inside: avoid;
+                              }
+                              
+                              .performance-summary {
+                                page-break-inside: avoid;
+                                page-break-before: avoid;
+                              }
+                              
+                              .comments {
+                                page-break-inside: avoid;
+                                page-break-before: avoid;
+                              }
+                              
+                              .signatures {
+                                page-break-inside: avoid;
+                                page-break-before: avoid;
+                              }
+                              
+                              .footer {
+                                page-break-inside: avoid;
+                                page-break-before: avoid;
+                              }
+                            }
+                            
                             .container {
                               max-width: 800px;
                               margin: 0 auto;
                               padding: 20px;
+                            }
+                            
+                            /* Page break handling for print */
+                            .section-title {
+                              page-break-inside: avoid;
+                              page-break-after: avoid;
+                            }
+                            
+                            .comments {
+                              page-break-inside: avoid;
+                            }
+                            
+                            .signatures {
+                              page-break-inside: avoid;
+                            }
+                            
+                            .performance-summary {
+                              page-break-inside: avoid;
+                            }
+                            
+                            .result-table {
+                              page-break-inside: auto;
+                            }
+                            
+                            .footer {
+                              page-break-inside: avoid;
                             }
                             
                             .header {
@@ -1036,6 +1134,7 @@ export default function ViewResults() {
                               width: 100%;
                               border-collapse: collapse;
                               margin-bottom: 20px;
+                              page-break-inside: auto;
                             }
                             
                             .result-table th,
@@ -1043,6 +1142,7 @@ export default function ViewResults() {
                               border: 1px solid #000;
                               padding: 8px;
                               text-align: center;
+                              page-break-inside: avoid;
                             }
                             
                             .result-table th {
