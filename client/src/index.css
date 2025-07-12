@@ -328,13 +328,33 @@
       -webkit-print-color-adjust: exact !important;
       color-adjust: exact !important;
       print-color-adjust: exact !important;
-      background: white !important;
+      background: #dc2626 !important;
+      background-color: #dc2626 !important;
       border: 2px solid #000 !important;
       display: flex !important;
+      flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
       width: 48px !important;
       height: 48px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    
+    /* Force print logo text to display */
+    .print-logo-container .print\:flex {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: white !important;
+      font-weight: bold !important;
+      font-size: 12px !important;
+      line-height: 1 !important;
+      text-align: center !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     
     /* Ensure logo container prints properly */

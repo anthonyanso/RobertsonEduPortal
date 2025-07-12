@@ -304,20 +304,25 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <div className="h-12 w-12 border-2 border-black flex items-center justify-center bg-white print-logo-container">
-            <img 
-              src={logoUrl} 
-              alt="Robertson Education Centre" 
-              className="h-12 w-12 object-contain print-logo"
-              style={{ 
-                display: 'block',
-                opacity: 1,
-                visibility: 'visible',
-                maxWidth: '48px',
-                maxHeight: '48px',
-                objectFit: 'contain'
+          <div className="h-12 w-12 border-2 border-black bg-red-600 text-white flex flex-col items-center justify-center text-center relative print-logo-container">
+            {/* Screen version: Original logo */}
+            <div 
+              className="absolute inset-0 screen:block print:hidden"
+              style={{
+                backgroundImage: `url(${logoUrl})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                backgroundColor: 'white'
               }}
-            />
+            >
+            </div>
+            
+            {/* Print version: Text-based logo that will always work */}
+            <div className="hidden print:flex flex-col items-center justify-center text-white h-full w-full relative z-10">
+              <div className="text-xs font-bold leading-none">REC</div>
+              <div className="text-xs font-bold leading-none">LOGO</div>
+            </div>
           </div>
           <div className="text-center flex-1">
             <h1 className="text-lg font-bold text-blue-900 print-title">{defaultSchoolInfo.name}</h1>
