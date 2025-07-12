@@ -77,19 +77,20 @@ interface Student {
   firstName: string;
   lastName: string;
   email?: string;
-  phoneNumber: string;
+  phone?: string;
   dateOfBirth: string;
   gender: string;
-  gradeLevel: string;
-  parentGuardianName: string;
-  parentGuardianPhone: string;
-  parentGuardianEmail?: string;
+  nationality?: string;
   address: string;
+  gradeLevel: string;
+  fatherName?: string;
+  motherName?: string;
+  guardianPhone?: string;
+  guardianEmail?: string;
   medicalConditions?: string;
-  emergencyContact: string;
-  enrollmentDate: string;
-  status: string;
+  specialNeeds?: string;
   passportPhoto?: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -272,17 +273,17 @@ export default function ViewStudents() {
       firstName: student.firstName,
       lastName: student.lastName,
       email: student.email || "",
-      phoneNumber: student.phoneNumber,
+      phoneNumber: student.phone || "",
       dateOfBirth: student.dateOfBirth,
       gender: student.gender as "male" | "female" | "other",
       gradeLevel: student.gradeLevel,
-      parentGuardianName: student.parentGuardianName,
-      parentGuardianPhone: student.parentGuardianPhone,
-      parentGuardianEmail: student.parentGuardianEmail || "",
+      parentGuardianName: student.fatherName || "",
+      parentGuardianPhone: student.guardianPhone || "",
+      parentGuardianEmail: student.guardianEmail || "",
       address: student.address,
       medicalConditions: student.medicalConditions || "",
-      emergencyContact: student.emergencyContact,
-      enrollmentDate: student.enrollmentDate,
+      emergencyContact: student.guardianPhone || "",
+      enrollmentDate: student.createdAt ? student.createdAt.split('T')[0] : "",
       status: student.status as "active" | "inactive" | "graduated" | "transferred",
       passportPhoto: student.passportPhoto || "",
     });
@@ -301,7 +302,14 @@ export default function ViewStudents() {
   const onSubmitEdit = (data: StudentEditData) => {
     // Exclude studentId from the update data since it's disabled
     const { studentId, ...updateData } = data;
-    updateStudentMutation.mutate(updateData);
+    
+    // Include passport photo if available
+    const finalData = {
+      ...updateData,
+      passportPhoto: passportPhoto || data.passportPhoto || "",
+    };
+    
+    updateStudentMutation.mutate(finalData);
   };
 
   const getStatusColor = (status: string) => {
