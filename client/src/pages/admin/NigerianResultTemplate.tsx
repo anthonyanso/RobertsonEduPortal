@@ -76,6 +76,18 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       .print-logo {
         width: 40px !important;
         height: 40px !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      
+      img {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       
       .print-title {
@@ -149,7 +161,7 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <img src={logoUrl} alt="School Logo" className="h-12 w-12 object-contain print-logo" />
+          <img src={logoUrl} alt="School Logo" className="h-12 w-12 object-contain print-logo" style={{display: 'block', opacity: 1, visibility: 'visible'}} />
           <div className="text-center flex-1">
             <h1 className="text-lg font-bold text-blue-900 print-title">{defaultSchoolInfo.name}</h1>
             <p className="text-xs text-gray-600">{defaultSchoolInfo.address}</p>

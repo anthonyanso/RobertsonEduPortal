@@ -263,6 +263,29 @@
       border: 1px solid #000 !important;
     }
     
+    /* Ensure images print properly */
+    img {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    
+    .print-logo {
+      width: 40px !important;
+      height: 40px !important;
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
     @page {
       size: A4;
       margin: 0.5in;

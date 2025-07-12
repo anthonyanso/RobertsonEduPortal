@@ -1227,6 +1227,17 @@ export default function ViewResults() {
                                 margin: 0;
                                 padding: 0;
                               }
+                              
+                              img {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                display: block !important;
+                                opacity: 1 !important;
+                                visibility: visible !important;
+                                max-width: 100% !important;
+                                height: auto !important;
+                              }
                             }
                           </style>
                         </head>
@@ -1235,7 +1246,7 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <img src="/attached_assets/logo_1751823007371.png" alt="Robertson Education Centre Logo" style="width: 50px; height: 50px; object-fit: contain;" />
+                                  <img src="/attached_assets/logo_1751823007371.png" alt="Robertson Education Centre Logo" style="width: 50px; height: 50px; object-fit: contain; display: block; opacity: 1; visibility: visible; -webkit-print-color-adjust: exact; color-adjust: exact;" />
                                 </div>
                                 <div class="school-info">
                                   <div class="school-name">ROBERTSON EDUCATION</div>
