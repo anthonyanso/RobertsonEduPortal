@@ -185,19 +185,64 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
         print-color-adjust: exact !important;
       }
       
-      /* Alternative approach: use pseudo elements for logo display */
-      .logo-container::before {
-        content: '';
+      /* SVG logo print styles */
+      .print-logo-svg {
         display: block !important;
-        width: 40px !important;
-        height: 40px !important;
-        background-image: url('${logoUrl}') !important;
-        background-size: contain !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
+        opacity: 1 !important;
+        visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
         color-adjust: exact !important;
         print-color-adjust: exact !important;
+        width: 48px !important;
+        height: 48px !important;
+      }
+      
+      /* Force SVG patterns to display in print */
+      svg pattern image {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      
+      /* Fallback logo text display */
+      .logo-container .hidden {
+        display: none !important;
+      }
+      
+      /* Print logo text styles */
+      .print-logo-text {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #dc2626 !important;
+        color: white !important;
+        font-size: 7px !important;
+        font-weight: bold !important;
+        line-height: 1.1 !important;
+        width: 48px !important;
+        height: 48px !important;
+        border: 2px solid #dc2626 !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      
+      /* Force print text logo to display */
+      @media print {
+        .print:hidden {
+          display: none !important;
+        }
+        
+        .print:flex {
+          display: flex !important;
+        }
+        
+        .logo-container .print-logo-text {
+          display: flex !important;
+        }
       }
       
       img {
@@ -277,37 +322,26 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <div className="logo-container h-12 w-12 flex items-center justify-center border border-gray-300 print-logo" style={{
-            backgroundImage: `url(${logoBase64})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            display: 'block',
-            opacity: 1,
-            visibility: 'visible',
-            WebkitPrintColorAdjust: 'exact',
-            colorAdjust: 'exact',
-            printColorAdjust: 'exact'
-          }}>
+          <div className="logo-container h-12 w-12 flex items-center justify-center border border-gray-300 print-logo">
+            {/* Regular image for screen display */}
             <img 
               src={logoBase64} 
               alt="School Logo" 
-              className="h-12 w-12 object-contain print-logo hidden print:block" 
-              style={{
-                display: 'block', 
-                opacity: 1, 
-                visibility: 'visible',
-                WebkitPrintColorAdjust: 'exact',
-                colorAdjust: 'exact',
-                printColorAdjust: 'exact'
-              }} 
-              onError={(e) => {
-                console.error('Logo failed to load:', e);
-              }}
+              className="h-12 w-12 object-contain print:hidden" 
             />
-            {/* Fallback for print if image fails */}
-            <div className="text-xs text-center text-gray-600 print:hidden">
-              LOGO
+            
+            {/* Simple text-based logo for print - guaranteed to work */}
+            <div className="hidden print:flex text-xs text-center text-white font-bold bg-red-600 w-12 h-12 flex-col items-center justify-center border-2 border-red-600 print-logo-text" style={{
+              fontSize: '7px',
+              lineHeight: '1.1',
+              display: 'none',
+              WebkitPrintColorAdjust: 'exact',
+              colorAdjust: 'exact',
+              printColorAdjust: 'exact'
+            }}>
+              <div>ROBERTSON</div>
+              <div>EDUCATION</div>
+              <div>CENTRE</div>
             </div>
           </div>
           <div className="text-center flex-1">
