@@ -59,25 +59,6 @@ const editResultSchema = z.object({
   classTeacher: z.string().optional(),
   principalComment: z.string().optional(),
   nextTermBegins: z.string().optional(),
-  psychomotor: z.object({
-    handWriting: z.number().min(1).max(5),
-    drawing: z.number().min(1).max(5),
-    painting: z.number().min(1).max(5),
-    sports: z.number().min(1).max(5),
-    speaking: z.number().min(1).max(5),
-    handling: z.number().min(1).max(5),
-  }).optional(),
-  affective: z.object({
-    punctuality: z.number().min(1).max(5),
-    attendance: z.number().min(1).max(5),
-    attentiveness: z.number().min(1).max(5),
-    neatness: z.number().min(1).max(5),
-    politeness: z.number().min(1).max(5),
-    honesty: z.number().min(1).max(5),
-    relationship: z.number().min(1).max(5),
-    selfControl: z.number().min(1).max(5),
-    leadership: z.number().min(1).max(5),
-  }).optional(),
 });
 
 export default function ViewResults() {
@@ -615,6 +596,7 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
   isLoading: boolean;
 }) {
   const [currentSubjects, setCurrentSubjects] = useState(result.subjects || []);
+  const { toast } = useToast();
   const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
   const termOptions = ["First Term", "Second Term", "Third Term"];
   const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
@@ -629,25 +611,6 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
       classTeacher: result.classTeacher || "",
       principalComment: result.principalComment || "",
       nextTermBegins: result.nextTermBegins || "",
-      psychomotor: result.psychomotor || {
-        handWriting: 3,
-        drawing: 3,
-        painting: 3,
-        sports: 3,
-        speaking: 3,
-        handling: 3,
-      },
-      affective: result.affective || {
-        punctuality: 3,
-        attendance: 3,
-        attentiveness: 3,
-        neatness: 3,
-        politeness: 3,
-        honesty: 3,
-        relationship: 3,
-        selfControl: 3,
-        leadership: 3,
-      },
     },
   });
 
@@ -710,6 +673,9 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
   };
 
   const handleSubmit = (data: any) => {
+    console.log("Form data:", data);
+    console.log("Current subjects:", currentSubjects);
+    
     // Calculate overall performance
     const validSubjects = currentSubjects.filter(s => s.subject && s.total > 0);
     const totalScore = validSubjects.reduce((sum, subject) => sum + subject.total, 0);
@@ -731,12 +697,20 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
       subjectCount: validSubjects.length
     };
 
+    console.log("Final data to submit:", finalData);
     onSubmit(finalData);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+        console.log("Form validation errors:", errors);
+        toast({
+          title: "Validation Error",
+          description: "Please check all required fields",
+          variant: "destructive"
+        });
+      })} className="space-y-6">
         {/* Basic Information */}
         <div className="grid grid-cols-3 gap-4">
           <FormField
