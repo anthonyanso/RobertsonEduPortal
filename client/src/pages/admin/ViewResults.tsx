@@ -75,54 +75,76 @@ const downloadResultAsPDF = (result: any, student: any) => {
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = function() {
-    // Header section
-    doc.setFontSize(20);
-    doc.setFont("helvetica", "bold");
-    doc.text("ROBERTSON EDUCATION CENTRE", pageWidth / 2, 30, { align: "center" });
-    
     // Add logo
     doc.addImage(img, "PNG", 15, 10, 25, 25);
     
-    // School details
-    doc.setFontSize(12);
+    // Header section
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 20, { align: "center" });
+    
+    doc.setFontSize(14);
+    doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 28, { align: "center" });
+    
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text("123 Education Street, Knowledge City", pageWidth / 2, 40, { align: "center" });
-    doc.text("Tel: +234 123 456 7890 | Email: info@robertsoneducation.com", pageWidth / 2, 48, { align: "center" });
-    doc.text('"Excellence in Education"', pageWidth / 2, 56, { align: "center" });
+    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 35, { align: "center" });
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 42, { align: "center" });
+    
+    // Add passport photo placeholder
+    doc.rect(pageWidth - 40, 10, 25, 25);
+    doc.setFontSize(8);
+    doc.text("PASSPORT", pageWidth - 27, 20, { align: "center" });
+    doc.text("PHOTOGRAPH", pageWidth - 27, 27, { align: "center" });
     
     // Result title
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text("STUDENT RESULT SHEET", pageWidth / 2, 70, { align: "center" });
-    
-    // Student information
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    let yPos = 85;
-    
-    doc.text(`Student Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, 15, yPos);
-    doc.text(`Student ID: ${result.studentId}`, 15, yPos + 8);
-    doc.text(`Class: ${result.class}`, 15, yPos + 16);
-    doc.text(`Session: ${result.session}`, 15, yPos + 24);
-    doc.text(`Term: ${result.term}`, 15, yPos + 32);
-    
-    // Results table
-    yPos += 50;
     doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 55, { align: "center" });
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 63, { align: "center" });
+    
+    // Student information in two columns
+    let yPos = 75;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    
+    // Left column
+    doc.text(`Student's Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, 15, yPos);
+    doc.text(`Admission No: ${result.studentId}`, 15, yPos + 8);
+    doc.text(`Class: ${result.class}`, 15, yPos + 16);
+    doc.text(`Age: ${student ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, 15, yPos + 24);
+    
+    // Right column
+    doc.text(`Session: ${result.session}`, 120, yPos);
+    doc.text(`Term: ${result.term}`, 120, yPos + 8);
+    doc.text(`No. in Class: ${result.totalInClass || 'N/A'}`, 120, yPos + 16);
+    doc.text(`Position: ${result.position || 'N/A'}`, 120, yPos + 24);
+    
+    // Academic Performance Table
+    yPos += 40;
+    doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text("ACADEMIC PERFORMANCE", pageWidth / 2, yPos, { align: "center" });
     
-    yPos += 15;
+    yPos += 10;
     
     // Table headers
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
-    const headers = ["Subject", "1st CA", "2nd CA", "Exam", "Total", "Grade", "Remark"];
-    const colWidths = [40, 20, 20, 20, 20, 20, 35];
+    const headers = ["SUBJECTS", "1st CA", "2nd CA", "EXAM (60)", "TOTAL (100)", "GRADE", "REMARK", "POSITION"];
+    const colWidths = [35, 15, 15, 20, 20, 15, 25, 20];
     let xPos = 15;
     
+    // Draw table borders and headers
+    doc.rect(15, yPos, pageWidth - 30, 8);
     headers.forEach((header, index) => {
-      doc.text(header, xPos, yPos);
+      doc.text(header, xPos + 1, yPos + 5);
+      if (index < headers.length - 1) {
+        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 8);
+      }
       xPos += colWidths[index];
     });
     
@@ -130,7 +152,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     // Table data
     doc.setFont("helvetica", "normal");
-    result.subjects.forEach((subject: any) => {
+    result.subjects.forEach((subject: any, index: number) => {
       xPos = 15;
       const values = [
         subject.subject,
@@ -139,51 +161,86 @@ const downloadResultAsPDF = (result: any, student: any) => {
         subject.exam.toString(),
         subject.total.toString(),
         subject.grade,
-        subject.remark
+        subject.remark,
+        (index + 1).toString()
       ];
       
-      values.forEach((value, index) => {
-        doc.text(value, xPos, yPos);
-        xPos += colWidths[index];
+      doc.rect(15, yPos, pageWidth - 30, 8);
+      values.forEach((value, i) => {
+        doc.text(value, xPos + 1, yPos + 5);
+        if (i < values.length - 1) {
+          doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + 8);
+        }
+        xPos += colWidths[i];
       });
       
       yPos += 8;
     });
     
-    // Performance summary
-    yPos += 15;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("PERFORMANCE SUMMARY", pageWidth / 2, yPos, { align: "center" });
-    
-    yPos += 15;
+    // Total marks row
+    xPos = 15;
     const totalMarks = result.subjects.reduce((sum: number, subject: any) => sum + subject.total, 0);
-    const percentage = ((totalMarks / (result.subjects.length * 100)) * 100).toFixed(1);
+    doc.setFont("helvetica", "bold");
+    doc.rect(15, yPos, pageWidth - 30, 8);
+    doc.text("TOTAL MARKS OBTAINED", xPos + 1, yPos + 5);
+    xPos += 35 + 15 + 15 + 20; // Skip to total column
+    doc.text(totalMarks.toString(), xPos + 1, yPos + 5);
     
-    doc.setFont("helvetica", "normal");
+    // Performance Summary
+    yPos += 25;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    
+    const percentage = ((totalMarks / (result.subjects.length * 100)) * 100).toFixed(1);
+    const gradePoints = result.subjects.reduce((sum: number, subject: any) => {
+      const gradeValue = subject.grade === 'A' ? 4 : subject.grade === 'B' ? 3 : subject.grade === 'C' ? 2 : subject.grade === 'D' ? 1 : 0;
+      return sum + gradeValue;
+    }, 0);
+    const cgpa = (gradePoints / result.subjects.length).toFixed(2);
+    
     doc.text(`Total Marks: ${totalMarks}`, 15, yPos);
     doc.text(`Percentage: ${percentage}%`, 15, yPos + 8);
-    doc.text(`Position: ${result.position || 'N/A'}`, 15, yPos + 16);
-    doc.text(`Number in Class: ${result.totalInClass || 'N/A'}`, 15, yPos + 24);
+    doc.text(`CGPA: ${cgpa}`, 15, yPos + 16);
+    doc.text(`Position: ${result.position || 'N/A'} out of ${result.totalInClass || 'N/A'}`, 15, yPos + 24);
     
-    // Comments
+    // Comments Section
     yPos += 40;
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("CLASS TEACHER'S REMARK:", 15, yPos);
     doc.setFont("helvetica", "normal");
-    doc.text(result.classTeacher || 'No comment provided', 15, yPos + 8);
+    doc.text(result.classTeacher || 'Keep up the good work!', 15, yPos + 8);
     
     yPos += 20;
     doc.setFont("helvetica", "bold");
     doc.text("PRINCIPAL'S REMARK:", 15, yPos);
     doc.setFont("helvetica", "normal");
-    doc.text(result.principalComment || 'No comment provided', 15, yPos + 8);
+    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 15, yPos + 8);
+    
+    // Signature Section
+    yPos += 25;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    
+    // Three columns for signatures
+    doc.text("Class Teacher's Signature:", 15, yPos);
+    doc.line(15, yPos + 10, 70, yPos + 10);
+    doc.text("Date: __________", 15, yPos + 15);
+    
+    doc.text("Principal's Signature:", 80, yPos);
+    doc.line(80, yPos + 10, 135, yPos + 10);
+    doc.text("Date: __________", 80, yPos + 15);
+    
+    doc.text("Parent/Guardian's Signature:", 145, yPos);
+    doc.line(145, yPos + 10, 195, yPos + 10);
+    doc.text("Date: __________", 145, yPos + 15);
     
     // Footer
-    yPos += 20;
-    doc.setFontSize(10);
-    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, 15, yPos);
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 15, yPos + 8);
+    yPos += 30;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, pageWidth / 2, yPos, { align: "center" });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, yPos + 8, { align: "center" });
     
     // Save PDF
     const fileName = `${student ? student.firstName + '_' + student.lastName : result.studentId}_Result.pdf`;
@@ -1044,7 +1101,9 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <img src="/attached_assets/logo_1751823007371.png" alt="Robertson Education Centre Logo" style="width: 50px; height: 50px; object-fit: contain; display: block; opacity: 1; visibility: visible; -webkit-print-color-adjust: exact; color-adjust: exact;" />
+                                  <div class="print-logo-container">
+                                    <img src="${logoUrl}" alt="Robertson Education Centre Logo" class="print-logo-image" />
+                                  </div>
                                 </div>
                                 <div class="school-info">
                                   <div class="school-name">ROBERTSON EDUCATION</div>
@@ -1236,7 +1295,7 @@ export default function ViewResults() {
                   Print Result
                 </Button>
                 
-                <Button variant="outline" onClick={() => {
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => {
                   if (selectedResult) {
                     const student = getStudentInfo(selectedResult.studentId);
                     downloadResultAsPDF(selectedResult, student);
