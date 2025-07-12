@@ -1235,7 +1235,7 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <img src="/attached_assets/logo_1751823007371.png" alt="Robertson Education Centre Logo" style="width: 64px; height: 64px; object-fit: contain;" />
+                                  <img src="/attached_assets/logo_1751823007371.png" alt="Robertson Education Centre Logo" style="width: 50px; height: 50px; object-fit: contain;" />
                                 </div>
                                 <div class="school-info">
                                   <div class="school-name">ROBERTSON EDUCATION</div>
