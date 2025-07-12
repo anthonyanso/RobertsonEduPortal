@@ -172,8 +172,10 @@ Changelog:
   - Enhanced print CSS with extensive !important rules to force logo display in print mode
   - Added browser-specific image printing fixes for maximum compatibility
   - Fixed PDF generation error by converting numeric values to strings for jsPDF compatibility
-  - Reduced logo size to 18x18px to match passport photo dimensions exactly
-  - Updated both print and PDF layouts for professional, balanced appearance
+  - Iteratively optimized logo and passport sizes based on user feedback from 18px to final 65px
+  - Achieved perfect size matching between logo and passport placeholder for professional appearance
+  - Updated both print (65x65px) and PDF (32x32px) layouts with optimized dimensions
+  - Enhanced passport text size to 10pt for excellent readability
 
 ## User Preferences
 
