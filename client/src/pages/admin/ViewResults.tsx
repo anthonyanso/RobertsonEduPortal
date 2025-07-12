@@ -1446,23 +1446,25 @@ export default function ViewResults() {
 
       {/* Edit Result Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Edit Result</DialogTitle>
           </DialogHeader>
           {editingResult && (
-            <EditResultForm
-              result={editingResult}
-              students={students}
-              onSubmit={(data) => {
-                editResultMutation.mutate({ id: editingResult.id, data });
-              }}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                setEditingResult(null);
-              }}
-              isLoading={editResultMutation.isPending}
-            />
+            <div className="flex-1 overflow-y-auto pr-2">
+              <EditResultForm
+                result={editingResult}
+                students={students}
+                onSubmit={(data) => {
+                  editResultMutation.mutate({ id: editingResult.id, data });
+                }}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  setEditingResult(null);
+                }}
+                isLoading={editResultMutation.isPending}
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -1585,222 +1587,228 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
-        console.log("Form validation errors:", errors);
-        toast({
-          title: "Validation Error",
-          description: "Please check all required fields",
-          variant: "destructive"
-        });
-      })} className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="session"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Session</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select session" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {sessionOptions.map(session => (
-                      <SelectItem key={session} value={session}>{session}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="term"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Term</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select term" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {termOptions.map(term => (
-                      <SelectItem key={term} value={term}>{term}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="class"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Class</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select class" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {classOptions.map(cls => (
-                      <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Subjects */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Academic Subjects</h3>
-            <Button type="button" onClick={addSubject} size="sm">
-              Add Subject
-            </Button>
+    <div className="space-y-6 pb-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
+          console.log("Form validation errors:", errors);
+          toast({
+            title: "Validation Error",
+            description: "Please check all required fields",
+            variant: "destructive"
+          });
+        })} className="space-y-6">
+          {/* Basic Information */}
+          <div className="grid grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="session"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Session</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select session" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {sessionOptions.map(session => (
+                        <SelectItem key={session} value={session}>{session}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="term"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Term</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select term" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {termOptions.map(term => (
+                        <SelectItem key={term} value={term}>{term}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="class"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Class</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select class" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {classOptions.map(cls => (
+                        <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          
-          {currentSubjects.map((subject, index) => (
-            <Card key={index} className="p-4">
-              <div className="grid grid-cols-7 gap-4 items-end">
-                <div>
-                  <label className="text-sm font-medium">Subject</label>
-                  <Input
-                    value={subject.subject}
-                    onChange={(e) => updateSubject(index, 'subject', e.target.value)}
-                    placeholder="Subject name"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">CA1 (20)</label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="20"
-                    value={subject.ca1}
-                    onChange={(e) => updateSubject(index, 'ca1', Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">CA2 (20)</label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="20"
-                    value={subject.ca2}
-                    onChange={(e) => updateSubject(index, 'ca2', Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Exam (60)</label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="60"
-                    value={subject.exam}
-                    onChange={(e) => updateSubject(index, 'exam', Number(e.target.value))}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Total</label>
-                  <Input value={subject.total} disabled />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Grade</label>
-                  <Input value={subject.grade} disabled />
-                </div>
-                <div>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => removeSubject(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
 
-        {/* Additional Information */}
-        <div className="grid grid-cols-2 gap-4">
+          {/* Subjects */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Academic Subjects</h3>
+              <Button type="button" onClick={addSubject} size="sm">
+                Add Subject
+              </Button>
+            </div>
+            
+            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+              {currentSubjects.map((subject, index) => (
+                <Card key={index} className="p-4">
+                  <div className="grid grid-cols-7 gap-4 items-end">
+                    <div>
+                      <label className="text-sm font-medium">Subject</label>
+                      <Input
+                        value={subject.subject}
+                        onChange={(e) => updateSubject(index, 'subject', e.target.value)}
+                        placeholder="Subject name"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">CA1 (20)</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="20"
+                        value={subject.ca1}
+                        onChange={(e) => updateSubject(index, 'ca1', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">CA2 (20)</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="20"
+                        value={subject.ca2}
+                        onChange={(e) => updateSubject(index, 'ca2', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Exam (60)</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="60"
+                        value={subject.exam}
+                        onChange={(e) => updateSubject(index, 'exam', Number(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Total</label>
+                      <Input value={subject.total} disabled />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Grade</label>
+                      <Input value={subject.grade} disabled />
+                    </div>
+                    <div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => removeSubject(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="classTeacher"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Class Teacher</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter class teacher name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="nextTermBegins"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Next Term Begins</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g., Monday, 15th January, 2024" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
-            name="classTeacher"
+            name="principalComment"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Class Teacher</FormLabel>
+                <FormLabel>Principal's Comment</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter class teacher name" />
+                  <Textarea {...field} placeholder="Enter principal's comment" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="nextTermBegins"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Next Term Begins</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., Monday, 15th January, 2024" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
-        <FormField
-          control={form.control}
-          name="principalComment"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Principal's Comment</FormLabel>
-              <FormControl>
-                <Textarea {...field} placeholder="Enter principal's comment" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Form Actions */}
-        <div className="flex justify-end space-x-4 border-t pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Save Changes
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          {/* Form Actions - Sticky at bottom */}
+          <div className="sticky bottom-0 bg-white border-t pt-4 mt-6">
+            <div className="flex justify-end space-x-4">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }
