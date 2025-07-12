@@ -189,6 +189,11 @@ Changelog:
   - Added passport photo support to PDF generation with error handling fallback
   - Integrated passport photo display in both print and PDF formats (65x65px print, 32x32px PDF)
   - Enhanced student management with professional passport photo capability for result templates
+  - Fixed student registration validation error by excluding studentId from insert schema
+  - Added passport photo display to ViewStudents dialog for viewing student details
+  - Enhanced edit student dialog to properly load and display existing passport photos
+  - Added debugging to track passport photo data flow in result templates and student views
+  - Implemented comprehensive passport photo display across all student management interfaces
 
 ## User Preferences
 

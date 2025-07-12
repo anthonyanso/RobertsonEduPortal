@@ -567,19 +567,37 @@ export default function ViewStudents() {
             </DialogDescription>
           </DialogHeader>
           {viewingStudent && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Student ID</Label>
-                <p className="text-sm">{viewingStudent.studentId}</p>
+            <div className="space-y-4">
+              {/* Passport Photo Display */}
+              <div className="flex justify-center mb-4">
+                <div className="w-24 h-24 border-2 border-gray-300 rounded-lg overflow-hidden">
+                  {viewingStudent.passportPhoto ? (
+                    <img
+                      src={viewingStudent.passportPhoto}
+                      alt="Student Passport Photo"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
+                      No Photo
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Full Name</Label>
-                <p className="text-sm">{viewingStudent.firstName} {viewingStudent.lastName}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-500">Email</Label>
-                <p className="text-sm">{viewingStudent.email || 'Not provided'}</p>
-              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Student ID</Label>
+                  <p className="text-sm">{viewingStudent.studentId}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Full Name</Label>
+                  <p className="text-sm">{viewingStudent.firstName} {viewingStudent.lastName}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Email</Label>
+                  <p className="text-sm">{viewingStudent.email || 'Not provided'}</p>
+                </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Phone Number</Label>
                 <p className="text-sm">{viewingStudent.phoneNumber}</p>
@@ -626,12 +644,13 @@ export default function ViewStudents() {
                 <Label className="text-sm font-medium text-gray-500">Registration Date</Label>
                 <p className="text-sm">{formatDate(viewingStudent.createdAt)}</p>
               </div>
-              {viewingStudent.medicalConditions && (
-                <div className="md:col-span-2">
-                  <Label className="text-sm font-medium text-gray-500">Medical Conditions</Label>
-                  <p className="text-sm">{viewingStudent.medicalConditions}</p>
-                </div>
-              )}
+                {viewingStudent.medicalConditions && (
+                  <div className="md:col-span-2">
+                    <Label className="text-sm font-medium text-gray-500">Medical Conditions</Label>
+                    <p className="text-sm">{viewingStudent.medicalConditions}</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>

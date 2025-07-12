@@ -495,6 +495,10 @@ export default function ViewResults() {
     const student = students.find((s: any) => s.studentId === studentId);
     console.log('Student found:', student);
     console.log('Student passport photo:', student?.passportPhoto ? 'Available' : 'Not available');
+    if (student?.passportPhoto) {
+      console.log('Passport photo data length:', student.passportPhoto.length);
+      console.log('Passport photo starts with:', student.passportPhoto.substring(0, 50));
+    }
     return student;
   };
 

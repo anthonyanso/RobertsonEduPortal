@@ -354,6 +354,11 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
                   opacity: 1,
                   visibility: 'visible'
                 }}
+                onError={(e) => {
+                  console.error('Error loading passport photo:', e);
+                  console.log('Student data:', student);
+                  console.log('Passport photo data length:', student.passportPhoto?.length);
+                }}
               />
             ) : (
               <span className="text-xs text-gray-400">PASSPORT</span>
