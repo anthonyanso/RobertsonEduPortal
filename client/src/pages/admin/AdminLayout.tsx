@@ -14,6 +14,8 @@ import CreateResult from "./CreateResult";
 import ViewResults from "./ViewResults";
 // @ts-ignore  
 import ResultAnalytics from "./ResultAnalytics";
+// @ts-ignore  
+import CumulativeResults from "./CumulativeResults";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -40,7 +42,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
     if (activeTab === "add-student" || activeTab === "view-students") {
       setStudentsDropdownOpen(true);
     }
-    if (activeTab === "create-result" || activeTab === "view-results" || activeTab === "result-analytics") {
+    if (activeTab === "create-result" || activeTab === "view-results" || activeTab === "cumulative-results" || activeTab === "result-analytics") {
       setResultsDropdownOpen(true);
     }
   }, [activeTab]);
@@ -74,6 +76,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const resultsSubItems = [
     { id: "create-result", label: "Create Result", icon: Plus },
     { id: "view-results", label: "View Results", icon: FileText },
+    { id: "cumulative-results", label: "Cumulative Results", icon: BarChart3 },
     { id: "result-analytics", label: "Analytics", icon: BarChart3 },
   ];
 
@@ -201,6 +204,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           
           {activeTab === "create-result" && <CreateResult />}
           {activeTab === "view-results" && <ViewResults />}
+          {activeTab === "cumulative-results" && <CumulativeResults />}
           {activeTab === "result-analytics" && <ResultAnalytics />}
           {activeTab === "scratch-cards" && (
             <Card>
