@@ -340,31 +340,29 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
             </p>
             <p className="text-xs font-semibold text-blue-800">"{defaultSchoolInfo.motto}"</p>
           </div>
-          <div className="h-12 w-12 border-2 border-gray-300 flex items-center justify-center">
-            {student && (student.passportPhoto || student.studentId) ? (
-              <img 
-                src={student.passportPhoto || `/api/student-photo/${student.studentId}`}
-                alt="Student Passport" 
-                className="h-12 w-12 object-cover passport-photo"
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  objectFit: 'cover',
-                  display: 'block',
-                  opacity: 1,
-                  visibility: 'visible'
-                }}
-                onError={(e) => {
-                  console.error('Error loading passport photo:', e);
-                  console.log('Student data:', student);
-                  console.log('Passport photo data length:', student.passportPhoto?.length);
-                  // Hide image on error and show placeholder
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-            ) : null}
-            <span className={`text-xs text-gray-400 ${student && (student.passportPhoto || student.studentId) ? 'hidden' : ''}`}>
+          <div className="h-12 w-12 border-2 border-gray-300 flex items-center justify-center bg-gray-50">
+            <img 
+              src={`/api/student-photo/${student?.studentId}`}
+              alt="Student Passport" 
+              className="h-12 w-12 object-cover passport-photo"
+              style={{
+                width: '48px',
+                height: '48px',
+                objectFit: 'cover',
+                display: 'block',
+                opacity: 1,
+                visibility: 'visible'
+              }}
+              onError={(e) => {
+                // Hide image on error and show placeholder
+                e.currentTarget.style.display = 'none';
+                const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                if (placeholder) {
+                  placeholder.style.display = 'flex';
+                }
+              }}
+            />
+            <span className="text-xs text-gray-400 w-full h-full flex items-center justify-center" style={{ display: 'none' }}>
               PASSPORT
             </span>
           </div>

@@ -194,6 +194,11 @@ Changelog:
   - Enhanced edit student dialog to properly load and display existing passport photos
   - Added debugging to track passport photo data flow in result templates and student views
   - Implemented comprehensive passport photo display across all student management interfaces
+  - Fixed SQL syntax error in photo serving endpoint by switching from Drizzle ORM to raw SQL queries
+  - Created working `/api/student-photo/:studentId` endpoint that properly serves passport photos
+  - Enhanced error handling to gracefully show placeholders for students without photos
+  - Updated frontend components to use photo endpoint with fallback to placeholder text
+  - System now supports individual student photos with proper error handling and placeholder display
 
 ## User Preferences
 

@@ -570,21 +570,21 @@ export default function ViewStudents() {
             <div className="space-y-4">
               {/* Passport Photo Display */}
               <div className="flex justify-center mb-4">
-                <div className="w-24 h-24 border-2 border-gray-300 rounded-lg overflow-hidden">
-                  {viewingStudent.studentId ? (
-                    <img
-                      src={`/api/student-photo/${viewingStudent.studentId}`}
-                      alt="Student Passport Photo"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.error('Error loading passport photo:', e);
-                        // Hide image on error and show placeholder
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                  ) : null}
-                  <div className={`w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs ${viewingStudent.studentId ? 'hidden' : ''}`}>
+                <div className="w-24 h-24 border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
+                  <img
+                    src={`/api/student-photo/${viewingStudent.studentId}`}
+                    alt="Student Passport Photo"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Hide image on error and show placeholder
+                      e.currentTarget.style.display = 'none';
+                      const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (placeholder) {
+                        placeholder.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs" style={{ display: 'none' }}>
                     No Photo
                   </div>
                 </div>
