@@ -403,7 +403,7 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           {/* Class Filter */}
-          <div>
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="class-filter">Filter Students by Class</Label>
               {selectedClass !== "all" && (
@@ -449,7 +449,7 @@ function BasicInformationStep({ form, students, selectedClass, onClassChange }: 
               </SelectContent>
             </Select>
             {selectedClass !== "all" && (
-              <div className="text-xs text-gray-600 mt-1">
+              <div className="text-xs text-gray-600 mt-2">
                 📍 Showing only students in {selectedClass}
               </div>
             )}
