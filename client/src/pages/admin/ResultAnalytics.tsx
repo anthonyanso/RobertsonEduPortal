@@ -200,11 +200,11 @@ export default function ResultAnalytics() {
                   Edit Grades
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Edit Grade Distribution Settings</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <div className="space-y-4 pb-4">
                   {Object.entries(gradeSettings).map(([grade, settings]) => (
                     <div key={grade} className="grid grid-cols-4 gap-4 items-center p-3 border rounded-lg">
                       <div className="font-medium">Grade {grade}</div>
@@ -245,7 +245,7 @@ export default function ResultAnalytics() {
                       </div>
                     </div>
                   ))}
-                  <div className="flex justify-end space-x-2">
+                  <div className="flex justify-end space-x-2 pt-4 border-t">
                     <Button variant="outline" onClick={() => setIsGradeSettingsOpen(false)}>
                       Cancel
                     </Button>
