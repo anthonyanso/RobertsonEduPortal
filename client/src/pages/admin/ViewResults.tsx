@@ -625,14 +625,423 @@ export default function ViewResults() {
                   Close
                 </Button>
                 <Button variant="outline" onClick={() => {
-                  // Hide dialog content except the result template
-                  const dialogContent = document.querySelector('.max-w-6xl');
-                  if (dialogContent) {
-                    dialogContent.classList.add('print:block');
+                  // Create a new window for printing
+                  const printWindow = window.open('', '_blank', 'width=800,height=600');
+                  if (printWindow && selectedResult) {
+                    const student = getStudentInfo(selectedResult.studentId);
+                    
+                    // Create the print content
+                    const printContent = `
+                      <!DOCTYPE html>
+                      <html>
+                        <head>
+                          <title>Student Result - ${student ? student.firstName + ' ' + student.lastName : selectedResult.studentId}</title>
+                          <style>
+                            * {
+                              margin: 0;
+                              padding: 0;
+                              box-sizing: border-box;
+                            }
+                            
+                            body {
+                              font-family: 'Times New Roman', serif;
+                              font-size: 12pt;
+                              line-height: 1.2;
+                              color: #000;
+                              background: #fff;
+                            }
+                            
+                            .container {
+                              max-width: 800px;
+                              margin: 0 auto;
+                              padding: 20px;
+                            }
+                            
+                            .header {
+                              border: 4px double #000;
+                              padding: 20px;
+                              margin-bottom: 20px;
+                              text-align: center;
+                            }
+                            
+                            .school-info {
+                              margin-bottom: 15px;
+                            }
+                            
+                            .school-name {
+                              font-size: 24pt;
+                              font-weight: bold;
+                              color: #1e3a8a;
+                              margin-bottom: 5px;
+                            }
+                            
+                            .school-address {
+                              font-size: 12pt;
+                              color: #666;
+                              margin-bottom: 3px;
+                            }
+                            
+                            .school-contact {
+                              font-size: 10pt;
+                              color: #666;
+                              margin-bottom: 5px;
+                            }
+                            
+                            .school-motto {
+                              font-size: 10pt;
+                              font-weight: bold;
+                              color: #1e40af;
+                            }
+                            
+                            .result-title {
+                              border-top: 2px solid #000;
+                              border-bottom: 2px solid #000;
+                              padding: 10px;
+                              margin-top: 15px;
+                              font-size: 16pt;
+                              font-weight: bold;
+                            }
+                            
+                            .student-info {
+                              display: grid;
+                              grid-template-columns: 1fr 1fr;
+                              gap: 30px;
+                              margin: 20px 0;
+                            }
+                            
+                            .info-row {
+                              display: flex;
+                              margin-bottom: 8px;
+                            }
+                            
+                            .info-label {
+                              font-weight: bold;
+                              width: 120px;
+                              flex-shrink: 0;
+                            }
+                            
+                            .info-value {
+                              border-bottom: 1px dotted #999;
+                              flex-grow: 1;
+                              padding-left: 8px;
+                            }
+                            
+                            .section-title {
+                              background: #f5f5f5;
+                              padding: 10px;
+                              text-align: center;
+                              font-size: 14pt;
+                              font-weight: bold;
+                              margin: 20px 0 10px 0;
+                            }
+                            
+                            .result-table {
+                              width: 100%;
+                              border-collapse: collapse;
+                              margin-bottom: 20px;
+                            }
+                            
+                            .result-table th,
+                            .result-table td {
+                              border: 1px solid #000;
+                              padding: 8px;
+                              text-align: center;
+                            }
+                            
+                            .result-table th {
+                              background: #f0f0f0;
+                              font-weight: bold;
+                            }
+                            
+                            .result-table .subject-name {
+                              text-align: left;
+                              font-weight: bold;
+                            }
+                            
+                            .summary-row {
+                              background: #f5f5f5;
+                              font-weight: bold;
+                            }
+                            
+                            .performance-summary {
+                              display: grid;
+                              grid-template-columns: 1fr 1fr 1fr 1fr;
+                              gap: 10px;
+                              margin: 20px 0;
+                            }
+                            
+                            .performance-card {
+                              border: 1px solid #000;
+                              padding: 15px;
+                              text-align: center;
+                            }
+                            
+                            .performance-label {
+                              font-size: 10pt;
+                              font-weight: bold;
+                              margin-bottom: 5px;
+                            }
+                            
+                            .performance-value {
+                              font-size: 18pt;
+                              font-weight: bold;
+                            }
+                            
+                            .comments {
+                              margin: 20px 0;
+                            }
+                            
+                            .comment-box {
+                              border: 1px solid #000;
+                              padding: 15px;
+                              margin-bottom: 15px;
+                              min-height: 60px;
+                              background: #f9f9f9;
+                            }
+                            
+                            .comment-title {
+                              font-weight: bold;
+                              margin-bottom: 8px;
+                            }
+                            
+                            .signatures {
+                              margin-top: 30px;
+                            }
+                            
+                            .signature-table {
+                              width: 100%;
+                              border-collapse: collapse;
+                            }
+                            
+                            .signature-table td {
+                              border: 1px solid #000;
+                              padding: 30px 10px 10px 10px;
+                              text-align: center;
+                              vertical-align: bottom;
+                            }
+                            
+                            .signature-line {
+                              border-top: 1px solid #000;
+                              padding-top: 5px;
+                              margin-top: 20px;
+                            }
+                            
+                            .footer {
+                              border-top: 2px solid #000;
+                              padding-top: 15px;
+                              margin-top: 30px;
+                              text-align: center;
+                            }
+                            
+                            .footer-info {
+                              font-size: 10pt;
+                              color: #666;
+                              margin-top: 10px;
+                            }
+                            
+                            @media print {
+                              @page {
+                                size: A4;
+                                margin: 0.5in;
+                              }
+                              
+                              body {
+                                -webkit-print-color-adjust: exact;
+                                color-adjust: exact;
+                              }
+                              
+                              .container {
+                                max-width: none;
+                                margin: 0;
+                                padding: 0;
+                              }
+                            }
+                          </style>
+                        </head>
+                        <body>
+                          <div class="container">
+                            <div class="header">
+                              <div class="school-info">
+                                <div class="school-name">ROBERTSON EDUCATION</div>
+                                <div class="school-address">Excellence in Education - Nurturing Tomorrow's Leaders</div>
+                                <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
+                                <div class="school-motto">"Knowledge • Character • Service"</div>
+                              </div>
+                              <div class="result-title">
+                                CONTINUOUS ASSESSMENT REPORT SHEET<br>
+                                Academic Session: ${selectedResult.session} | ${selectedResult.term}
+                              </div>
+                            </div>
+                            
+                            <div class="student-info">
+                              <div>
+                                <div class="info-row">
+                                  <span class="info-label">Student's Name:</span>
+                                  <span class="info-value">${student ? student.firstName + ' ' + student.lastName : 'N/A'}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Admission No:</span>
+                                  <span class="info-value">${selectedResult.studentId}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Class:</span>
+                                  <span class="info-value">${selectedResult.class}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Age:</span>
+                                  <span class="info-value">${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}</span>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div class="info-row">
+                                  <span class="info-label">Session:</span>
+                                  <span class="info-value">${selectedResult.session}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Term:</span>
+                                  <span class="info-value">${selectedResult.term}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">No. in Class:</span>
+                                  <span class="info-value">${selectedResult.outOf || 'N/A'}</span>
+                                </div>
+                                <div class="info-row">
+                                  <span class="info-label">Position:</span>
+                                  <span class="info-value">${selectedResult.position && selectedResult.outOf ? selectedResult.position + ' out of ' + selectedResult.outOf : 'N/A'}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div class="section-title">ACADEMIC PERFORMANCE</div>
+                            <table class="result-table">
+                              <thead>
+                                <tr>
+                                  <th>SUBJECTS</th>
+                                  <th>1st CA<br>(20)</th>
+                                  <th>2nd CA<br>(20)</th>
+                                  <th>EXAM<br>(60)</th>
+                                  <th>TOTAL<br>(100)</th>
+                                  <th>GRADE</th>
+                                  <th>REMARK</th>
+                                  <th>POSITION</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                ${selectedResult.subjects?.map((subject, index) => `
+                                  <tr>
+                                    <td class="subject-name">${subject.subject}</td>
+                                    <td>${subject.ca1 || 0}</td>
+                                    <td>${subject.ca2 || 0}</td>
+                                    <td>${subject.exam || 0}</td>
+                                    <td><strong>${subject.total || 0}</strong></td>
+                                    <td><strong>${subject.grade || 'N/A'}</strong></td>
+                                    <td>${subject.remark || (subject.grade?.includes('A') ? 'Excellent' : subject.grade?.includes('B') ? 'Good' : subject.grade?.includes('C') ? 'Credit' : subject.grade?.includes('D') ? 'Pass' : 'Fail')}</td>
+                                    <td>${subject.position || (index + 1)}</td>
+                                  </tr>
+                                `).join('') || ''}
+                                <tr class="summary-row">
+                                  <td colspan="4" style="text-align: center;"><strong>TOTAL</strong></td>
+                                  <td><strong>${selectedResult.totalScore || 0}</strong></td>
+                                  <td>-</td>
+                                  <td><strong>AVG: ${selectedResult.average || 0}%</strong></td>
+                                  <td><strong>GPA: ${selectedResult.gpa || 0}</strong></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            
+                            <div class="performance-summary">
+                              <div class="performance-card">
+                                <div class="performance-label">TOTAL SCORE</div>
+                                <div class="performance-value">${selectedResult.totalScore || 0}</div>
+                              </div>
+                              <div class="performance-card">
+                                <div class="performance-label">AVERAGE</div>
+                                <div class="performance-value">${selectedResult.average || 0}%</div>
+                              </div>
+                              <div class="performance-card">
+                                <div class="performance-label">GRADE POINT</div>
+                                <div class="performance-value">${selectedResult.gpa || 0}/4.0</div>
+                              </div>
+                              <div class="performance-card">
+                                <div class="performance-label">OVERALL GRADE</div>
+                                <div class="performance-value">${selectedResult.average >= 70 ? 'A' : selectedResult.average >= 60 ? 'B' : selectedResult.average >= 50 ? 'C' : selectedResult.average >= 40 ? 'D' : 'F'}</div>
+                              </div>
+                            </div>
+                            
+                            <div class="section-title">COMMENTS</div>
+                            <div class="comments">
+                              <div class="comment-title">CLASS TEACHER'S COMMENT:</div>
+                              <div class="comment-box">
+                                ${selectedResult.classTeacher ? 
+                                  `${selectedResult.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
+                                    selectedResult.average >= 70 ? 'Very good performance. You can do better.' : 
+                                    selectedResult.average >= 65 ? 'Good performance. Work harder.' : 
+                                    selectedResult.average >= 60 ? 'Fair performance. You need to improve.' : 
+                                    'Poor performance. You need serious improvement.'} - ${selectedResult.classTeacher}` : 
+                                  (selectedResult.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
+                                   selectedResult.average >= 70 ? 'Very good performance. You can do better.' : 
+                                   selectedResult.average >= 65 ? 'Good performance. Work harder.' : 
+                                   selectedResult.average >= 60 ? 'Fair performance. You need to improve.' : 
+                                   'Poor performance. You need serious improvement.')}
+                              </div>
+                              
+                              <div class="comment-title">PRINCIPAL'S COMMENT:</div>
+                              <div class="comment-box">
+                                ${selectedResult.principalComment || 'Keep up the good work and continue to strive for excellence.'}
+                              </div>
+                            </div>
+                            
+                            <div class="section-title">SIGNATURES</div>
+                            <div class="signatures">
+                              <table class="signature-table">
+                                <tr>
+                                  <td>
+                                    <div class="signature-line">
+                                      <strong>Class Teacher's Signature</strong><br>
+                                      Date: _____________
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div class="signature-line">
+                                      <strong>Principal's Signature</strong><br>
+                                      Date: _____________
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div class="signature-line">
+                                      <strong>Parent/Guardian's Signature</strong><br>
+                                      Date: _____________
+                                    </div>
+                                  </td>
+                                </tr>
+                              </table>
+                            </div>
+                            
+                            <div class="footer">
+                              <div>
+                                <strong>Next Term Begins:</strong> ${selectedResult.nextTermBegins || 'Date to be announced'}
+                              </div>
+                              <div class="footer-info">
+                                This is a computer-generated result sheet from Robertson Education Management System.<br>
+                                Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}
+                              </div>
+                            </div>
+                          </div>
+                        </body>
+                      </html>
+                    `;
+                    
+                    // Write content to print window
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    
+                    // Wait for content to load then print
+                    printWindow.onload = function() {
+                      printWindow.print();
+                      printWindow.close();
+                    };
                   }
-                  
-                  // Print the page
-                  window.print();
                 }}>
                   <Printer className="h-4 w-4 mr-2" />
                   Print Result
