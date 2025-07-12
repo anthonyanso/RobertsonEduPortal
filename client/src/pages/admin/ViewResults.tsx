@@ -207,82 +207,111 @@ export default function ViewResults() {
     // Set font
     doc.setFont('helvetica', 'normal');
     
-    // Add header with proper spacing and formatting
+    // Page border
+    doc.setLineWidth(2);
+    doc.rect(10, 10, 190, 277);
+    doc.setLineWidth(1);
+    doc.rect(12, 12, 186, 273);
+    
+    // Header section with logo and passport area
+    let yPos = 20;
+    
+    // School logo placeholder (left side)
+    doc.setFillColor(30, 58, 138);
+    doc.rect(20, yPos, 25, 25, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RE', 32.5, yPos + 15, { align: 'center' });
+    
+    // School header (center)
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 58, 138); // Blue color
-    doc.text('ROBERTSON EDUCATION', 105, 20, { align: 'center' });
+    doc.text('ROBERTSON EDUCATION', 105, yPos + 5, { align: 'center' });
     
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Excellence in Education - Nurturing Tomorrow\'s Leaders', 105, 28, { align: 'center' });
-    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, 34, { align: 'center' });
-    doc.setFont('helvetica', 'bold');
-    doc.text('"Knowledge • Character • Service"', 105, 40, { align: 'center' });
-    
-    // Add decorative border
-    doc.setLineWidth(0.5);
-    doc.rect(15, 10, 180, 35);
-    doc.setLineWidth(1);
-    doc.rect(16, 11, 178, 33);
-    
-    // Result title with better formatting
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 105, 56, { align: 'center' });
-    doc.setFontSize(11);
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, 105, 63, { align: 'center' });
-    
-    // Student information with improved layout
-    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Excellence in Education - Nurturing Tomorrow\'s Leaders', 105, yPos + 12, { align: 'center' });
+    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, yPos + 17, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('"Knowledge • Character • Service"', 105, yPos + 22, { align: 'center' });
     
-    let yPos = 78;
-    const leftCol = 20;
-    const rightCol = 110;
+    // Passport placeholder (right side)
+    doc.setLineWidth(1);
+    doc.rect(155, yPos, 25, 25);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('PASSPORT', 167.5, yPos + 13, { align: 'center' });
     
-    // Create student info section with borders
-    doc.setLineWidth(0.5);
-    doc.rect(15, yPos - 5, 180, 32);
-    
-    yPos += 5;
-    // Left column
-    doc.text(`Student's Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, leftCol, yPos);
-    doc.text(`Admission No: ${result.studentId}`, leftCol, yPos + 7);
-    doc.text(`Class: ${result.class}`, leftCol, yPos + 14);
-    doc.text(`Age: ${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, leftCol, yPos + 21);
-    
-    // Right column
-    doc.text(`Session: ${result.session}`, rightCol, yPos);
-    doc.text(`Term: ${result.term}`, rightCol, yPos + 7);
-    doc.text(`No. in Class: ${result.outOf || 'N/A'}`, rightCol, yPos + 14);
-    doc.text(`Position: ${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, rightCol, yPos + 21);
-    
-    // Academic Performance Table with better formatting
-    yPos = 125;
+    // Result title with border
+    yPos += 35;
+    doc.setLineWidth(1);
+    doc.rect(20, yPos, 160, 15);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('ACADEMIC PERFORMANCE', 105, yPos, { align: 'center' });
+    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 100, yPos + 5, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, 100, yPos + 11, { align: 'center' });
     
-    yPos += 8;
-    doc.setFontSize(9);
+    // Student Information section
+    yPos += 25;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    // Left column student info
+    doc.text(`Student's Name:`, 20, yPos);
+    doc.text(`${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, 65, yPos);
+    doc.line(65, yPos + 1, 145, yPos + 1);
+    
+    doc.text(`Admission No:`, 20, yPos + 8);
+    doc.text(`${result.studentId}`, 65, yPos + 8);
+    doc.line(65, yPos + 9, 145, yPos + 9);
+    
+    doc.text(`Class:`, 20, yPos + 16);
+    doc.text(`${result.class}`, 65, yPos + 16);
+    doc.line(65, yPos + 17, 145, yPos + 17);
+    
+    doc.text(`Age:`, 20, yPos + 24);
+    doc.text(`${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, 65, yPos + 24);
+    doc.line(65, yPos + 25, 145, yPos + 25);
+    
+    // Right column student info
+    doc.text(`Session:`, 150, yPos);
+    doc.text(`${result.session}`, 170, yPos);
+    doc.line(170, yPos + 1, 190, yPos + 1);
+    
+    doc.text(`Term:`, 150, yPos + 8);
+    doc.text(`${result.term}`, 170, yPos + 8);
+    doc.line(170, yPos + 9, 190, yPos + 9);
+    
+    doc.text(`No. in Class:`, 150, yPos + 16);
+    doc.text(`${result.outOf || 'N/A'}`, 180, yPos + 16);
+    doc.line(180, yPos + 17, 190, yPos + 17);
+    
+    doc.text(`Position:`, 150, yPos + 24);
+    doc.text(`${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, 170, yPos + 24);
+    doc.line(170, yPos + 25, 190, yPos + 25);
+    
+    // Academic Performance Table
+    yPos += 40;
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
+    doc.text('ACADEMIC PERFORMANCE', 100, yPos, { align: 'center' });
     
-    // Enhanced table headers
+    yPos += 10;
+    
+    // Table headers
     const headers = ['SUBJECTS', '1st CA\n(20)', '2nd CA\n(20)', 'EXAM\n(60)', 'TOTAL\n(100)', 'GRADE', 'REMARK', 'POSITION'];
-    const colWidths = [45, 16, 16, 16, 16, 16, 30, 16];
-    let xPos = 15;
+    const colWidths = [40, 18, 18, 18, 18, 18, 32, 18];
+    let xPos = 20;
     
-    // Draw header row with gray background
-    doc.setFillColor(240, 240, 240);
-    doc.rect(xPos, yPos, colWidths.reduce((a, b) => a + b, 0), 12, 'F');
-    
+    // Header row
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
     headers.forEach((header, index) => {
-      doc.setLineWidth(0.5);
       doc.rect(xPos, yPos, colWidths[index], 12);
-      
-      // Handle multi-line headers
       const lines = header.split('\n');
       if (lines.length > 1) {
         doc.text(lines[0], xPos + colWidths[index]/2, yPos + 4, { align: 'center' });
@@ -296,16 +325,10 @@ export default function ViewResults() {
     yPos += 12;
     doc.setFont('helvetica', 'normal');
     
-    // Table data with alternating row colors
+    // Table data
     if (result.subjects && result.subjects.length > 0) {
       result.subjects.forEach((subject: any, index: number) => {
-        // Alternating row colors
-        if (index % 2 === 0) {
-          doc.setFillColor(248, 248, 248);
-          doc.rect(15, yPos, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
-        }
-        
-        xPos = 15;
+        xPos = 20;
         const rowData = [
           subject.subject || 'N/A',
           (subject.ca1 || 0).toString(),
@@ -321,100 +344,83 @@ export default function ViewResults() {
         ];
         
         rowData.forEach((data, colIndex) => {
-          doc.setLineWidth(0.5);
-          doc.rect(xPos, yPos, colWidths[colIndex], 8);
+          doc.rect(xPos, yPos, colWidths[colIndex], 10);
           if (colIndex === 0) {
-            doc.text(data, xPos + 2, yPos + 5);
+            doc.text(data, xPos + 2, yPos + 6);
           } else {
-            doc.text(data, xPos + colWidths[colIndex]/2, yPos + 5, { align: 'center' });
+            doc.text(data, xPos + colWidths[colIndex]/2, yPos + 6, { align: 'center' });
           }
           xPos += colWidths[colIndex];
         });
         
-        yPos += 8;
+        yPos += 10;
       });
     }
     
-    // Summary row with bold formatting
-    xPos = 15;
+    // Summary row
+    xPos = 20;
     doc.setFont('helvetica', 'bold');
-    doc.setFillColor(220, 220, 220);
-    doc.rect(xPos, yPos, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
     
     // Total label
     const totalColWidth = colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3];
-    doc.rect(xPos, yPos, totalColWidth, 8);
-    doc.text('TOTAL', xPos + totalColWidth/2, yPos + 5, { align: 'center' });
+    doc.rect(xPos, yPos, totalColWidth, 10);
+    doc.text('TOTAL', xPos + totalColWidth/2, yPos + 6, { align: 'center' });
     xPos += totalColWidth;
     
     // Total score
-    doc.rect(xPos, yPos, colWidths[4], 8);
-    doc.text((result.totalScore || 0).toString(), xPos + colWidths[4]/2, yPos + 5, { align: 'center' });
+    doc.rect(xPos, yPos, colWidths[4], 10);
+    doc.text((result.totalScore || 0).toString(), xPos + colWidths[4]/2, yPos + 6, { align: 'center' });
     xPos += colWidths[4];
     
     // Grade column
-    doc.rect(xPos, yPos, colWidths[5], 8);
-    doc.text('-', xPos + colWidths[5]/2, yPos + 5, { align: 'center' });
+    doc.rect(xPos, yPos, colWidths[5], 10);
+    doc.text('-', xPos + colWidths[5]/2, yPos + 6, { align: 'center' });
     xPos += colWidths[5];
     
-    // Average column
-    doc.rect(xPos, yPos, colWidths[6], 8);
-    doc.text(`AVG: ${result.average || 0}%`, xPos + colWidths[6]/2, yPos + 5, { align: 'center' });
-    xPos += colWidths[6];
-    
-    // GPA column
-    doc.rect(xPos, yPos, colWidths[7], 8);
-    doc.text(`GPA: ${result.gpa || 0}`, xPos + colWidths[7]/2, yPos + 5, { align: 'center' });
+    // Average and GPA
+    doc.rect(xPos, yPos, colWidths[6] + colWidths[7], 10);
+    doc.text(`AVG: ${result.average || 0}%`, xPos + (colWidths[6] + colWidths[7])/2 - 15, yPos + 6, { align: 'center' });
+    doc.text(`GPA: ${result.gpa || 0}`, xPos + (colWidths[6] + colWidths[7])/2 + 15, yPos + 6, { align: 'center' });
     
     yPos += 20;
     
-    // Performance Summary with enhanced formatting
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PERFORMANCE SUMMARY', 105, yPos, { align: 'center' });
-    yPos += 8;
-    
-    // Performance boxes
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    const performanceData = [
+    // Performance Summary boxes
+    const performanceBoxes = [
       { label: 'TOTAL SCORE', value: result.totalScore || 0 },
       { label: 'AVERAGE', value: `${result.average || 0}%` },
       { label: 'GRADE POINT', value: `${result.gpa || 0}/4.0` },
       { label: 'OVERALL GRADE', value: result.average >= 70 ? 'A' : result.average >= 60 ? 'B' : result.average >= 50 ? 'C' : result.average >= 40 ? 'D' : 'F' }
     ];
     
-    const boxWidth = 40;
-    const boxHeight = 15;
-    let boxX = 25;
+    xPos = 20;
+    const boxWidth = 37.5;
+    const boxHeight = 20;
     
-    performanceData.forEach((item) => {
-      doc.setLineWidth(0.5);
-      doc.rect(boxX, yPos, boxWidth, boxHeight);
+    performanceBoxes.forEach((box) => {
+      doc.rect(xPos, yPos, boxWidth, boxHeight);
       doc.setFont('helvetica', 'bold');
-      doc.text(item.label, boxX + boxWidth/2, yPos + 4, { align: 'center' });
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.text(item.value.toString(), boxX + boxWidth/2, yPos + 11, { align: 'center' });
-      doc.setFontSize(9);
-      boxX += boxWidth + 5;
+      doc.setFontSize(8);
+      doc.text(box.label, xPos + boxWidth/2, yPos + 6, { align: 'center' });
+      doc.setFontSize(14);
+      doc.text(box.value.toString(), xPos + boxWidth/2, yPos + 15, { align: 'center' });
+      xPos += boxWidth;
     });
     
-    yPos += 25;
+    yPos += 30;
     
-    // Comments section with improved formatting
+    // Comments section
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('COMMENTS', 105, yPos, { align: 'center' });
-    yPos += 8;
+    doc.text('COMMENTS', 100, yPos, { align: 'center' });
     
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
+    yPos += 10;
+    doc.setFontSize(10);
     doc.text('CLASS TEACHER\'S COMMENT:', 20, yPos);
     yPos += 5;
-    doc.setLineWidth(0.5);
-    doc.rect(20, yPos, 170, 12);
+    doc.rect(20, yPos, 160, 15);
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    
     const teacherComment = result.classTeacher ? 
       `${result.average >= 75 ? 'Excellent performance. Keep up the good work!' : 
         result.average >= 70 ? 'Very good performance. You can do better.' : 
@@ -427,58 +433,66 @@ export default function ViewResults() {
        result.average >= 60 ? 'Fair performance. You need to improve.' : 
        'Poor performance. You need serious improvement.');
     
-    // Split long comments into multiple lines
-    const commentLines = doc.splitTextToSize(teacherComment, 165);
-    commentLines.forEach((line: string, index: number) => {
-      doc.text(line, 22, yPos + 4 + (index * 4));
-    });
+    doc.text(teacherComment, 22, yPos + 5);
     
-    yPos += 18;
+    yPos += 20;
     doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
     doc.text('PRINCIPAL\'S COMMENT:', 20, yPos);
     yPos += 5;
-    doc.rect(20, yPos, 170, 12);
+    doc.rect(20, yPos, 160, 15);
     doc.setFont('helvetica', 'normal');
-    const principalComment = result.principalComment || 'Keep up the good work and continue to strive for excellence.';
-    const principalLines = doc.splitTextToSize(principalComment, 165);
-    principalLines.forEach((line: string, index: number) => {
-      doc.text(line, 22, yPos + 4 + (index * 4));
-    });
+    doc.setFontSize(9);
+    doc.text(result.principalComment || 'Keep up the good work and continue to strive for excellence.', 22, yPos + 5);
     
-    yPos += 25;
+    // Add new page for signatures if needed
+    if (yPos > 240) {
+      doc.addPage();
+      yPos = 30;
+    } else {
+      yPos += 25;
+    }
     
     // Signatures section
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('SIGNATURES', 105, yPos, { align: 'center' });
-    yPos += 8;
+    doc.text('SIGNATURES', 100, yPos, { align: 'center' });
     
+    yPos += 10;
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.setLineWidth(0.5);
     
-    // Signature boxes
-    doc.rect(20, yPos, 50, 20);
-    doc.rect(80, yPos, 50, 20);
-    doc.rect(140, yPos, 50, 20);
+    // Three signature boxes
+    const sigBoxWidth = 50;
+    const sigBoxHeight = 30;
+    xPos = 20;
     
-    doc.text('Class Teacher\'s Signature', 45, yPos + 5, { align: 'center' });
-    doc.text('Principal\'s Signature', 105, yPos + 5, { align: 'center' });
-    doc.text('Parent/Guardian\'s Signature', 165, yPos + 5, { align: 'center' });
+    // Class Teacher
+    doc.rect(xPos, yPos, sigBoxWidth, sigBoxHeight);
+    doc.text('Class Teacher\'s Signature', xPos + sigBoxWidth/2, yPos + 20, { align: 'center' });
+    doc.text('Date: ____________', xPos + sigBoxWidth/2, yPos + 25, { align: 'center' });
     
-    doc.text('Date: ___________', 45, yPos + 15, { align: 'center' });
-    doc.text('Date: ___________', 105, yPos + 15, { align: 'center' });
-    doc.text('Date: ___________', 165, yPos + 15, { align: 'center' });
+    // Principal
+    xPos += sigBoxWidth + 10;
+    doc.rect(xPos, yPos, sigBoxWidth, sigBoxHeight);
+    doc.text('Principal\'s Signature', xPos + sigBoxWidth/2, yPos + 20, { align: 'center' });
+    doc.text('Date: ____________', xPos + sigBoxWidth/2, yPos + 25, { align: 'center' });
     
-    yPos += 30;
+    // Parent/Guardian
+    xPos += sigBoxWidth + 10;
+    doc.rect(xPos, yPos, sigBoxWidth, sigBoxHeight);
+    doc.text('Parent/Guardian\'s Signature', xPos + sigBoxWidth/2, yPos + 20, { align: 'center' });
+    doc.text('Date: ____________', xPos + sigBoxWidth/2, yPos + 25, { align: 'center' });
     
-    // Additional information
+    yPos += 40;
+    
+    // Footer information
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, 20, yPos);
     
-    // Skills Assessment (if available)
-    if (result.skillsAssessment) {
+    // Skills Assessment if available
+    if (result.skillsAssessment && Object.keys(result.skillsAssessment).length > 0) {
       yPos += 10;
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
@@ -493,7 +507,7 @@ export default function ViewResults() {
       });
     }
     
-    // Attendance information (if available)
+    // Attendance if available
     if (result.attendance) {
       yPos += 5;
       doc.setFontSize(10);
@@ -503,16 +517,16 @@ export default function ViewResults() {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.text(`Days Present: ${result.attendance.present || 0}`, 25, yPos);
-      doc.text(`Days Absent: ${result.attendance.absent || 0}`, 25, yPos + 4);
-      doc.text(`Times Late: ${result.attendance.late || 0}`, 25, yPos + 8);
+      doc.text(`Days Absent: ${result.attendance.absent || 0}`, 100, yPos);
+      doc.text(`Times Late: ${result.attendance.late || 0}`, 150, yPos);
     }
     
     // Footer
-    yPos += 20;
-    doc.setFontSize(8);
+    yPos += 15;
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    doc.text('This is a computer-generated result sheet from Robertson Education Management System.', 105, yPos, { align: 'center' });
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 105, yPos + 4, { align: 'center' });
+    doc.text('This is a computer-generated result sheet from Robertson Education Management System.', 100, yPos, { align: 'center' });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, 100, yPos + 4, { align: 'center' });
     
     // Save the PDF
     const fileName = `Result_${student ? student.firstName + '_' + student.lastName : result.studentId}_${result.session}_${result.term}.pdf`;
