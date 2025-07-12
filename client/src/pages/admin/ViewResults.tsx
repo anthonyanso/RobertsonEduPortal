@@ -664,8 +664,43 @@ export default function ViewResults() {
                               text-align: center;
                             }
                             
-                            .school-info {
+                            .header-content {
+                              display: flex;
+                              align-items: center;
+                              justify-content: space-between;
                               margin-bottom: 15px;
+                            }
+                            
+                            .logo-section {
+                              flex-shrink: 0;
+                            }
+                            
+                            .school-logo {
+                              width: 60px;
+                              height: 60px;
+                              object-fit: contain;
+                            }
+                            
+                            .school-info {
+                              flex-grow: 1;
+                              text-align: center;
+                              margin: 0 20px;
+                            }
+                            
+                            .passport-section {
+                              flex-shrink: 0;
+                              width: 60px;
+                              height: 60px;
+                              border: 2px solid #999;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                            }
+                            
+                            .passport-placeholder {
+                              font-size: 8pt;
+                              color: #999;
+                              text-align: center;
                             }
                             
                             .school-name {
@@ -861,11 +896,25 @@ export default function ViewResults() {
                         <body>
                           <div class="container">
                             <div class="header">
-                              <div class="school-info">
-                                <div class="school-name">ROBERTSON EDUCATION</div>
-                                <div class="school-address">Excellence in Education - Nurturing Tomorrow's Leaders</div>
-                                <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
-                                <div class="school-motto">"Knowledge • Character • Service"</div>
+                              <div class="header-content">
+                                <div class="logo-section">
+                                  <svg class="school-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="64" height="64" rx="8" fill="#1e3a8a"/>
+                                    <path d="M32 12L44 18V32C44 40 32 48 32 48C32 48 20 40 20 32V18L32 12Z" fill="white"/>
+                                    <path d="M32 20L38 22V30C38 34 32 38 32 38C32 38 26 34 26 30V22L32 20Z" fill="#1e3a8a"/>
+                                    <circle cx="32" cy="28" r="3" fill="white"/>
+                                    <text x="32" y="58" text-anchor="middle" fill="white" font-size="8" font-weight="bold">RE</text>
+                                  </svg>
+                                </div>
+                                <div class="school-info">
+                                  <div class="school-name">ROBERTSON EDUCATION</div>
+                                  <div class="school-address">Excellence in Education - Nurturing Tomorrow's Leaders</div>
+                                  <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
+                                  <div class="school-motto">"Knowledge • Character • Service"</div>
+                                </div>
+                                <div class="passport-section">
+                                  <div class="passport-placeholder">PASSPORT</div>
+                                </div>
                               </div>
                               <div class="result-title">
                                 CONTINUOUS ASSESSMENT REPORT SHEET<br>
