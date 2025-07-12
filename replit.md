@@ -176,6 +176,8 @@ Changelog:
   - Achieved perfect size matching between logo and passport placeholder for professional appearance
   - Updated both print (65x65px) and PDF (32x32px) layouts with optimized dimensions
   - Enhanced passport text size to 10pt for excellent readability
+  - Removed PDF download functionality and button per user request to streamline interface
+  - Updated print button to blue color for improved visual design
 
 ## User Preferences
 

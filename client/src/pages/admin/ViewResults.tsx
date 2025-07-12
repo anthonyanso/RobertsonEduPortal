@@ -34,7 +34,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Eye, Edit, Trash2, Filter, FileText, Printer, Calculator, Save, X, Download } from "lucide-react";
+import { Search, Eye, Edit, Trash2, Filter, FileText, Printer, Calculator, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
@@ -43,8 +43,7 @@ import NigerianResultTemplate from "./NigerianResultTemplate";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import jsPDF from 'jspdf';
-import logoUrl from "@assets/logo_1751823007371.png";
+
 
 
 const editResultSchema = z.object({
@@ -65,284 +64,7 @@ const editResultSchema = z.object({
   nextTermBegins: z.string().optional(),
 });
 
-// PDF Download Function
-const downloadResultAsPDF = (result: any, student: any) => {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  let currentY = 10; // Track current Y position
-  
-  // Helper function to check if content fits on current page
-  const checkPageSpace = (requiredHeight: number) => {
-    if (currentY + requiredHeight > pageHeight - 20) {
-      doc.addPage();
-      currentY = 20; // Reset Y position for new page
-      return true; // Page was added
-    }
-    return false; // Content fits on current page
-  };
-  
-  // Load logo and add to PDF
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  img.onload = function() {
-    // Header Border
-    doc.setLineWidth(2);
-    doc.rect(10, 5, pageWidth - 20, 50);
-    
-    // Add logo (optimal size to match passport photo)
-    doc.addImage(img, "PNG", 15, 10, 32, 32);
-    
-    // Header section
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
-    
-    doc.setFontSize(11);
-    doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 26, { align: "center" });
-    
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 32, { align: "center" });
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
-    
-    // Add passport photo placeholder (same size as logo)
-    doc.rect(pageWidth - 47, 10, 32, 32);
-    doc.setFontSize(7);
-    doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
-    doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
-    
-    // Result title with border
-    currentY = 60;
-    doc.setLineWidth(1);
-    doc.rect(10, currentY, pageWidth - 20, 15);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, currentY + 8, { align: "center" });
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, currentY + 13, { align: "center" });
-    
-    currentY += 20;
-    
-    // Student information section
-    let yPos = 85;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    
-    // Student info with dotted lines
-    const studentInfo = [
-      { label: "Student's Name:", value: student ? student.firstName + ' ' + student.lastName : 'N/A', x: 15 },
-      { label: "Session:", value: result.session, x: 120 },
-      { label: "Admission No:", value: result.studentId, x: 15 },
-      { label: "Term:", value: result.term, x: 120 },
-      { label: "Class:", value: result.class, x: 15 },
-      { label: "No. in Class:", value: result.totalInClass?.toString() || 'N/A', x: 120 },
-      { label: "Age:", value: student ? (new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()).toString() : 'N/A', x: 15 },
-      { label: "Position:", value: result.position ? `${result.position} out of ${result.totalInClass || 'N/A'}` : 'N/A', x: 120 }
-    ];
-    
-    studentInfo.forEach((info, index) => {
-      const currentY = yPos + Math.floor(index / 2) * 7;
-      doc.setFont("helvetica", "bold");
-      doc.text(info.label, info.x, currentY);
-      doc.setFont("helvetica", "normal");
-      
-      // Draw dotted line
-      const labelWidth = doc.getTextWidth(info.label);
-      const lineStart = info.x + labelWidth + 5;
-      const lineEnd = info.x === 15 ? 110 : pageWidth - 15;
-      
-      for (let x = lineStart; x < lineEnd; x += 3) {
-        doc.circle(x, currentY - 1, 0.3, 'F');
-      }
-      
-      doc.text(info.value, lineStart + 5, currentY);
-    });
-    
-    // Academic Performance Table
-    yPos += 35;
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("ACADEMIC PERFORMANCE", pageWidth / 2, yPos, { align: "center" });
-    
-    yPos += 6;
-    
-    // Table setup
-    const tableStartX = 15;
-    const tableWidth = pageWidth - 30;
-    const headers = ["SUBJECTS", "1st CA", "2nd CA", "EXAM (60)", "TOTAL (100)", "GRADE", "REMARK", "POSITION"];
-    const colWidths = [32, 18, 18, 20, 22, 18, 30, 17];
-    
-    // Draw table header
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.rect(tableStartX, yPos, tableWidth, 8);
-    
-    let xPos = tableStartX;
-    headers.forEach((header, index) => {
-      doc.text(header, xPos + colWidths[index] / 2, yPos + 5, { align: "center" });
-      if (index < headers.length - 1) {
-        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 8);
-      }
-      xPos += colWidths[index];
-    });
-    
-    yPos += 8;
-    
-    // Table data
-    doc.setFont("helvetica", "normal");
-    result.subjects.forEach((subject: any, index: number) => {
-      const rowHeight = 6;
-      doc.rect(tableStartX, yPos, tableWidth, rowHeight);
-      
-      xPos = tableStartX;
-      const values = [
-        subject.subject,
-        subject.ca1?.toString() || '0',
-        subject.ca2?.toString() || '0',
-        subject.exam?.toString() || '0',
-        subject.total?.toString() || '0',
-        subject.grade || 'N/A',
-        subject.remark || 'Good',
-        (index + 1).toString()
-      ];
-      
-      values.forEach((value, i) => {
-        const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
-        const align = i === 0 ? undefined : { align: "center" };
-        doc.text(value, textX, yPos + 4, align);
-        if (i < values.length - 1) {
-          doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + rowHeight);
-        }
-        xPos += colWidths[i];
-      });
-      
-      yPos += rowHeight;
-    });
-    
-    // Total marks row
-    const totalMarks = result.subjects.reduce((sum: number, subject: any) => sum + subject.total, 0);
-    doc.setFont("helvetica", "bold");
-    doc.rect(tableStartX, yPos, tableWidth, 8);
-    
-    xPos = tableStartX;
-    const totalRowValues = ["TOTAL MARKS OBTAINED", "", "", "", totalMarks.toString(), "", "", ""];
-    totalRowValues.forEach((value, i) => {
-      if (value) {
-        const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
-        const align = i === 0 ? undefined : { align: "center" };
-        doc.text(value, textX, yPos + 5, align);
-      }
-      if (i < totalRowValues.length - 1) {
-        doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + 8);
-      }
-      xPos += colWidths[i];
-    });
-    
-    // Performance Summary
-    yPos += 12;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    
-    const percentage = ((totalMarks / (result.subjects.length * 100)) * 100).toFixed(1);
-    const gradePoints = result.subjects.reduce((sum: number, subject: any) => {
-      const gradeValue = subject.grade === 'A' ? 4 : subject.grade === 'B' ? 3 : subject.grade === 'C' ? 2 : subject.grade === 'D' ? 1 : 0;
-      return sum + gradeValue;
-    }, 0);
-    const cgpa = (gradePoints / result.subjects.length).toFixed(2);
-    
-    // Performance boxes
-    const perfBoxWidth = 32;
-    const perfBoxHeight = 16;
-    const perfBoxSpacing = 6;
-    const startX = (pageWidth - (4 * perfBoxWidth + 3 * perfBoxSpacing)) / 2;
-    
-    const perfData = [
-      { label: "TOTAL MARKS", value: totalMarks.toString() },
-      { label: "PERCENTAGE", value: percentage + "%" },
-      { label: "CGPA", value: cgpa },
-      { label: "POSITION", value: result.position ? `${result.position}/${result.totalInClass}` : 'N/A' }
-    ];
-    
-    perfData.forEach((data, index) => {
-      const boxX = startX + index * (perfBoxWidth + perfBoxSpacing);
-      doc.rect(boxX, yPos, perfBoxWidth, perfBoxHeight);
-      doc.setFontSize(6);
-      doc.text(data.label, boxX + perfBoxWidth / 2, yPos + 5, { align: "center" });
-      doc.setFontSize(9);
-      doc.text(data.value, boxX + perfBoxWidth / 2, yPos + 12, { align: "center" });
-    });
-    
-    // Comments Section
-    currentY = yPos + 25;
-    checkPageSpace(45); // Check if comments section fits
-    
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    
-    // Class Teacher's Comment
-    doc.text("CLASS TEACHER'S REMARK:", 15, currentY);
-    doc.rect(15, currentY + 3, pageWidth - 30, 12);
-    doc.setFont("helvetica", "normal");
-    doc.text(result.classTeacher || 'Keep up the good work!', 17, currentY + 10);
-    
-    currentY += 18;
-    
-    // Principal's Comment  
-    doc.setFont("helvetica", "bold");
-    doc.text("PRINCIPAL'S REMARK:", 15, currentY);
-    doc.rect(15, currentY + 3, pageWidth - 30, 12);
-    doc.setFont("helvetica", "normal");
-    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, currentY + 10);
-    
-    currentY += 22;
-    
-    // Signature Section
-    checkPageSpace(30); // Check if signature section fits
-    
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    
-    // Signature boxes
-    const sigBoxWidth = 55;
-    const sigBoxHeight = 20;
-    const sigSpacing = 5;
-    const sigStartX = (pageWidth - (3 * sigBoxWidth + 2 * sigSpacing)) / 2;
-    
-    const signatures = [
-      "CLASS TEACHER'S SIGNATURE",
-      "PRINCIPAL'S SIGNATURE", 
-      "PARENT/GUARDIAN'S SIGNATURE"
-    ];
-    
-    signatures.forEach((sig, index) => {
-      const boxX = sigStartX + index * (sigBoxWidth + sigSpacing);
-      doc.rect(boxX, currentY, sigBoxWidth, sigBoxHeight);
-      doc.text(sig, boxX + sigBoxWidth / 2, currentY + 7, { align: "center" });
-      doc.line(boxX + 5, currentY + 15, boxX + sigBoxWidth - 5, currentY + 15);
-      doc.text("Date: __________", boxX + sigBoxWidth / 2, currentY + 18, { align: "center" });
-    });
-    
-    currentY += 25;
-    
-    // Footer
-    checkPageSpace(15); // Check if footer fits
-    
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, pageWidth / 2, currentY, { align: "center" });
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, currentY + 6, { align: "center" });
-    
-    // Save PDF
-    const fileName = `${student ? student.firstName + '_' + student.lastName : result.studentId}_Result.pdf`;
-    doc.save(fileName);
-  };
-  
-  // Load logo from assets
-  img.src = logoUrl;
-};
+
 
 export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -909,7 +631,7 @@ export default function ViewResults() {
                 <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
                   Close
                 </Button>
-                <Button variant="outline" onClick={() => {
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => {
                   // Create a new window for printing
                   const printWindow = window.open('', '_blank', 'width=800,height=600');
                   if (printWindow && selectedResult) {
@@ -1466,15 +1188,7 @@ export default function ViewResults() {
                   Print Result
                 </Button>
                 
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => {
-                  if (selectedResult) {
-                    const student = getStudentInfo(selectedResult.studentId);
-                    downloadResultAsPDF(selectedResult, student);
-                  }
-                }}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
+
 
               </div>
             </div>
