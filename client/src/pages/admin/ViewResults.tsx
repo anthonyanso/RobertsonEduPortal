@@ -80,7 +80,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.rect(10, 5, pageWidth - 20, 50);
     
     // Add logo (reduced size to match passport photo)
-    doc.addImage(img, "PNG", 15, 10, 15, 15);
+    doc.addImage(img, "PNG", 15, 10, 12, 12);
     
     // Header section
     doc.setFontSize(16);
@@ -99,10 +99,10 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
     
     // Add passport photo placeholder (same size as logo)
-    doc.rect(pageWidth - 30, 10, 15, 15);
-    doc.setFontSize(5);
-    doc.text("PASSPORT", pageWidth - 22.5, 16, { align: "center" });
-    doc.text("PHOTOGRAPH", pageWidth - 22.5, 20, { align: "center" });
+    doc.rect(pageWidth - 27, 10, 12, 12);
+    doc.setFontSize(4);
+    doc.text("PASSPORT", pageWidth - 21, 15, { align: "center" });
+    doc.text("PHOTO", pageWidth - 21, 18, { align: "center" });
     
     // Result title with border
     doc.setLineWidth(1);
@@ -124,8 +124,8 @@ const downloadResultAsPDF = (result: any, student: any) => {
       { label: "Admission No:", value: result.studentId, x: 15 },
       { label: "Term:", value: result.term, x: 120 },
       { label: "Class:", value: result.class, x: 15 },
-      { label: "No. in Class:", value: result.totalInClass || 'N/A', x: 120 },
-      { label: "Age:", value: student ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A', x: 15 },
+      { label: "No. in Class:", value: result.totalInClass?.toString() || 'N/A', x: 120 },
+      { label: "Age:", value: student ? (new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()).toString() : 'N/A', x: 15 },
       { label: "Position:", value: result.position ? `${result.position} out of ${result.totalInClass || 'N/A'}` : 'N/A', x: 120 }
     ];
     
