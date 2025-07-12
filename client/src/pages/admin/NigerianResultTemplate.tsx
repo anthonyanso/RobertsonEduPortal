@@ -264,8 +264,8 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       
       /* Passport photo print styles */
       .passport-photo {
-        width: 48px !important;
-        height: 48px !important;
+        width: 65px !important;
+        height: 65px !important;
         object-fit: cover !important;
         display: block !important;
         opacity: 1 !important;
@@ -341,9 +341,9 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
             <p className="text-xs font-semibold text-blue-800">"{defaultSchoolInfo.motto}"</p>
           </div>
           <div className="h-12 w-12 border-2 border-gray-300 flex items-center justify-center">
-            {student && student.passportPhoto ? (
+            {student && (student.passportPhoto || student.studentId) ? (
               <img 
-                src={student.passportPhoto} 
+                src={student.passportPhoto || `/api/student-photo/${student.studentId}`}
                 alt="Student Passport" 
                 className="h-12 w-12 object-cover passport-photo"
                 style={{
@@ -358,11 +358,15 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
                   console.error('Error loading passport photo:', e);
                   console.log('Student data:', student);
                   console.log('Passport photo data length:', student.passportPhoto?.length);
+                  // Hide image on error and show placeholder
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}
               />
-            ) : (
-              <span className="text-xs text-gray-400">PASSPORT</span>
-            )}
+            ) : null}
+            <span className={`text-xs text-gray-400 ${student && (student.passportPhoto || student.studentId) ? 'hidden' : ''}`}>
+              PASSPORT
+            </span>
           </div>
         </div>
         

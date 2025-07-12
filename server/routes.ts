@@ -494,6 +494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         guardianEmail: row.guardian_email || '',
         medicalConditions: row.medical_conditions || '',
         specialNeeds: row.special_needs || '',
+        passportPhoto: row.passport_photo || '',
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         // Add additional fields expected by frontend
@@ -510,6 +511,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching students:", error);
       res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  // Serve student passport photos
+  app.get('/api/student-photo/:studentId', async (req, res) => {
+    try {
+      const studentId = req.params.studentId;
+      const result = await db.execute('SELECT passport_photo FROM students WHERE student_id = ?', [studentId]);
+      
+      if (result.rows.length === 0 || !result.rows[0].passport_photo) {
+        return res.status(404).json({ message: "Photo not found" });
+      }
+
+      const passportPhoto = result.rows[0].passport_photo;
+      
+      // Extract the base64 data and mime type
+      const matches = passportPhoto.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (!matches) {
+        return res.status(400).json({ message: "Invalid photo format" });
+      }
+
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      res.set({
+        'Content-Type': mimeType,
+        'Content-Length': buffer.length,
+        'Cache-Control': 'public, max-age=3600'
+      });
+
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error serving student photo:", error);
+      res.status(500).json({ message: "Failed to serve photo" });
     }
   });
 

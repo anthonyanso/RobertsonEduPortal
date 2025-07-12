@@ -571,17 +571,22 @@ export default function ViewStudents() {
               {/* Passport Photo Display */}
               <div className="flex justify-center mb-4">
                 <div className="w-24 h-24 border-2 border-gray-300 rounded-lg overflow-hidden">
-                  {viewingStudent.passportPhoto ? (
+                  {viewingStudent.studentId ? (
                     <img
-                      src={viewingStudent.passportPhoto}
+                      src={`/api/student-photo/${viewingStudent.studentId}`}
                       alt="Student Passport Photo"
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error('Error loading passport photo:', e);
+                        // Hide image on error and show placeholder
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                      }}
                     />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
-                      No Photo
-                    </div>
-                  )}
+                  ) : null}
+                  <div className={`w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs ${viewingStudent.studentId ? 'hidden' : ''}`}>
+                    No Photo
+                  </div>
                 </div>
               </div>
               
