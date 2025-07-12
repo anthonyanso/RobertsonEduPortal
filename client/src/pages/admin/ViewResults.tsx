@@ -75,120 +75,161 @@ const downloadResultAsPDF = (result: any, student: any) => {
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = function() {
-    // Add logo
-    doc.addImage(img, "PNG", 15, 10, 25, 25);
+    // Header Border
+    doc.setLineWidth(2);
+    doc.rect(10, 5, pageWidth - 20, 50);
+    
+    // Add logo (reduced size to match passport photo)
+    doc.addImage(img, "PNG", 15, 10, 20, 20);
     
     // Header section
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 20, { align: "center" });
+    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
     
-    doc.setFontSize(14);
-    doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 28, { align: "center" });
+    doc.setFontSize(11);
+    doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 26, { align: "center" });
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 32, { align: "center" });
     
     doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 35, { align: "center" });
+    doc.setFont("helvetica", "bold");
+    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
     
+    // Add passport photo placeholder (same size as logo)
+    doc.rect(pageWidth - 35, 10, 20, 20);
+    doc.setFontSize(6);
+    doc.text("PASSPORT", pageWidth - 25, 18, { align: "center" });
+    doc.text("PHOTOGRAPH", pageWidth - 25, 23, { align: "center" });
+    
+    // Result title with border
+    doc.setLineWidth(1);
+    doc.rect(10, 60, pageWidth - 20, 15);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 42, { align: "center" });
+    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 68, { align: "center" });
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 73, { align: "center" });
     
-    // Add passport photo placeholder
-    doc.rect(pageWidth - 40, 10, 25, 25);
-    doc.setFontSize(8);
-    doc.text("PASSPORT", pageWidth - 27, 20, { align: "center" });
-    doc.text("PHOTOGRAPH", pageWidth - 27, 27, { align: "center" });
-    
-    // Result title
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 55, { align: "center" });
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 63, { align: "center" });
-    
-    // Student information in two columns
-    let yPos = 75;
-    doc.setFontSize(10);
+    // Student information section
+    let yPos = 85;
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     
-    // Left column
-    doc.text(`Student's Name: ${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, 15, yPos);
-    doc.text(`Admission No: ${result.studentId}`, 15, yPos + 8);
-    doc.text(`Class: ${result.class}`, 15, yPos + 16);
-    doc.text(`Age: ${student ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, 15, yPos + 24);
+    // Student info with dotted lines
+    const studentInfo = [
+      { label: "Student's Name:", value: student ? student.firstName + ' ' + student.lastName : 'N/A', x: 15 },
+      { label: "Session:", value: result.session, x: 120 },
+      { label: "Admission No:", value: result.studentId, x: 15 },
+      { label: "Term:", value: result.term, x: 120 },
+      { label: "Class:", value: result.class, x: 15 },
+      { label: "No. in Class:", value: result.totalInClass || 'N/A', x: 120 },
+      { label: "Age:", value: student ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A', x: 15 },
+      { label: "Position:", value: result.position ? `${result.position} out of ${result.totalInClass || 'N/A'}` : 'N/A', x: 120 }
+    ];
     
-    // Right column
-    doc.text(`Session: ${result.session}`, 120, yPos);
-    doc.text(`Term: ${result.term}`, 120, yPos + 8);
-    doc.text(`No. in Class: ${result.totalInClass || 'N/A'}`, 120, yPos + 16);
-    doc.text(`Position: ${result.position || 'N/A'}`, 120, yPos + 24);
+    studentInfo.forEach((info, index) => {
+      const currentY = yPos + Math.floor(index / 2) * 8;
+      doc.setFont("helvetica", "bold");
+      doc.text(info.label, info.x, currentY);
+      doc.setFont("helvetica", "normal");
+      
+      // Draw dotted line
+      const labelWidth = doc.getTextWidth(info.label);
+      const lineStart = info.x + labelWidth + 5;
+      const lineEnd = info.x === 15 ? 110 : pageWidth - 15;
+      
+      for (let x = lineStart; x < lineEnd; x += 3) {
+        doc.circle(x, currentY - 1, 0.3, 'F');
+      }
+      
+      doc.text(info.value, lineStart + 5, currentY);
+    });
     
     // Academic Performance Table
-    yPos += 40;
-    doc.setFontSize(12);
+    yPos += 45;
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("ACADEMIC PERFORMANCE", pageWidth / 2, yPos, { align: "center" });
     
     yPos += 10;
     
-    // Table headers
+    // Table setup
+    const tableStartX = 15;
+    const tableWidth = pageWidth - 30;
+    const headers = ["SUBJECTS", "1st CA", "2nd CA", "EXAM (60)", "TOTAL (100)", "GRADE", "REMARK", "POSITION"];
+    const colWidths = [32, 18, 18, 20, 22, 18, 30, 17];
+    
+    // Draw table header
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
-    const headers = ["SUBJECTS", "1st CA", "2nd CA", "EXAM (60)", "TOTAL (100)", "GRADE", "REMARK", "POSITION"];
-    const colWidths = [35, 15, 15, 20, 20, 15, 25, 20];
-    let xPos = 15;
+    doc.rect(tableStartX, yPos, tableWidth, 10);
     
-    // Draw table borders and headers
-    doc.rect(15, yPos, pageWidth - 30, 8);
+    let xPos = tableStartX;
     headers.forEach((header, index) => {
-      doc.text(header, xPos + 1, yPos + 5);
+      doc.text(header, xPos + colWidths[index] / 2, yPos + 6, { align: "center" });
       if (index < headers.length - 1) {
-        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 8);
+        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 10);
       }
       xPos += colWidths[index];
     });
     
-    yPos += 8;
+    yPos += 10;
     
     // Table data
     doc.setFont("helvetica", "normal");
     result.subjects.forEach((subject: any, index: number) => {
-      xPos = 15;
+      const rowHeight = 8;
+      doc.rect(tableStartX, yPos, tableWidth, rowHeight);
+      
+      xPos = tableStartX;
       const values = [
         subject.subject,
-        subject.ca1.toString(),
-        subject.ca2.toString(),
-        subject.exam.toString(),
-        subject.total.toString(),
-        subject.grade,
-        subject.remark,
+        subject.ca1?.toString() || '0',
+        subject.ca2?.toString() || '0',
+        subject.exam?.toString() || '0',
+        subject.total?.toString() || '0',
+        subject.grade || 'N/A',
+        subject.remark || 'Good',
         (index + 1).toString()
       ];
       
-      doc.rect(15, yPos, pageWidth - 30, 8);
       values.forEach((value, i) => {
-        doc.text(value, xPos + 1, yPos + 5);
+        const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
+        const align = i === 0 ? undefined : { align: "center" };
+        doc.text(value, textX, yPos + 5, align);
         if (i < values.length - 1) {
-          doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + 8);
+          doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + rowHeight);
         }
         xPos += colWidths[i];
       });
       
-      yPos += 8;
+      yPos += rowHeight;
     });
     
     // Total marks row
-    xPos = 15;
     const totalMarks = result.subjects.reduce((sum: number, subject: any) => sum + subject.total, 0);
     doc.setFont("helvetica", "bold");
-    doc.rect(15, yPos, pageWidth - 30, 8);
-    doc.text("TOTAL MARKS OBTAINED", xPos + 1, yPos + 5);
-    xPos += 35 + 15 + 15 + 20; // Skip to total column
-    doc.text(totalMarks.toString(), xPos + 1, yPos + 5);
+    doc.rect(tableStartX, yPos, tableWidth, 8);
+    
+    xPos = tableStartX;
+    const totalRowValues = ["TOTAL MARKS OBTAINED", "", "", "", totalMarks.toString(), "", "", ""];
+    totalRowValues.forEach((value, i) => {
+      if (value) {
+        const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
+        const align = i === 0 ? undefined : { align: "center" };
+        doc.text(value, textX, yPos + 5, align);
+      }
+      if (i < totalRowValues.length - 1) {
+        doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + 8);
+      }
+      xPos += colWidths[i];
+    });
     
     // Performance Summary
-    yPos += 25;
-    doc.setFontSize(10);
+    yPos += 20;
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     
     const percentage = ((totalMarks / (result.subjects.length * 100)) * 100).toFixed(1);
@@ -198,49 +239,78 @@ const downloadResultAsPDF = (result: any, student: any) => {
     }, 0);
     const cgpa = (gradePoints / result.subjects.length).toFixed(2);
     
-    doc.text(`Total Marks: ${totalMarks}`, 15, yPos);
-    doc.text(`Percentage: ${percentage}%`, 15, yPos + 8);
-    doc.text(`CGPA: ${cgpa}`, 15, yPos + 16);
-    doc.text(`Position: ${result.position || 'N/A'} out of ${result.totalInClass || 'N/A'}`, 15, yPos + 24);
+    // Performance boxes
+    const perfBoxWidth = 40;
+    const perfBoxHeight = 20;
+    const perfBoxSpacing = 10;
+    const startX = (pageWidth - (4 * perfBoxWidth + 3 * perfBoxSpacing)) / 2;
+    
+    const perfData = [
+      { label: "TOTAL MARKS", value: totalMarks.toString() },
+      { label: "PERCENTAGE", value: percentage + "%" },
+      { label: "CGPA", value: cgpa },
+      { label: "POSITION", value: result.position ? `${result.position}/${result.totalInClass}` : 'N/A' }
+    ];
+    
+    perfData.forEach((data, index) => {
+      const boxX = startX + index * (perfBoxWidth + perfBoxSpacing);
+      doc.rect(boxX, yPos, perfBoxWidth, perfBoxHeight);
+      doc.setFontSize(7);
+      doc.text(data.label, boxX + perfBoxWidth / 2, yPos + 6, { align: "center" });
+      doc.setFontSize(10);
+      doc.text(data.value, boxX + perfBoxWidth / 2, yPos + 15, { align: "center" });
+    });
     
     // Comments Section
-    yPos += 40;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("CLASS TEACHER'S REMARK:", 15, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(result.classTeacher || 'Keep up the good work!', 15, yPos + 8);
-    
-    yPos += 20;
-    doc.setFont("helvetica", "bold");
-    doc.text("PRINCIPAL'S REMARK:", 15, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 15, yPos + 8);
-    
-    // Signature Section
-    yPos += 25;
+    yPos += 35;
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     
-    // Three columns for signatures
-    doc.text("Class Teacher's Signature:", 15, yPos);
-    doc.line(15, yPos + 10, 70, yPos + 10);
-    doc.text("Date: __________", 15, yPos + 15);
+    // Class Teacher's Comment
+    doc.text("CLASS TEACHER'S REMARK:", 15, yPos);
+    doc.rect(15, yPos + 3, pageWidth - 30, 15);
+    doc.setFont("helvetica", "normal");
+    doc.text(result.classTeacher || 'Keep up the good work!', 17, yPos + 12);
     
-    doc.text("Principal's Signature:", 80, yPos);
-    doc.line(80, yPos + 10, 135, yPos + 10);
-    doc.text("Date: __________", 80, yPos + 15);
+    // Principal's Comment
+    yPos += 25;
+    doc.setFont("helvetica", "bold");
+    doc.text("PRINCIPAL'S REMARK:", 15, yPos);
+    doc.rect(15, yPos + 3, pageWidth - 30, 15);
+    doc.setFont("helvetica", "normal");
+    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, yPos + 12);
     
-    doc.text("Parent/Guardian's Signature:", 145, yPos);
-    doc.line(145, yPos + 10, 195, yPos + 10);
-    doc.text("Date: __________", 145, yPos + 15);
+    // Signature Section
+    yPos += 30;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    
+    // Signature boxes
+    const sigBoxWidth = 60;
+    const sigBoxHeight = 25;
+    const sigSpacing = 5;
+    const sigStartX = (pageWidth - (3 * sigBoxWidth + 2 * sigSpacing)) / 2;
+    
+    const signatures = [
+      "CLASS TEACHER'S SIGNATURE",
+      "PRINCIPAL'S SIGNATURE", 
+      "PARENT/GUARDIAN'S SIGNATURE"
+    ];
+    
+    signatures.forEach((sig, index) => {
+      const boxX = sigStartX + index * (sigBoxWidth + sigSpacing);
+      doc.rect(boxX, yPos, sigBoxWidth, sigBoxHeight);
+      doc.text(sig, boxX + sigBoxWidth / 2, yPos + 8, { align: "center" });
+      doc.line(boxX + 5, yPos + 18, boxX + sigBoxWidth - 5, yPos + 18);
+      doc.text("Date: __________", boxX + sigBoxWidth / 2, yPos + 22, { align: "center" });
+    });
     
     // Footer
-    yPos += 30;
+    yPos += 35;
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.text(`Next Term Begins: ${result.nextTermBegins || 'Date to be announced'}`, pageWidth / 2, yPos, { align: "center" });
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, yPos + 8, { align: "center" });
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, yPos + 6, { align: "center" });
     
     // Save PDF
     const fileName = `${student ? student.firstName + '_' + student.lastName : result.studentId}_Result.pdf`;
