@@ -261,6 +261,19 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
         padding: 4px !important;
         font-size: 8pt !important;
       }
+      
+      /* Passport photo print styles */
+      .passport-photo {
+        width: 48px !important;
+        height: 48px !important;
+        object-fit: cover !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
     }
   `;
 
@@ -328,7 +341,23 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
             <p className="text-xs font-semibold text-blue-800">"{defaultSchoolInfo.motto}"</p>
           </div>
           <div className="h-12 w-12 border-2 border-gray-300 flex items-center justify-center">
-            <span className="text-xs text-gray-400">PASSPORT</span>
+            {student && student.passportPhoto ? (
+              <img 
+                src={student.passportPhoto} 
+                alt="Student Passport" 
+                className="h-12 w-12 object-cover passport-photo"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  objectFit: 'cover',
+                  display: 'block',
+                  opacity: 1,
+                  visibility: 'visible'
+                }}
+              />
+            ) : (
+              <span className="text-xs text-gray-400">PASSPORT</span>
+            )}
           </div>
         </div>
         
