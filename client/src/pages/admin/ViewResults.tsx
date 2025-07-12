@@ -110,11 +110,23 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.setFont("helvetica", "bold");
     doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
     
-    // Add passport photo placeholder (same size as logo)
-    doc.rect(pageWidth - 47, 10, 32, 32);
-    doc.setFontSize(7);
-    doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
-    doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
+    // Add passport photo (same size as logo)
+    if (student && student.passportPhoto) {
+      try {
+        doc.addImage(student.passportPhoto, "JPEG", pageWidth - 47, 10, 32, 32);
+      } catch (e) {
+        // Fallback to placeholder if image fails to load
+        doc.rect(pageWidth - 47, 10, 32, 32);
+        doc.setFontSize(7);
+        doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
+        doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
+      }
+    } else {
+      doc.rect(pageWidth - 47, 10, 32, 32);
+      doc.setFontSize(7);
+      doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
+      doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
+    }
     
     // Result title with border
     currentY = 60;
@@ -915,9 +927,6 @@ export default function ViewResults() {
                   const printWindow = window.open('', '_blank', 'width=800,height=600');
                   if (printWindow && selectedResult) {
                     const student = getStudentInfo(selectedResult.studentId);
-                    console.log('Student data:', student);
-                    console.log('Selected result:', selectedResult);
-                    console.log('All students:', students);
                     
                     // Create the print content
                     const printContent = `
@@ -1224,9 +1233,10 @@ export default function ViewResults() {
                                   <div class="school-motto">"Knowledge • Character • Service"</div>
                                 </div>
                                 <div class="passport-section" style="width: 65px !important; height: 65px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                  <div class="passport-placeholder" style="font-size: 10pt !important; line-height: 1.2; color: #666;">
-                                    PASSPORT<br/>PHOTO
-                                  </div>
+                                  ${student && student.passportPhoto ? 
+                                    `<img src="${student.passportPhoto}" alt="Passport Photo" style="width: 65px !important; height: 65px !important; max-width: 65px !important; max-height: 65px !important; object-fit: cover; display: block; opacity: 1; visibility: visible;" />` : 
+                                    `<div class="passport-placeholder" style="font-size: 10pt !important; line-height: 1.2; color: #666;">PASSPORT<br/>PHOTO</div>`
+                                  }
                                 </div>
                               </div>
                             </div>

@@ -181,6 +181,14 @@ Changelog:
   - Corrected implementation: Kept PDF functionality available but removed duplicate print buttons
   - Fixed print button to work properly with HTML print preview
   - Removed white print button, keeping only the blue one for clean interface
+- July 12, 2025. Added passport photo upload functionality to student registration
+  - Enhanced student database schema with `passportPhoto` field for Base64 image storage
+  - Added passport photo upload to Add Student page with file validation (image types, 5MB limit)
+  - Implemented preview functionality with image display and removal option
+  - Updated result print template to display uploaded student passport photos
+  - Added passport photo support to PDF generation with error handling fallback
+  - Integrated passport photo display in both print and PDF formats (65x65px print, 32x32px PDF)
+  - Enhanced student management with professional passport photo capability for result templates
 
 ## User Preferences
 

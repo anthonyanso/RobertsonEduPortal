@@ -69,6 +69,7 @@ export const students = pgTable("students", {
   guardianEmail: varchar("guardian_email"),
   medicalConditions: text("medical_conditions"),
   specialNeeds: text("special_needs"),
+  passportPhoto: text("passport_photo"), // Base64 encoded image data
   status: varchar("status").default("active"), // active, inactive, graduated, transferred
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Upload, X } from "lucide-react";
+import { useState, useRef } from "react";
 
 // Form validation schema - exclude studentId since it's auto-generated
 const studentFormSchema = insertStudentSchema.omit({
@@ -22,6 +23,9 @@ type StudentFormData = z.infer<typeof studentFormSchema>;
 
 export default function AddStudent() {
   const { toast } = useToast();
+  const [passportPhoto, setPassportPhoto] = useState<string>("");
+  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
@@ -41,12 +45,57 @@ export default function AddStudent() {
       guardianEmail: "",
       medicalConditions: "",
       specialNeeds: "",
+      passportPhoto: "",
     },
   });
 
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please upload an image file (JPG, PNG, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please upload an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        setPassportPhoto(base64String);
+        setPhotoPreview(base64String);
+        form.setValue('passportPhoto', base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = () => {
+    setPassportPhoto("");
+    setPhotoPreview("");
+    form.setValue('passportPhoto', "");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const registerStudentMutation = useMutation({
     mutationFn: async (data: StudentFormData) => {
-      const response = await fetch("/api/test/students", {
+      const response = await fetch("/api/admin/students", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -60,12 +109,14 @@ export default function AddStudent() {
       return response.json();
     },
     onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/test/students'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/students'] });
       toast({
         title: "Student Registered Successfully",
         description: `${data.firstName} ${data.lastName} has been registered with ID: ${data.studentId}`,
       });
       form.reset();
+      setPassportPhoto("");
+      setPhotoPreview("");
     },
     onError: (error: Error) => {
       toast({
@@ -216,6 +267,53 @@ export default function AddStudent() {
                 {form.formState.errors.address && (
                   <p className="text-sm text-red-600">{form.formState.errors.address.message}</p>
                 )}
+              </div>
+
+              {/* Passport Photo Upload */}
+              <div className="space-y-3">
+                <Label htmlFor="passportPhoto">Passport Photo</Label>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="passportPhoto"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Passport Photo
+                    </Button>
+                  </div>
+                  {photoPreview && (
+                    <div className="relative">
+                      <img
+                        src={photoPreview}
+                        alt="Passport Photo Preview"
+                        className="w-20 h-20 object-cover rounded-lg border border-gray-300"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                        onClick={removePhoto}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500">
+                  Upload a clear passport photo of the student. Max file size: 5MB
+                </p>
               </div>
             </div>
 
