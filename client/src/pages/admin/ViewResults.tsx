@@ -43,6 +43,26 @@ import NigerianResultTemplate from "./NigerianResultTemplate";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import logoUrl from "@assets/logo_1751823007371.png";
+
+// Convert image to base64 for PDF embedding
+const convertImageToBase64 = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx?.drawImage(img, 0, 0);
+      const dataURL = canvas.toDataURL('image/png');
+      resolve(dataURL);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+};
 
 const editResultSchema = z.object({
   session: z.string().min(1, "Session is required"),
@@ -201,7 +221,7 @@ export default function ViewResults() {
   };
 
   // Generate PDF function
-  const generateResultPDF = (result: any, student: any) => {
+  const generateResultPDF = async (result: any, student: any) => {
     const doc = new jsPDF();
     
     // Set font
@@ -217,50 +237,56 @@ export default function ViewResults() {
     let yPos = 20;
     
     // School logo (left side) - Use original logo
-    // Since we can't easily embed PNG in jsPDF without conversion, use text representation
-    doc.setFillColor(220, 38, 38); // Red color matching the original logo
-    doc.rect(20, yPos, 25, 25, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('ROBERTSON', 32.5, yPos + 10, { align: 'center' });
-    doc.text('EDUCATION', 32.5, yPos + 15, { align: 'center' });
-    doc.text('CENTRE', 32.5, yPos + 20, { align: 'center' });
+    try {
+      const logoBase64 = await convertImageToBase64(logoUrl);
+      doc.addImage(logoBase64, 'PNG', 20, yPos, 25, 25);
+    } catch (error) {
+      console.error('Error loading logo:', error);
+      // Fallback to text representation if logo fails to load
+      doc.setFillColor(220, 38, 38);
+      doc.rect(20, yPos, 25, 25, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ROBERTSON', 32.5, yPos + 10, { align: 'center' });
+      doc.text('EDUCATION', 32.5, yPos + 15, { align: 'center' });
+      doc.text('CENTRE', 32.5, yPos + 20, { align: 'center' });
+    }
     
     // School header (center)
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('ROBERTSON EDUCATION', 105, yPos + 5, { align: 'center' });
     
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Excellence in Education - Nurturing Tomorrow\'s Leaders', 105, yPos + 12, { align: 'center' });
-    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, yPos + 17, { align: 'center' });
+    doc.text('Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu', 105, yPos + 16, { align: 'center' });
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('"Knowledge • Character • Service"', 105, yPos + 22, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text('"Knowledge • Character • Service"', 105, yPos + 20, { align: 'center' });
     
     // Passport placeholder (right side)
     doc.setLineWidth(1);
     doc.rect(155, yPos, 25, 25);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.text('PASSPORT', 167.5, yPos + 13, { align: 'center' });
     
     // Result title with border
-    yPos += 35;
+    yPos += 30;
     doc.setLineWidth(1);
-    doc.rect(20, yPos, 160, 15);
-    doc.setFontSize(12);
+    doc.rect(20, yPos, 160, 12);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 100, yPos + 5, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, 100, yPos + 11, { align: 'center' });
+    doc.text('CONTINUOUS ASSESSMENT REPORT SHEET', 100, yPos + 4, { align: 'center' });
+    doc.setFontSize(9);
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, 100, yPos + 9, { align: 'center' });
     
     // Student Information section
-    yPos += 25;
-    doc.setFontSize(10);
+    yPos += 18;
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     
     // Left column student info
@@ -268,42 +294,42 @@ export default function ViewResults() {
     doc.text(`${student ? student.firstName + ' ' + student.lastName : 'N/A'}`, 65, yPos);
     doc.line(65, yPos + 1, 145, yPos + 1);
     
-    doc.text(`Admission No:`, 20, yPos + 8);
-    doc.text(`${result.studentId}`, 65, yPos + 8);
-    doc.line(65, yPos + 9, 145, yPos + 9);
+    doc.text(`Admission No:`, 20, yPos + 7);
+    doc.text(`${result.studentId}`, 65, yPos + 7);
+    doc.line(65, yPos + 8, 145, yPos + 8);
     
-    doc.text(`Class:`, 20, yPos + 16);
-    doc.text(`${result.class}`, 65, yPos + 16);
-    doc.line(65, yPos + 17, 145, yPos + 17);
+    doc.text(`Class:`, 20, yPos + 14);
+    doc.text(`${result.class}`, 65, yPos + 14);
+    doc.line(65, yPos + 15, 145, yPos + 15);
     
-    doc.text(`Age:`, 20, yPos + 24);
-    doc.text(`${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, 65, yPos + 24);
-    doc.line(65, yPos + 25, 145, yPos + 25);
+    doc.text(`Age:`, 20, yPos + 21);
+    doc.text(`${student?.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'}`, 65, yPos + 21);
+    doc.line(65, yPos + 22, 145, yPos + 22);
     
     // Right column student info
     doc.text(`Session:`, 150, yPos);
     doc.text(`${result.session}`, 170, yPos);
     doc.line(170, yPos + 1, 190, yPos + 1);
     
-    doc.text(`Term:`, 150, yPos + 8);
-    doc.text(`${result.term}`, 170, yPos + 8);
-    doc.line(170, yPos + 9, 190, yPos + 9);
+    doc.text(`Term:`, 150, yPos + 7);
+    doc.text(`${result.term}`, 170, yPos + 7);
+    doc.line(170, yPos + 8, 190, yPos + 8);
     
-    doc.text(`No. in Class:`, 150, yPos + 16);
-    doc.text(`${result.outOf || 'N/A'}`, 180, yPos + 16);
-    doc.line(180, yPos + 17, 190, yPos + 17);
+    doc.text(`No. in Class:`, 150, yPos + 14);
+    doc.text(`${result.outOf || 'N/A'}`, 180, yPos + 14);
+    doc.line(180, yPos + 15, 190, yPos + 15);
     
-    doc.text(`Position:`, 150, yPos + 24);
-    doc.text(`${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, 170, yPos + 24);
-    doc.line(170, yPos + 25, 190, yPos + 25);
+    doc.text(`Position:`, 150, yPos + 21);
+    doc.text(`${result.position && result.outOf ? result.position + ' out of ' + result.outOf : 'N/A'}`, 170, yPos + 21);
+    doc.line(170, yPos + 22, 190, yPos + 22);
     
     // Academic Performance Table
-    yPos += 40;
-    doc.setFontSize(12);
+    yPos += 30;
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text('ACADEMIC PERFORMANCE', 100, yPos, { align: 'center' });
     
-    yPos += 10;
+    yPos += 8;
     
     // Table headers
     const headers = ['SUBJECTS', '1st CA\n(20)', '2nd CA\n(20)', 'EXAM\n(60)', 'TOTAL\n(100)', 'GRADE', 'REMARK', 'POSITION'];
@@ -312,7 +338,7 @@ export default function ViewResults() {
     
     // Header row
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     headers.forEach((header, index) => {
       doc.rect(xPos, yPos, colWidths[index], 12);
       const lines = header.split('\n');
@@ -325,8 +351,9 @@ export default function ViewResults() {
       xPos += colWidths[index];
     });
     
-    yPos += 12;
+    yPos += 10;
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
     
     // Table data
     if (result.subjects && result.subjects.length > 0) {
@@ -347,16 +374,16 @@ export default function ViewResults() {
         ];
         
         rowData.forEach((data, colIndex) => {
-          doc.rect(xPos, yPos, colWidths[colIndex], 10);
+          doc.rect(xPos, yPos, colWidths[colIndex], 8);
           if (colIndex === 0) {
-            doc.text(data, xPos + 2, yPos + 6);
+            doc.text(data, xPos + 2, yPos + 5);
           } else {
-            doc.text(data, xPos + colWidths[colIndex]/2, yPos + 6, { align: 'center' });
+            doc.text(data, xPos + colWidths[colIndex]/2, yPos + 5, { align: 'center' });
           }
           xPos += colWidths[colIndex];
         });
         
-        yPos += 10;
+        yPos += 8;
       });
     }
     
@@ -1437,10 +1464,10 @@ export default function ViewResults() {
                   <Printer className="h-4 w-4 mr-2" />
                   Print Result
                 </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => {
+                <Button className="bg-blue-600 hover:bg-blue-700" onClick={async () => {
                   if (selectedResult) {
                     const student = getStudentInfo(selectedResult.studentId);
-                    generateResultPDF(selectedResult, student);
+                    await generateResultPDF(selectedResult, student);
                   }
                 }}>
                   <Download className="h-4 w-4 mr-2" />
