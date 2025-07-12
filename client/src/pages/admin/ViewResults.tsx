@@ -492,7 +492,10 @@ export default function ViewResults() {
 
   // Get student info
   const getStudentInfo = (studentId: string) => {
-    return students.find((s: any) => s.studentId === studentId);
+    const student = students.find((s: any) => s.studentId === studentId);
+    console.log('Student found:', student);
+    console.log('Student passport photo:', student?.passportPhoto ? 'Available' : 'Not available');
+    return student;
   };
 
 
