@@ -289,18 +289,50 @@
     }
     
     /* Ensure logo container prints properly */
-    .logo-container {
-      display: block !important;
-      width: 30px !important;
-      height: 30px !important;
-      background: transparent !important;
-      border: none !important;
+    .logo-container, .print-logo-container {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 48px !important;
+      height: 48px !important;
+      background: #dc2626 !important;
+      background-color: #dc2626 !important;
+      border: 2px solid #000 !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    /* Force background colors to print */
+    .bg-red-600 {
+      background: #dc2626 !important;
+      background-color: #dc2626 !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    .logo-container span {
+      color: white !important;
+      font-size: 8px !important;
+      font-weight: bold !important;
+      line-height: 1 !important;
+      text-align: center !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     
     .print-logo {
-      width: 40px !important;
-      height: 40px !important;
-      display: block !important;
+      width: 48px !important;
+      height: 48px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: #dc2626 !important;
+      border: 2px solid #000 !important;
       opacity: 1 !important;
       visibility: visible !important;
       -webkit-print-color-adjust: exact !important;
