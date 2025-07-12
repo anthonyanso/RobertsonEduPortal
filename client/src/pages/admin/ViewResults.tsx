@@ -915,6 +915,9 @@ export default function ViewResults() {
                   const printWindow = window.open('', '_blank', 'width=800,height=600');
                   if (printWindow && selectedResult) {
                     const student = getStudentInfo(selectedResult.studentId);
+                    console.log('Student data:', student);
+                    console.log('Selected result:', selectedResult);
+                    console.log('All students:', students);
                     
                     // Create the print content
                     const printContent = `
@@ -1249,7 +1252,16 @@ export default function ViewResults() {
                                 </div>
                                 <div class="info-row">
                                   <span class="info-label">Age:</span>
-                                  <span class="info-value">${student ? (new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear()) : 'N/A'}</span>
+                                  <span class="info-value">${student && student.dateOfBirth ? (() => {
+                                    const today = new Date();
+                                    const birthDate = new Date(student.dateOfBirth);
+                                    let age = today.getFullYear() - birthDate.getFullYear();
+                                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                                      age--;
+                                    }
+                                    return age;
+                                  })() : 'N/A'}</span>
                                 </div>
                               </div>
                               <div>
@@ -1263,11 +1275,11 @@ export default function ViewResults() {
                                 </div>
                                 <div class="info-row">
                                   <span class="info-label">No. in Class:</span>
-                                  <span class="info-value">${selectedResult.totalInClass || 'N/A'}</span>
+                                  <span class="info-value">${selectedResult.outOf || 'N/A'}</span>
                                 </div>
                                 <div class="info-row">
                                   <span class="info-label">Position:</span>
-                                  <span class="info-value">${selectedResult.position ? selectedResult.position + ' out of ' + (selectedResult.totalInClass || 'N/A') : 'N/A'}</span>
+                                  <span class="info-value">${selectedResult.position ? selectedResult.position + ' out of ' + (selectedResult.outOf || 'N/A') : 'N/A'}</span>
                                 </div>
                               </div>
                             </div>
@@ -1328,7 +1340,7 @@ export default function ViewResults() {
                               </div>
                               <div class="performance-card">
                                 <div class="performance-label">POSITION</div>
-                                <div class="performance-value">${selectedResult.position ? selectedResult.position + '/' + selectedResult.totalInClass : 'N/A'}</div>
+                                <div class="performance-value">${selectedResult.position ? selectedResult.position + '/' + selectedResult.outOf : 'N/A'}</div>
                               </div>
                             </div>
                             
