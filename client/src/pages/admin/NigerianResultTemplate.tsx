@@ -304,18 +304,18 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-2 mb-3 print-border print-no-break print-header">
         <div className="flex items-center justify-between mb-2">
-          <div className="h-12 w-12 flex flex-col items-center justify-center border-2 border-black bg-red-600 text-white text-center relative">
-            {/* Original logo shows on screen */}
+          <div className="h-12 w-12 border-2 border-black bg-red-600 text-white flex flex-col items-center justify-center text-center relative">
+            {/* Screen logo */}
             <img 
               src={logoUrl} 
-              alt="School Logo" 
-              className="h-12 w-12 object-contain absolute inset-0 screen:block print:hidden bg-white" 
+              alt="Robertson Education Centre" 
+              className="h-12 w-12 object-contain print:hidden" 
             />
-            {/* Simple text logo for print - hidden on screen, visible in print */}
-            <div className="absolute inset-0 hidden print:flex flex-col items-center justify-center text-white">
-              <span className="text-xs font-bold">ROBERTSON</span>
-              <span className="text-xs font-bold">EDUCATION</span>
-              <span className="text-xs font-bold">CENTRE</span>
+            {/* Print logo - simple text based design that will always work */}
+            <div className="hidden print:flex flex-col items-center justify-center text-white h-full w-full text-xs font-bold absolute inset-0" style={{ fontSize: '8px', lineHeight: '1.1' }}>
+              <div>ROBERTSON</div>
+              <div>EDUCATION</div>
+              <div>CENTRE</div>
             </div>
           </div>
           <div className="text-center flex-1">

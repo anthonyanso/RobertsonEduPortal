@@ -276,9 +276,9 @@
     }
     
     /* Specific styles for school logo in print */
-    .school-logo {
-      width: 30px !important;
-      height: 30px !important;
+    .school-logo, img[alt="Robertson Education Centre"] {
+      width: 48px !important;
+      height: 48px !important;
       object-fit: contain !important;
       display: block !important;
       -webkit-print-color-adjust: exact !important;
@@ -286,6 +286,8 @@
       print-color-adjust: exact !important;
       opacity: 1 !important;
       visibility: visible !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
     }
     
     /* Ensure logo container prints properly */
@@ -311,6 +313,23 @@
       -webkit-print-color-adjust: exact !important;
       color-adjust: exact !important;
       print-color-adjust: exact !important;
+    }
+    
+    /* Force text colors to print */
+    .text-white {
+      color: #fff !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    /* Print-specific logo styling */
+    .print\:flex {
+      display: flex !important;
+    }
+    
+    .print\:hidden {
+      display: none !important;
     }
     
     .logo-container span {
