@@ -25,11 +25,60 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, Edit, Trash2, Download, Filter, FileText, Printer, Calculator } from "lucide-react";
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Search, Eye, Edit, Trash2, Download, Filter, FileText, Printer, Calculator, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import Swal from 'sweetalert2';
 import NigerianResultTemplate from "./NigerianResultTemplate";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const editResultSchema = z.object({
+  session: z.string().min(1, "Session is required"),
+  term: z.string().min(1, "Term is required"),
+  class: z.string().min(1, "Class is required"),
+  subjects: z.array(z.object({
+    subject: z.string().min(1, "Subject is required"),
+    ca1: z.number().min(0).max(20),
+    ca2: z.number().min(0).max(20),
+    exam: z.number().min(0).max(60),
+    total: z.number().min(0).max(100),
+    grade: z.string(),
+    remark: z.string(),
+  })).min(1, "At least one subject is required"),
+  classTeacher: z.string().optional(),
+  principalComment: z.string().optional(),
+  nextTermBegins: z.string().optional(),
+  psychomotor: z.object({
+    handWriting: z.number().min(1).max(5),
+    drawing: z.number().min(1).max(5),
+    painting: z.number().min(1).max(5),
+    sports: z.number().min(1).max(5),
+    speaking: z.number().min(1).max(5),
+    handling: z.number().min(1).max(5),
+  }).optional(),
+  affective: z.object({
+    punctuality: z.number().min(1).max(5),
+    attendance: z.number().min(1).max(5),
+    attentiveness: z.number().min(1).max(5),
+    neatness: z.number().min(1).max(5),
+    politeness: z.number().min(1).max(5),
+    honesty: z.number().min(1).max(5),
+    relationship: z.number().min(1).max(5),
+    selfControl: z.number().min(1).max(5),
+    leadership: z.number().min(1).max(5),
+  }).optional(),
+});
 
 export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +87,8 @@ export default function ViewResults() {
   const [filterClass, setFilterClass] = useState("all");
   const [selectedResult, setSelectedResult] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingResult, setEditingResult] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -102,6 +153,33 @@ export default function ViewResults() {
   const getStudentInfo = (studentId: string) => {
     return students.find((s: any) => s.studentId === studentId);
   };
+
+  // Edit result mutation
+  const editResultMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: any }) => {
+      return await apiRequest("PUT", `/api/admin/results/${id}`, data);
+    },
+    onSuccess: () => {
+      Swal.fire({
+        title: 'Success!',
+        text: 'Result updated successfully.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/results"] });
+      setIsEditDialogOpen(false);
+      setEditingResult(null);
+    },
+    onError: () => {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to update result.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
+      });
+    },
+  });
 
   // Recalculate positions mutation
   const recalculatePositionsMutation = useMutation({
@@ -211,6 +289,12 @@ export default function ViewResults() {
   const viewResult = (result: any) => {
     setSelectedResult(result);
     setIsViewDialogOpen(true);
+  };
+
+  // Edit result
+  const editResult = (result: any) => {
+    setEditingResult(result);
+    setIsEditDialogOpen(true);
   };
 
   const getGradeColor = (grade: string) => {
@@ -438,12 +522,7 @@ export default function ViewResults() {
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => {
-                                toast({
-                                  title: "Edit Result",
-                                  description: "Edit functionality will be available soon",
-                                });
-                              }}
+                              onClick={() => editResult(result)}
                               title="Edit Result"
                             >
                               <Edit className="h-4 w-4" />
@@ -500,6 +579,371 @@ export default function ViewResults() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Result Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Result</DialogTitle>
+          </DialogHeader>
+          {editingResult && (
+            <EditResultForm
+              result={editingResult}
+              students={students}
+              onSubmit={(data) => {
+                editResultMutation.mutate({ id: editingResult.id, data });
+              }}
+              onCancel={() => {
+                setIsEditDialogOpen(false);
+                setEditingResult(null);
+              }}
+              isLoading={editResultMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+// Edit Result Form Component
+function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
+  result: any;
+  students: any[];
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}) {
+  const [currentSubjects, setCurrentSubjects] = useState(result.subjects || []);
+  const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
+  const termOptions = ["First Term", "Second Term", "Third Term"];
+  const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
+
+  const form = useForm({
+    resolver: zodResolver(editResultSchema),
+    defaultValues: {
+      session: result.session || "",
+      term: result.term || "",
+      class: result.class || "",
+      subjects: result.subjects || [],
+      classTeacher: result.classTeacher || "",
+      principalComment: result.principalComment || "",
+      nextTermBegins: result.nextTermBegins || "",
+      psychomotor: result.psychomotor || {
+        handWriting: 3,
+        drawing: 3,
+        painting: 3,
+        sports: 3,
+        speaking: 3,
+        handling: 3,
+      },
+      affective: result.affective || {
+        punctuality: 3,
+        attendance: 3,
+        attentiveness: 3,
+        neatness: 3,
+        politeness: 3,
+        honesty: 3,
+        relationship: 3,
+        selfControl: 3,
+        leadership: 3,
+      },
+    },
+  });
+
+  const calculateGrade = (score: number) => {
+    if (score >= 75) return 'A';
+    if (score >= 70) return 'B';
+    if (score >= 65) return 'C';
+    if (score >= 60) return 'D';
+    return 'F';
+  };
+
+  const getRemark = (score: number) => {
+    if (score >= 75) return 'Excellent';
+    if (score >= 70) return 'Very Good';
+    if (score >= 65) return 'Good';
+    if (score >= 60) return 'Credit';
+    if (score >= 50) return 'Pass';
+    return 'Needs Improvement';
+  };
+
+  const updateSubject = (index: number, field: string, value: any) => {
+    const newSubjects = [...currentSubjects];
+    newSubjects[index] = { ...newSubjects[index], [field]: value };
+    
+    // Recalculate total and grade when CA or exam scores change
+    if (field === 'ca1' || field === 'ca2' || field === 'exam') {
+      const ca1 = field === 'ca1' ? value : newSubjects[index].ca1 || 0;
+      const ca2 = field === 'ca2' ? value : newSubjects[index].ca2 || 0;
+      const exam = field === 'exam' ? value : newSubjects[index].exam || 0;
+      const total = ca1 + ca2 + exam;
+      
+      newSubjects[index].total = total;
+      newSubjects[index].grade = calculateGrade(total);
+      newSubjects[index].remark = getRemark(total);
+    }
+    
+    setCurrentSubjects(newSubjects);
+    form.setValue('subjects', newSubjects);
+  };
+
+  const addSubject = () => {
+    const newSubject = {
+      subject: '',
+      ca1: 0,
+      ca2: 0,
+      exam: 0,
+      total: 0,
+      grade: 'F',
+      remark: 'Needs Improvement',
+    };
+    const newSubjects = [...currentSubjects, newSubject];
+    setCurrentSubjects(newSubjects);
+    form.setValue('subjects', newSubjects);
+  };
+
+  const removeSubject = (index: number) => {
+    const newSubjects = currentSubjects.filter((_, i) => i !== index);
+    setCurrentSubjects(newSubjects);
+    form.setValue('subjects', newSubjects);
+  };
+
+  const handleSubmit = (data: any) => {
+    // Calculate overall performance
+    const validSubjects = currentSubjects.filter(s => s.subject && s.total > 0);
+    const totalScore = validSubjects.reduce((sum, subject) => sum + subject.total, 0);
+    const average = validSubjects.length > 0 ? totalScore / validSubjects.length : 0;
+    const gpa = average >= 75 ? 4.0 : 
+                average >= 70 ? 3.5 : 
+                average >= 65 ? 3.0 : 
+                average >= 60 ? 2.5 : 
+                average >= 55 ? 2.0 : 
+                average >= 50 ? 1.5 : 
+                average >= 45 ? 1.0 : 0.0;
+
+    const finalData = {
+      ...data,
+      subjects: currentSubjects,
+      totalScore,
+      average: Number(average.toFixed(2)),
+      gpa: Number(gpa.toFixed(2)),
+      subjectCount: validSubjects.length
+    };
+
+    onSubmit(finalData);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="session"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Session</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select session" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sessionOptions.map(session => (
+                      <SelectItem key={session} value={session}>{session}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="term"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Term</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select term" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {termOptions.map(term => (
+                      <SelectItem key={term} value={term}>{term}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="class"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Class</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select class" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {classOptions.map(cls => (
+                      <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Subjects */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">Academic Subjects</h3>
+            <Button type="button" onClick={addSubject} size="sm">
+              Add Subject
+            </Button>
+          </div>
+          
+          {currentSubjects.map((subject, index) => (
+            <Card key={index} className="p-4">
+              <div className="grid grid-cols-7 gap-4 items-end">
+                <div>
+                  <label className="text-sm font-medium">Subject</label>
+                  <Input
+                    value={subject.subject}
+                    onChange={(e) => updateSubject(index, 'subject', e.target.value)}
+                    placeholder="Subject name"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">CA1 (20)</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={subject.ca1}
+                    onChange={(e) => updateSubject(index, 'ca1', Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">CA2 (20)</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={subject.ca2}
+                    onChange={(e) => updateSubject(index, 'ca2', Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Exam (60)</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="60"
+                    value={subject.exam}
+                    onChange={(e) => updateSubject(index, 'exam', Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Total</label>
+                  <Input value={subject.total} disabled />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Grade</label>
+                  <Input value={subject.grade} disabled />
+                </div>
+                <div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeSubject(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Additional Information */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="classTeacher"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Class Teacher</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter class teacher name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nextTermBegins"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Next Term Begins</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="e.g., Monday, 15th January, 2024" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="principalComment"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Principal's Comment</FormLabel>
+              <FormControl>
+                <Textarea {...field} placeholder="Enter principal's comment" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Form Actions */}
+        <div className="flex justify-end space-x-4 border-t pt-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
