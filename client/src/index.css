@@ -195,10 +195,77 @@
     body {
       background: white !important;
       color: black !important;
+      font-size: 12pt !important;
+      line-height: 1.2 !important;
     }
 
     .print-page-break {
       page-break-before: always;
+    }
+    
+    .print-no-break {
+      page-break-inside: avoid;
+    }
+    
+    .print-show {
+      display: block !important;
+    }
+    
+    .print-hide {
+      display: none !important;
+    }
+    
+    .print-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+    
+    .print-table td, .print-table th {
+      border: 1px solid #000 !important;
+      padding: 4px !important;
+      font-size: 10pt !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    
+    .print-border {
+      border: 2px solid #000 !important;
+    }
+    
+    .print-title {
+      font-size: 16pt !important;
+      font-weight: bold !important;
+    }
+    
+    .print-subtitle {
+      font-size: 12pt !important;
+      font-weight: bold !important;
+    }
+    
+    /* Hide dialog elements when printing */
+    .fixed, .absolute, .z-50, .backdrop-blur-sm {
+      display: none !important;
+    }
+    
+    /* Show only the result template */
+    .print-result-template {
+      display: block !important;
+      position: static !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Ensure badges print properly */
+    .badge {
+      background: white !important;
+      color: black !important;
+      border: 1px solid #000 !important;
+    }
+    
+    @page {
+      size: A4;
+      margin: 0.5in;
     }
   }
 }

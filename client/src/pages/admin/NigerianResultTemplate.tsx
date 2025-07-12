@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import logoUrl from "@assets/logo_1751823007371.png";
@@ -9,6 +10,77 @@ interface NigerianResultTemplateProps {
 }
 
 export default function NigerianResultTemplate({ result, student, schoolInfo }: NigerianResultTemplateProps) {
+  // Print-specific CSS
+  const printStyles = `
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      
+      .print-page-break {
+        page-break-before: always;
+      }
+      
+      .print-no-break {
+        page-break-inside: avoid;
+      }
+      
+      .print-show {
+        display: block !important;
+      }
+      
+      .print-hide {
+        display: none !important;
+      }
+      
+      body {
+        font-size: 12pt !important;
+        line-height: 1.2 !important;
+      }
+      
+      .print-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+      }
+      
+      .print-table td, .print-table th {
+        border: 1px solid #000 !important;
+        padding: 4px !important;
+        font-size: 10pt !important;
+      }
+      
+      .print-border {
+        border: 2px solid #000 !important;
+      }
+      
+      .print-title {
+        font-size: 14pt !important;
+        font-weight: bold !important;
+      }
+      
+      .print-subtitle {
+        font-size: 12pt !important;
+        font-weight: bold !important;
+      }
+      
+      @page {
+        size: A4;
+        margin: 0.5in;
+      }
+    }
+  `;
+
+  // Add the print styles to the document
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = printStyles;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, [printStyles]);
   const defaultSchoolInfo = {
     name: "ROBERTSON EDUCATION",
     address: "Excellence in Education - Nurturing Tomorrow's Leaders",
@@ -35,9 +107,9 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
   };
 
   return (
-    <div className="bg-white p-8 font-serif" style={{ fontFamily: 'Times New Roman, serif' }}>
+    <div className="bg-white p-8 font-serif print:p-4 print:bg-white print-no-break" style={{ fontFamily: 'Times New Roman, serif' }}>
       {/* Header */}
-      <div className="border-4 border-double border-black p-4 mb-6">
+      <div className="border-4 border-double border-black p-4 mb-6 print-border print-no-break">
         <div className="flex items-center justify-between mb-4">
           <img src={logoUrl} alt="School Logo" className="h-16 w-16 object-contain" />
           <div className="text-center flex-1">
@@ -117,13 +189,13 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       </div>
 
       {/* Academic Performance */}
-      <div className="mb-6">
-        <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center">ACADEMIC PERFORMANCE</h3>
-        <div className="border border-gray-400">
-          <table className="w-full">
+      <div className="mb-6 print-no-break">
+        <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">ACADEMIC PERFORMANCE</h3>
+        <div className="border border-gray-400 print-border">
+          <table className="w-full print-table">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border border-gray-400 p-2 text-left">SUBJECTS</th>
+                <th className="border border-gray-400 p-2 text-left print-subtitle">SUBJECTS</th>
                 <th className="border border-gray-400 p-2 text-center">1st CA<br/>(20)</th>
                 <th className="border border-gray-400 p-2 text-center">2nd CA<br/>(20)</th>
                 <th className="border border-gray-400 p-2 text-center">EXAM<br/>(60)</th>
@@ -142,17 +214,23 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
                   <td className="border border-gray-400 p-2 text-center">{subject.exam || 0}</td>
                   <td className="border border-gray-400 p-2 text-center font-semibold">{subject.total || 0}</td>
                   <td className="border border-gray-400 p-2 text-center">
-                    <Badge className={subject.grade?.includes('A') ? 'bg-green-100 text-green-800' : 
-                                    subject.grade?.includes('B') ? 'bg-blue-100 text-blue-800' : 
-                                    subject.grade?.includes('C') ? 'bg-yellow-100 text-yellow-800' : 
-                                    'bg-red-100 text-red-800'}>
+                    <span className={`print:text-black ${subject.grade?.includes('A') ? 'font-bold' : ''}`}>
                       {subject.grade}
-                    </Badge>
+                    </span>
                   </td>
                   <td className="border border-gray-400 p-2 text-center text-sm">{subject.remark || getGradeRemark(subject.grade)}</td>
                   <td className="border border-gray-400 p-2 text-center">{subject.position || (index + 1)}</td>
                 </tr>
               ))}
+              
+              {/* Summary Row */}
+              <tr className="bg-gray-100 font-bold">
+                <td className="border border-gray-400 p-2 text-center" colSpan={4}>TOTAL</td>
+                <td className="border border-gray-400 p-2 text-center">{result.totalScore || 0}</td>
+                <td className="border border-gray-400 p-2 text-center">-</td>
+                <td className="border border-gray-400 p-2 text-center">AVERAGE: {result.average || 0}%</td>
+                <td className="border border-gray-400 p-2 text-center">GPA: {result.gpa || 0}</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -181,13 +259,13 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       </div>
 
       {/* Skills Assessment */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-2 gap-6 mb-6 print-no-break">
         {/* Psychomotor Skills */}
         {result.psychomotor && (
-          <div>
-            <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center">PSYCHOMOTOR SKILLS</h3>
-            <div className="border border-gray-400">
-              <table className="w-full">
+          <div className="print-no-break">
+            <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">PSYCHOMOTOR SKILLS</h3>
+            <div className="border border-gray-400 print-border">
+              <table className="w-full print-table">
                 <thead>
                   <tr className="bg-gray-200">
                     <th className="border border-gray-400 p-2 text-left">SKILL</th>
@@ -211,10 +289,10 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
 
         {/* Affective Skills */}
         {result.affective && (
-          <div>
-            <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center">AFFECTIVE SKILLS</h3>
-            <div className="border border-gray-400">
-              <table className="w-full">
+          <div className="print-no-break">
+            <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">AFFECTIVE SKILLS</h3>
+            <div className="border border-gray-400 print-border">
+              <table className="w-full print-table">
                 <thead>
                   <tr className="bg-gray-200">
                     <th className="border border-gray-400 p-2 text-left">TRAIT</th>
@@ -239,31 +317,83 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
 
       {/* Attendance */}
       {result.attendance && (
-        <div className="mb-6">
-          <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center">ATTENDANCE RECORD</h3>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="font-semibold">Total Days</p>
-              <p className="text-xl font-bold">{result.attendance.total || 0}</p>
-            </div>
-            <div className="text-center">
-              <p className="font-semibold">Present</p>
-              <p className="text-xl font-bold text-green-600">{result.attendance.present || 0}</p>
-            </div>
-            <div className="text-center">
-              <p className="font-semibold">Absent</p>
-              <p className="text-xl font-bold text-red-600">{result.attendance.absent || 0}</p>
-            </div>
+        <div className="mb-6 print-no-break">
+          <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">ATTENDANCE RECORD</h3>
+          <div className="border border-gray-400 print-border">
+            <table className="w-full print-table">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-400 p-2 text-center">TOTAL DAYS</th>
+                  <th className="border border-gray-400 p-2 text-center">PRESENT</th>
+                  <th className="border border-gray-400 p-2 text-center">ABSENT</th>
+                  <th className="border border-gray-400 p-2 text-center">PERCENTAGE</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-400 p-2 text-center font-bold">{result.attendance.total || 0}</td>
+                  <td className="border border-gray-400 p-2 text-center font-bold">{result.attendance.present || 0}</td>
+                  <td className="border border-gray-400 p-2 text-center font-bold">{result.attendance.absent || 0}</td>
+                  <td className="border border-gray-400 p-2 text-center font-bold">
+                    {result.attendance.total ? ((result.attendance.present / result.attendance.total) * 100).toFixed(1) : 0}%
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
+      {/* Grading Scale Reference */}
+      <div className="mb-6 print-no-break">
+        <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">GRADING SCALE</h3>
+        <div className="border border-gray-400 print-border">
+          <table className="w-full print-table">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-400 p-2 text-center">GRADE</th>
+                <th className="border border-gray-400 p-2 text-center">MARKS</th>
+                <th className="border border-gray-400 p-2 text-center">INTERPRETATION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-gray-400 p-2 text-center font-bold">A</td>
+                <td className="border border-gray-400 p-2 text-center">70-100</td>
+                <td className="border border-gray-400 p-2 text-center">Distinction</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-2 text-center font-bold">B</td>
+                <td className="border border-gray-400 p-2 text-center">60-69</td>
+                <td className="border border-gray-400 p-2 text-center">Credit</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-2 text-center font-bold">C</td>
+                <td className="border border-gray-400 p-2 text-center">50-59</td>
+                <td className="border border-gray-400 p-2 text-center">Credit</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-2 text-center font-bold">D</td>
+                <td className="border border-gray-400 p-2 text-center">40-49</td>
+                <td className="border border-gray-400 p-2 text-center">Pass</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-2 text-center font-bold">F</td>
+                <td className="border border-gray-400 p-2 text-center">0-39</td>
+                <td className="border border-gray-400 p-2 text-center">Fail</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Comments */}
-      <div className="mb-6">
+      <div className="mb-6 print-no-break">
+        <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">COMMENTS</h3>
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <h4 className="font-semibold mb-2">CLASS TEACHER'S COMMENT:</h4>
-            <div className="border border-gray-400 p-3 min-h-[60px] bg-gray-50">
+            <h4 className="font-semibold mb-2 print-subtitle">CLASS TEACHER'S COMMENT:</h4>
+            <div className="border border-gray-400 p-3 min-h-[60px] bg-gray-50 print-border">
               {result.classTeacher ? 
                 `${getOverallComment(result.average || 0)} - ${result.classTeacher}` : 
                 getOverallComment(result.average || 0)
@@ -271,41 +401,101 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
             </div>
           </div>
           <div>
-            <h4 className="font-semibold mb-2">PRINCIPAL'S COMMENT:</h4>
-            <div className="border border-gray-400 p-3 min-h-[60px] bg-gray-50">
+            <h4 className="font-semibold mb-2 print-subtitle">PRINCIPAL'S COMMENT:</h4>
+            <div className="border border-gray-400 p-3 min-h-[60px] bg-gray-50 print-border">
               {result.principalComment || 'Keep up the good work and continue to strive for excellence.'}
             </div>
           </div>
         </div>
       </div>
 
+      {/* Performance Summary */}
+      <div className="mb-6 print-no-break">
+        <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">PERFORMANCE SUMMARY</h3>
+        <div className="border border-gray-400 print-border">
+          <table className="w-full print-table">
+            <tbody>
+              <tr>
+                <td className="border border-gray-400 p-2 font-semibold">Total Subjects Offered:</td>
+                <td className="border border-gray-400 p-2">{result.subjects?.length || 0}</td>
+                <td className="border border-gray-400 p-2 font-semibold">Total Score:</td>
+                <td className="border border-gray-400 p-2">{result.totalScore || 0}</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-2 font-semibold">Average Score:</td>
+                <td className="border border-gray-400 p-2">{result.average || 0}%</td>
+                <td className="border border-gray-400 p-2 font-semibold">Grade Point Average:</td>
+                <td className="border border-gray-400 p-2">{result.gpa || 0}/4.0</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-2 font-semibold">Position in Class:</td>
+                <td className="border border-gray-400 p-2">{result.position && result.outOf ? `${result.position} out of ${result.outOf}` : 'N/A'}</td>
+                <td className="border border-gray-400 p-2 font-semibold">Overall Grade:</td>
+                <td className="border border-gray-400 p-2 font-bold">
+                  {result.average >= 70 ? 'A (Distinction)' : 
+                   result.average >= 60 ? 'B (Credit)' : 
+                   result.average >= 50 ? 'C (Credit)' : 
+                   result.average >= 40 ? 'D (Pass)' : 'F (Fail)'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Signatures */}
-      <div className="grid grid-cols-3 gap-8 mb-6">
-        <div className="text-center">
-          <div className="border-t border-gray-400 pt-2">
-            <p className="font-semibold">Class Teacher's Signature</p>
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="border-t border-gray-400 pt-2">
-            <p className="font-semibold">Principal's Signature</p>
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="border-t border-gray-400 pt-2">
-            <p className="font-semibold">Parent/Guardian's Signature</p>
-          </div>
+      <div className="mb-6 print-no-break">
+        <h3 className="text-lg font-bold mb-3 bg-gray-100 p-2 text-center print-subtitle">SIGNATURES</h3>
+        <div className="border border-gray-400 print-border">
+          <table className="w-full print-table">
+            <tbody>
+              <tr>
+                <td className="border border-gray-400 p-4 text-center">
+                  <div className="mb-8"></div>
+                  <div className="border-t border-gray-400 pt-2">
+                    <p className="font-semibold">Class Teacher's Signature</p>
+                    <p className="text-sm text-gray-600">Date: _____________</p>
+                  </div>
+                </td>
+                <td className="border border-gray-400 p-4 text-center">
+                  <div className="mb-8"></div>
+                  <div className="border-t border-gray-400 pt-2">
+                    <p className="font-semibold">Principal's Signature</p>
+                    <p className="text-sm text-gray-600">Date: _____________</p>
+                  </div>
+                </td>
+                <td className="border border-gray-400 p-4 text-center">
+                  <div className="mb-8"></div>
+                  <div className="border-t border-gray-400 pt-2">
+                    <p className="font-semibold">Parent/Guardian's Signature</p>
+                    <p className="text-sm text-gray-600">Date: _____________</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="text-center border-t border-gray-400 pt-4">
-        <p className="text-sm">
-          <strong>Next Term Begins:</strong> {result.nextTermBegins || 'Date to be announced'}
-        </p>
-        <p className="text-xs text-gray-500 mt-2">
-          This is a computer-generated result sheet. No signature required.
-        </p>
+      <div className="text-center border-t border-gray-400 pt-4 print-no-break">
+        <div className="mb-4">
+          <p className="text-sm font-semibold">
+            <strong>Next Term Begins:</strong> {result.nextTermBegins || 'Date to be announced'}
+          </p>
+          <p className="text-sm">
+            <strong>School Reopens:</strong> {result.resumptionDate || 'Date to be announced'}
+          </p>
+        </div>
+        
+        <div className="border-t border-gray-400 pt-2">
+          <p className="text-xs text-gray-500">
+            This is a computer-generated result sheet from Robertson Education Management System.
+          </p>
+          <p className="text-xs text-gray-500">
+            Generated on: {new Date().toLocaleDateString('en-GB')} at {new Date().toLocaleTimeString()}
+          </p>
+        </div>
       </div>
     </div>
   );

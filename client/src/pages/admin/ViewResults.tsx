@@ -624,9 +624,18 @@ export default function ViewResults() {
                 <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
                   Close
                 </Button>
-                <Button variant="outline" onClick={() => window.print()}>
+                <Button variant="outline" onClick={() => {
+                  // Hide dialog content except the result template
+                  const dialogContent = document.querySelector('.max-w-6xl');
+                  if (dialogContent) {
+                    dialogContent.classList.add('print:block');
+                  }
+                  
+                  // Print the page
+                  window.print();
+                }}>
                   <Printer className="h-4 w-4 mr-2" />
-                  Print
+                  Print Result
                 </Button>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Download className="h-4 w-4 mr-2" />
