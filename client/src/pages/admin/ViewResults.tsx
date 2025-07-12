@@ -70,6 +70,8 @@ export default function ViewResults() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingResult, setEditingResult] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -127,6 +129,68 @@ export default function ViewResults() {
     
     return matchesSearch && matchesSession && matchesTerm && matchesClass;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentResults = filteredResults.slice(startIndex, endIndex);
+  const totalResults = filteredResults.length;
+
+  // Reset to first page when search/filter changes
+  const resetToFirstPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(1);
+    }
+  };
+
+  // Pagination handlers
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const goToFirstPage = () => goToPage(1);
+  const goToLastPage = () => goToPage(totalPages);
+  const goToPreviousPage = () => goToPage(currentPage - 1);
+  const goToNextPage = () => goToPage(currentPage + 1);
+
+  // Generate page numbers for pagination
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if total pages is less than max
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show pages around current page
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, currentPage + 2);
+      
+      // Always include first page
+      if (startPage > 1) {
+        pages.push(1);
+        if (startPage > 2) pages.push('...');
+      }
+      
+      // Add pages around current page
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      // Always include last page
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
 
 
 
@@ -314,14 +378,20 @@ export default function ViewResults() {
                 <Input
                   placeholder="Search by ID or name..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="pl-10"
                 />
               </div>
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Session</label>
-              <Select value={filterSession} onValueChange={setFilterSession}>
+              <Select value={filterSession} onValueChange={(value) => {
+                setFilterSession(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Sessions" />
                 </SelectTrigger>
@@ -335,7 +405,10 @@ export default function ViewResults() {
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Term</label>
-              <Select value={filterTerm} onValueChange={setFilterTerm}>
+              <Select value={filterTerm} onValueChange={(value) => {
+                setFilterTerm(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Terms" />
                 </SelectTrigger>
@@ -349,7 +422,10 @@ export default function ViewResults() {
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Class</label>
-              <Select value={filterClass} onValueChange={setFilterClass}>
+              <Select value={filterClass} onValueChange={(value) => {
+                setFilterClass(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Classes" />
                 </SelectTrigger>
@@ -369,6 +445,7 @@ export default function ViewResults() {
                   setFilterSession("all");
                   setFilterTerm("all");
                   setFilterClass("all");
+                  setCurrentPage(1);
                 }}
                 className="w-full"
               >
@@ -383,7 +460,7 @@ export default function ViewResults() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Academic Results ({filteredResults.length})</CardTitle>
+            <CardTitle>Academic Results ({totalResults})</CardTitle>
             <Button
               onClick={handleRecalculatePositions}
               disabled={recalculatePositionsMutation.isPending}
@@ -429,7 +506,7 @@ export default function ViewResults() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredResults.map((result: any) => {
+                  currentResults.map((result: any) => {
                     const student = getStudentInfo(result.studentId);
                     const avgScore = Number(result.average) || 0;
                     const overallGrade = avgScore >= 75 ? 'A' : 
