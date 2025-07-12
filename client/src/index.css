@@ -288,6 +288,17 @@
       visibility: visible !important;
       max-width: 48px !important;
       max-height: 48px !important;
+      border: none !important;
+      background: transparent !important;
+    }
+    
+    /* Ensure all images print properly */
+    img {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      opacity: 1 !important;
+      visibility: visible !important;
     }
     
     /* Ensure logo container prints properly */
