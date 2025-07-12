@@ -16,8 +16,9 @@ import {
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { generateUniqueStudentId } from "./utils/studentIdGenerator";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { students } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 // Function to calculate class positions based on performance
 async function calculateClassPositions(className: string, session: string, term: string) {
@@ -518,17 +519,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/student-photo/:studentId', async (req, res) => {
     try {
       const studentId = req.params.studentId;
-      const result = await db.execute('SELECT passport_photo FROM students WHERE student_id = ?', [studentId]);
+      console.log("Fetching photo for student ID:", studentId);
+      
+      // Use pool.query to avoid Drizzle ORM issues
+      const result = await pool.query('SELECT passport_photo FROM students WHERE student_id = $1', [studentId]);
       
       if (result.rows.length === 0 || !result.rows[0].passport_photo) {
+        console.log("No photo found for student:", studentId);
         return res.status(404).json({ message: "Photo not found" });
       }
 
       const passportPhoto = result.rows[0].passport_photo;
+      console.log("Found photo, length:", passportPhoto.length);
       
       // Extract the base64 data and mime type
       const matches = passportPhoto.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
       if (!matches) {
+        console.log("Invalid photo format for student:", studentId);
         return res.status(400).json({ message: "Invalid photo format" });
       }
 
