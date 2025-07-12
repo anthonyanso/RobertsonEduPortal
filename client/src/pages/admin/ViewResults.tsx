@@ -144,7 +144,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     ];
     
     studentInfo.forEach((info, index) => {
-      const currentY = yPos + Math.floor(index / 2) * 8;
+      const currentY = yPos + Math.floor(index / 2) * 7;
       doc.setFont("helvetica", "bold");
       doc.text(info.label, info.x, currentY);
       doc.setFont("helvetica", "normal");
@@ -162,12 +162,12 @@ const downloadResultAsPDF = (result: any, student: any) => {
     });
     
     // Academic Performance Table
-    yPos += 45;
+    yPos += 35;
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("ACADEMIC PERFORMANCE", pageWidth / 2, yPos, { align: "center" });
     
-    yPos += 10;
+    yPos += 6;
     
     // Table setup
     const tableStartX = 15;
@@ -178,23 +178,23 @@ const downloadResultAsPDF = (result: any, student: any) => {
     // Draw table header
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
-    doc.rect(tableStartX, yPos, tableWidth, 10);
+    doc.rect(tableStartX, yPos, tableWidth, 8);
     
     let xPos = tableStartX;
     headers.forEach((header, index) => {
-      doc.text(header, xPos + colWidths[index] / 2, yPos + 6, { align: "center" });
+      doc.text(header, xPos + colWidths[index] / 2, yPos + 5, { align: "center" });
       if (index < headers.length - 1) {
-        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 10);
+        doc.line(xPos + colWidths[index], yPos, xPos + colWidths[index], yPos + 8);
       }
       xPos += colWidths[index];
     });
     
-    yPos += 10;
+    yPos += 8;
     
     // Table data
     doc.setFont("helvetica", "normal");
     result.subjects.forEach((subject: any, index: number) => {
-      const rowHeight = 8;
+      const rowHeight = 6;
       doc.rect(tableStartX, yPos, tableWidth, rowHeight);
       
       xPos = tableStartX;
@@ -212,7 +212,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
       values.forEach((value, i) => {
         const textX = i === 0 ? xPos + 2 : xPos + colWidths[i] / 2;
         const align = i === 0 ? undefined : { align: "center" };
-        doc.text(value, textX, yPos + 5, align);
+        doc.text(value, textX, yPos + 4, align);
         if (i < values.length - 1) {
           doc.line(xPos + colWidths[i], yPos, xPos + colWidths[i], yPos + rowHeight);
         }
@@ -242,7 +242,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     });
     
     // Performance Summary
-    yPos += 20;
+    yPos += 12;
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     
@@ -254,9 +254,9 @@ const downloadResultAsPDF = (result: any, student: any) => {
     const cgpa = (gradePoints / result.subjects.length).toFixed(2);
     
     // Performance boxes
-    const perfBoxWidth = 40;
-    const perfBoxHeight = 20;
-    const perfBoxSpacing = 10;
+    const perfBoxWidth = 32;
+    const perfBoxHeight = 16;
+    const perfBoxSpacing = 6;
     const startX = (pageWidth - (4 * perfBoxWidth + 3 * perfBoxSpacing)) / 2;
     
     const perfData = [
@@ -269,45 +269,45 @@ const downloadResultAsPDF = (result: any, student: any) => {
     perfData.forEach((data, index) => {
       const boxX = startX + index * (perfBoxWidth + perfBoxSpacing);
       doc.rect(boxX, yPos, perfBoxWidth, perfBoxHeight);
-      doc.setFontSize(7);
-      doc.text(data.label, boxX + perfBoxWidth / 2, yPos + 6, { align: "center" });
-      doc.setFontSize(10);
-      doc.text(data.value, boxX + perfBoxWidth / 2, yPos + 15, { align: "center" });
+      doc.setFontSize(6);
+      doc.text(data.label, boxX + perfBoxWidth / 2, yPos + 5, { align: "center" });
+      doc.setFontSize(9);
+      doc.text(data.value, boxX + perfBoxWidth / 2, yPos + 12, { align: "center" });
     });
     
     // Comments Section
-    currentY = yPos + 35;
-    checkPageSpace(60); // Check if comments section fits
+    currentY = yPos + 25;
+    checkPageSpace(45); // Check if comments section fits
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     
     // Class Teacher's Comment
     doc.text("CLASS TEACHER'S REMARK:", 15, currentY);
-    doc.rect(15, currentY + 3, pageWidth - 30, 15);
+    doc.rect(15, currentY + 3, pageWidth - 30, 12);
     doc.setFont("helvetica", "normal");
-    doc.text(result.classTeacher || 'Keep up the good work!', 17, currentY + 12);
+    doc.text(result.classTeacher || 'Keep up the good work!', 17, currentY + 10);
     
-    currentY += 20;
+    currentY += 18;
     
     // Principal's Comment  
     doc.setFont("helvetica", "bold");
     doc.text("PRINCIPAL'S REMARK:", 15, currentY);
-    doc.rect(15, currentY + 3, pageWidth - 30, 15);
+    doc.rect(15, currentY + 3, pageWidth - 30, 12);
     doc.setFont("helvetica", "normal");
-    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, currentY + 12);
+    doc.text(result.principalComment || 'Excellent performance. Continue to strive for excellence.', 17, currentY + 10);
     
-    currentY += 30;
+    currentY += 22;
     
     // Signature Section
-    checkPageSpace(40); // Check if signature section fits
+    checkPageSpace(30); // Check if signature section fits
     
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     
     // Signature boxes
-    const sigBoxWidth = 60;
-    const sigBoxHeight = 25;
+    const sigBoxWidth = 55;
+    const sigBoxHeight = 20;
     const sigSpacing = 5;
     const sigStartX = (pageWidth - (3 * sigBoxWidth + 2 * sigSpacing)) / 2;
     
@@ -320,12 +320,12 @@ const downloadResultAsPDF = (result: any, student: any) => {
     signatures.forEach((sig, index) => {
       const boxX = sigStartX + index * (sigBoxWidth + sigSpacing);
       doc.rect(boxX, currentY, sigBoxWidth, sigBoxHeight);
-      doc.text(sig, boxX + sigBoxWidth / 2, currentY + 8, { align: "center" });
-      doc.line(boxX + 5, currentY + 18, boxX + sigBoxWidth - 5, currentY + 18);
-      doc.text("Date: __________", boxX + sigBoxWidth / 2, currentY + 22, { align: "center" });
+      doc.text(sig, boxX + sigBoxWidth / 2, currentY + 7, { align: "center" });
+      doc.line(boxX + 5, currentY + 15, boxX + sigBoxWidth - 5, currentY + 15);
+      doc.text("Date: __________", boxX + sigBoxWidth / 2, currentY + 18, { align: "center" });
     });
     
-    currentY += 35;
+    currentY += 25;
     
     // Footer
     checkPageSpace(15); // Check if footer fits
@@ -988,7 +988,7 @@ export default function ViewResults() {
                             .container {
                               max-width: 800px;
                               margin: 0 auto;
-                              padding: 20px;
+                              padding: 15px;
                             }
                             
                             /* Page break handling for print */
@@ -1018,9 +1018,9 @@ export default function ViewResults() {
                             }
                             
                             .header {
-                              border: 4px double #000;
-                              padding: 20px;
-                              margin-bottom: 20px;
+                              border: 3px double #000;
+                              padding: 15px;
+                              margin-bottom: 15px;
                               text-align: center;
                             }
                             
@@ -1100,13 +1100,13 @@ export default function ViewResults() {
                             .student-info {
                               display: grid;
                               grid-template-columns: 1fr 1fr;
-                              gap: 30px;
-                              margin: 20px 0;
+                              gap: 20px;
+                              margin: 15px 0;
                             }
                             
                             .info-row {
                               display: flex;
-                              margin-bottom: 8px;
+                              margin-bottom: 5px;
                             }
                             
                             .info-label {
@@ -1123,25 +1123,26 @@ export default function ViewResults() {
                             
                             .section-title {
                               background: #f5f5f5;
-                              padding: 10px;
+                              padding: 8px;
                               text-align: center;
-                              font-size: 14pt;
+                              font-size: 12pt;
                               font-weight: bold;
-                              margin: 20px 0 10px 0;
+                              margin: 15px 0 8px 0;
                             }
                             
                             .result-table {
                               width: 100%;
                               border-collapse: collapse;
-                              margin-bottom: 20px;
+                              margin-bottom: 12px;
                               page-break-inside: auto;
                             }
                             
                             .result-table th,
                             .result-table td {
                               border: 1px solid #000;
-                              padding: 8px;
+                              padding: 4px;
                               text-align: center;
+                              font-size: 10pt;
                               page-break-inside: avoid;
                             }
                             
@@ -1163,46 +1164,46 @@ export default function ViewResults() {
                             .performance-summary {
                               display: grid;
                               grid-template-columns: 1fr 1fr 1fr 1fr;
-                              gap: 10px;
-                              margin: 20px 0;
+                              gap: 8px;
+                              margin: 12px 0;
                             }
                             
                             .performance-card {
                               border: 1px solid #000;
-                              padding: 15px;
+                              padding: 8px;
                               text-align: center;
                             }
                             
                             .performance-label {
-                              font-size: 10pt;
+                              font-size: 9pt;
                               font-weight: bold;
-                              margin-bottom: 5px;
+                              margin-bottom: 3px;
                             }
                             
                             .performance-value {
-                              font-size: 18pt;
+                              font-size: 14pt;
                               font-weight: bold;
                             }
                             
                             .comments {
-                              margin: 20px 0;
+                              margin: 12px 0;
                             }
                             
                             .comment-box {
                               border: 1px solid #000;
-                              padding: 15px;
-                              margin-bottom: 15px;
-                              min-height: 60px;
+                              padding: 8px;
+                              margin-bottom: 8px;
+                              min-height: 40px;
                               background: #f9f9f9;
                             }
                             
                             .comment-title {
                               font-weight: bold;
-                              margin-bottom: 8px;
+                              margin-bottom: 5px;
                             }
                             
                             .signatures {
-                              margin-top: 30px;
+                              margin-top: 15px;
                             }
                             
                             .signature-table {
@@ -1212,7 +1213,7 @@ export default function ViewResults() {
                             
                             .signature-table td {
                               border: 1px solid #000;
-                              padding: 30px 10px 10px 10px;
+                              padding: 20px 8px 8px 8px;
                               text-align: center;
                               vertical-align: bottom;
                             }
@@ -1225,15 +1226,15 @@ export default function ViewResults() {
                             
                             .footer {
                               border-top: 2px solid #000;
-                              padding-top: 15px;
-                              margin-top: 30px;
+                              padding-top: 8px;
+                              margin-top: 12px;
                               text-align: center;
                             }
                             
                             .footer-info {
-                              font-size: 10pt;
+                              font-size: 9pt;
                               color: #666;
-                              margin-top: 10px;
+                              margin-top: 5px;
                             }
                             
                             @media print {
