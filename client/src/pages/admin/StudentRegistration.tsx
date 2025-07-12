@@ -97,10 +97,16 @@ export default function StudentRegistration() {
     mutationFn: async (data: StudentRegistrationData) => {
       const endpoint = editingStudent ? `/api/admin/students/${editingStudent.id}` : '/api/admin/students';
       const method = editingStudent ? 'PUT' : 'POST';
+      
+      // Exclude studentId from update data when editing
+      const submitData = editingStudent ? 
+        (({ studentId, ...rest }) => rest)(data) : 
+        data;
+      
       const response = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       });
       
       if (!response.ok) {
@@ -241,8 +247,13 @@ export default function StudentRegistration() {
                     id="studentId"
                     placeholder="e.g., ST001"
                     {...form.register("studentId")}
+                    disabled={editingStudent ? true : false}
+                    className={editingStudent ? "bg-gray-50 text-gray-700 cursor-not-allowed" : ""}
                   />
-                  {form.formState.errors.studentId && (
+                  {editingStudent && (
+                    <p className="text-xs text-gray-500 mt-1">Student ID cannot be changed</p>
+                  )}
+                  {form.formState.errors.studentId && !editingStudent && (
                     <p className="text-sm text-red-600">{form.formState.errors.studentId.message}</p>
                   )}
                 </div>

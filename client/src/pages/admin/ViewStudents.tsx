@@ -238,7 +238,9 @@ export default function ViewStudents() {
   };
 
   const onSubmitEdit = (data: StudentEditData) => {
-    updateStudentMutation.mutate(data);
+    // Exclude studentId from the update data since it's disabled
+    const { studentId, ...updateData } = data;
+    updateStudentMutation.mutate(updateData);
   };
 
   const getStatusColor = (status: string) => {
@@ -582,10 +584,10 @@ export default function ViewStudents() {
                 <Input
                   id="edit-studentId"
                   {...form.register("studentId")}
+                  disabled
+                  className="bg-gray-50 text-gray-700 cursor-not-allowed"
                 />
-                {form.formState.errors.studentId && (
-                  <p className="text-sm text-red-600">{form.formState.errors.studentId.message}</p>
-                )}
+                <p className="text-xs text-gray-500 mt-1">Student ID cannot be changed</p>
               </div>
 
               <div>
