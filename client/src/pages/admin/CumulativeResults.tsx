@@ -85,22 +85,24 @@ export default function CumulativeResults() {
       const thirdTerm = sessionResults.find(r => r.studentId === student.studentId && r.term === "Third Term") || null;
 
       // Calculate cumulative average and GPA
-      const validResults = [firstTerm, secondTerm, thirdTerm].filter(Boolean);
+      const validResults = [firstTerm, secondTerm, thirdTerm].filter(result => 
+        result && typeof result.average === 'number' && typeof result.gpa === 'number'
+      );
       const cumulativeAverage = validResults.length > 0 
-        ? validResults.reduce((sum, result) => sum + (result?.average || 0), 0) / validResults.length 
+        ? validResults.reduce((sum, result) => sum + result.average, 0) / validResults.length 
         : 0;
       
       const cumulativeGPA = validResults.length > 0 
-        ? validResults.reduce((sum, result) => sum + (result?.gpa || 0), 0) / validResults.length 
+        ? validResults.reduce((sum, result) => sum + result.gpa, 0) / validResults.length 
         : 0;
 
       // Determine trend
       let trend: "up" | "down" | "stable" = "stable";
-      if (firstTerm && secondTerm) {
+      if (firstTerm && secondTerm && typeof firstTerm.average === 'number' && typeof secondTerm.average === 'number') {
         if (secondTerm.average > firstTerm.average) trend = "up";
         else if (secondTerm.average < firstTerm.average) trend = "down";
       }
-      if (secondTerm && thirdTerm) {
+      if (secondTerm && thirdTerm && typeof secondTerm.average === 'number' && typeof thirdTerm.average === 'number') {
         if (thirdTerm.average > secondTerm.average) trend = "up";
         else if (thirdTerm.average < secondTerm.average) trend = "down";
       }
@@ -204,7 +206,7 @@ export default function CumulativeResults() {
                   `).join('')}
                 </tbody>
               </table>
-              <p><strong>Average:</strong> ${studentResult.firstTerm.average.toFixed(1)}% | <strong>GPA:</strong> ${studentResult.firstTerm.gpa.toFixed(2)} | <strong>Position:</strong> ${studentResult.firstTerm.position}/${studentResult.firstTerm.outOf}</p>
+              <p><strong>Average:</strong> ${typeof studentResult.firstTerm.average === 'number' ? studentResult.firstTerm.average.toFixed(1) : 'N/A'}% | <strong>GPA:</strong> ${typeof studentResult.firstTerm.gpa === 'number' ? studentResult.firstTerm.gpa.toFixed(2) : 'N/A'} | <strong>Position:</strong> ${studentResult.firstTerm.position}/${studentResult.firstTerm.outOf}</p>
             </div>
             ` : '<div class="term-section"><div class="term-title">FIRST TERM PERFORMANCE</div><p>No record found</p></div>'}
 
@@ -226,7 +228,7 @@ export default function CumulativeResults() {
                   `).join('')}
                 </tbody>
               </table>
-              <p><strong>Average:</strong> ${studentResult.secondTerm.average.toFixed(1)}% | <strong>GPA:</strong> ${studentResult.secondTerm.gpa.toFixed(2)} | <strong>Position:</strong> ${studentResult.secondTerm.position}/${studentResult.secondTerm.outOf}</p>
+              <p><strong>Average:</strong> ${typeof studentResult.secondTerm.average === 'number' ? studentResult.secondTerm.average.toFixed(1) : 'N/A'}% | <strong>GPA:</strong> ${typeof studentResult.secondTerm.gpa === 'number' ? studentResult.secondTerm.gpa.toFixed(2) : 'N/A'} | <strong>Position:</strong> ${studentResult.secondTerm.position}/${studentResult.secondTerm.outOf}</p>
             </div>
             ` : '<div class="term-section"><div class="term-title">SECOND TERM PERFORMANCE</div><p>No record found</p></div>'}
 
@@ -248,14 +250,14 @@ export default function CumulativeResults() {
                   `).join('')}
                 </tbody>
               </table>
-              <p><strong>Average:</strong> ${studentResult.thirdTerm.average.toFixed(1)}% | <strong>GPA:</strong> ${studentResult.thirdTerm.gpa.toFixed(2)} | <strong>Position:</strong> ${studentResult.thirdTerm.position}/${studentResult.thirdTerm.outOf}</p>
+              <p><strong>Average:</strong> ${typeof studentResult.thirdTerm.average === 'number' ? studentResult.thirdTerm.average.toFixed(1) : 'N/A'}% | <strong>GPA:</strong> ${typeof studentResult.thirdTerm.gpa === 'number' ? studentResult.thirdTerm.gpa.toFixed(2) : 'N/A'} | <strong>Position:</strong> ${studentResult.thirdTerm.position}/${studentResult.thirdTerm.outOf}</p>
             </div>
             ` : '<div class="term-section"><div class="term-title">THIRD TERM PERFORMANCE</div><p>No record found</p></div>'}
 
             <div class="summary">
               <h3>CUMULATIVE SUMMARY</h3>
-              <p><strong>Overall Average:</strong> <span class="${studentResult.cumulativeAverage >= 70 ? 'grade-excellent' : studentResult.cumulativeAverage >= 55 ? 'grade-good' : studentResult.cumulativeAverage >= 40 ? 'grade-fair' : 'grade-poor'}">${studentResult.cumulativeAverage.toFixed(1)}%</span></p>
-              <p><strong>Cumulative GPA:</strong> ${studentResult.cumulativeGPA.toFixed(2)}</p>
+              <p><strong>Overall Average:</strong> <span class="${studentResult.cumulativeAverage >= 70 ? 'grade-excellent' : studentResult.cumulativeAverage >= 55 ? 'grade-good' : studentResult.cumulativeAverage >= 40 ? 'grade-fair' : 'grade-poor'}">${typeof studentResult.cumulativeAverage === 'number' ? studentResult.cumulativeAverage.toFixed(1) : 'N/A'}%</span></p>
+              <p><strong>Cumulative GPA:</strong> ${typeof studentResult.cumulativeGPA === 'number' ? studentResult.cumulativeGPA.toFixed(2) : 'N/A'}</p>
               <p><strong>Class Position:</strong> ${studentResult.cumulativePosition} out of ${cumulativeResults.length} students</p>
               <p><strong>Performance Trend:</strong> 
                 <span class="trend-${studentResult.trend}">
@@ -434,7 +436,7 @@ export default function CumulativeResults() {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
-                        {result.firstTerm ? (
+                        {result.firstTerm && result.firstTerm.average && typeof result.firstTerm.average === 'number' ? (
                           <Badge className={getGradeColor(result.firstTerm.average)}>
                             {result.firstTerm.average.toFixed(1)}%
                           </Badge>
@@ -443,7 +445,7 @@ export default function CumulativeResults() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {result.secondTerm ? (
+                        {result.secondTerm && result.secondTerm.average && typeof result.secondTerm.average === 'number' ? (
                           <Badge className={getGradeColor(result.secondTerm.average)}>
                             {result.secondTerm.average.toFixed(1)}%
                           </Badge>
@@ -452,7 +454,7 @@ export default function CumulativeResults() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        {result.thirdTerm ? (
+                        {result.thirdTerm && result.thirdTerm.average && typeof result.thirdTerm.average === 'number' ? (
                           <Badge className={getGradeColor(result.thirdTerm.average)}>
                             {result.thirdTerm.average.toFixed(1)}%
                           </Badge>
@@ -465,11 +467,11 @@ export default function CumulativeResults() {
                           variant="outline" 
                           className={`${getGradeColor(result.cumulativeAverage)} font-bold`}
                         >
-                          {result.cumulativeAverage.toFixed(1)}%
+                          {typeof result.cumulativeAverage === 'number' ? result.cumulativeAverage.toFixed(1) : 'N/A'}%
                         </Badge>
                       </TableCell>
                       <TableCell className="text-center font-medium">
-                        {result.cumulativeGPA.toFixed(2)}
+                        {typeof result.cumulativeGPA === 'number' ? result.cumulativeGPA.toFixed(2) : 'N/A'}
                       </TableCell>
                       <TableCell className="text-center">
                         {getTrendIcon(result.trend)}
@@ -558,10 +560,10 @@ export default function CumulativeResults() {
                     <CardTitle className="text-sm">First Term</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {selectedStudent.firstTerm ? (
+                    {selectedStudent.firstTerm && selectedStudent.firstTerm.average && typeof selectedStudent.firstTerm.average === 'number' ? (
                       <div className="space-y-2">
                         <p><strong>Average:</strong> {selectedStudent.firstTerm.average.toFixed(1)}%</p>
-                        <p><strong>GPA:</strong> {selectedStudent.firstTerm.gpa.toFixed(2)}</p>
+                        <p><strong>GPA:</strong> {typeof selectedStudent.firstTerm.gpa === 'number' ? selectedStudent.firstTerm.gpa.toFixed(2) : 'N/A'}</p>
                         <p><strong>Position:</strong> {selectedStudent.firstTerm.position}/{selectedStudent.firstTerm.outOf}</p>
                         <Badge className={getGradeColor(selectedStudent.firstTerm.average)}>
                           {selectedStudent.firstTerm.average >= 70 ? 'DISTINCTION' : 
@@ -581,10 +583,10 @@ export default function CumulativeResults() {
                     <CardTitle className="text-sm">Second Term</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {selectedStudent.secondTerm ? (
+                    {selectedStudent.secondTerm && selectedStudent.secondTerm.average && typeof selectedStudent.secondTerm.average === 'number' ? (
                       <div className="space-y-2">
                         <p><strong>Average:</strong> {selectedStudent.secondTerm.average.toFixed(1)}%</p>
-                        <p><strong>GPA:</strong> {selectedStudent.secondTerm.gpa.toFixed(2)}</p>
+                        <p><strong>GPA:</strong> {typeof selectedStudent.secondTerm.gpa === 'number' ? selectedStudent.secondTerm.gpa.toFixed(2) : 'N/A'}</p>
                         <p><strong>Position:</strong> {selectedStudent.secondTerm.position}/{selectedStudent.secondTerm.outOf}</p>
                         <Badge className={getGradeColor(selectedStudent.secondTerm.average)}>
                           {selectedStudent.secondTerm.average >= 70 ? 'DISTINCTION' : 
@@ -604,10 +606,10 @@ export default function CumulativeResults() {
                     <CardTitle className="text-sm">Third Term</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {selectedStudent.thirdTerm ? (
+                    {selectedStudent.thirdTerm && selectedStudent.thirdTerm.average && typeof selectedStudent.thirdTerm.average === 'number' ? (
                       <div className="space-y-2">
                         <p><strong>Average:</strong> {selectedStudent.thirdTerm.average.toFixed(1)}%</p>
-                        <p><strong>GPA:</strong> {selectedStudent.thirdTerm.gpa.toFixed(2)}</p>
+                        <p><strong>GPA:</strong> {typeof selectedStudent.thirdTerm.gpa === 'number' ? selectedStudent.thirdTerm.gpa.toFixed(2) : 'N/A'}</p>
                         <p><strong>Position:</strong> {selectedStudent.thirdTerm.position}/{selectedStudent.thirdTerm.outOf}</p>
                         <Badge className={getGradeColor(selectedStudent.thirdTerm.average)}>
                           {selectedStudent.thirdTerm.average >= 70 ? 'DISTINCTION' : 
@@ -631,11 +633,11 @@ export default function CumulativeResults() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
                       <p className="text-sm text-gray-600">Overall Average</p>
-                      <p className="text-2xl font-bold text-blue-600">{selectedStudent.cumulativeAverage.toFixed(1)}%</p>
+                      <p className="text-2xl font-bold text-blue-600">{typeof selectedStudent.cumulativeAverage === 'number' ? selectedStudent.cumulativeAverage.toFixed(1) : 'N/A'}%</p>
                     </div>
                     <div className="text-center">
                       <p className="text-sm text-gray-600">Cumulative GPA</p>
-                      <p className="text-2xl font-bold text-blue-600">{selectedStudent.cumulativeGPA.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-blue-600">{typeof selectedStudent.cumulativeGPA === 'number' ? selectedStudent.cumulativeGPA.toFixed(2) : 'N/A'}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-sm text-gray-600">Class Position</p>
