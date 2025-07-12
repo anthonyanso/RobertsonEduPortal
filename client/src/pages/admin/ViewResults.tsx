@@ -216,13 +216,16 @@ export default function ViewResults() {
     // Header section with logo and passport area
     let yPos = 20;
     
-    // School logo (left side) - Red circle with white text
-    doc.setFillColor(220, 38, 38); // Red color
-    doc.circle(32.5, yPos + 12.5, 12.5, 'F');
+    // School logo (left side) - Use original logo
+    // Since we can't easily embed PNG in jsPDF without conversion, use text representation
+    doc.setFillColor(220, 38, 38); // Red color matching the original logo
+    doc.rect(20, yPos, 25, 25, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('RE', 32.5, yPos + 15, { align: 'center' });
+    doc.text('ROBERTSON', 32.5, yPos + 10, { align: 'center' });
+    doc.text('EDUCATION', 32.5, yPos + 15, { align: 'center' });
+    doc.text('CENTRE', 32.5, yPos + 20, { align: 'center' });
     
     // School header (center)
     doc.setTextColor(0, 0, 0);
@@ -1232,19 +1235,7 @@ export default function ViewResults() {
                             <div class="header">
                               <div class="header-content">
                                 <div class="logo-section">
-                                  <svg class="school-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="40" cy="40" r="38" fill="#DC2626" stroke="#B91C1C" stroke-width="2"/>
-                                    <rect x="20" y="25" width="40" height="30" rx="2" fill="white"/>
-                                    <rect x="22" y="27" width="36" height="26" rx="1" fill="#DC2626"/>
-                                    <rect x="24" y="29" width="32" height="4" fill="white"/>
-                                    <rect x="24" y="35" width="32" height="4" fill="white"/>
-                                    <rect x="24" y="41" width="32" height="4" fill="white"/>
-                                    <rect x="24" y="47" width="32" height="4" fill="white"/>
-                                    <circle cx="40" cy="15" r="3" fill="#DC2626"/>
-                                    <path d="M35 15 L40 10 L45 15 Z" fill="#DC2626"/>
-                                    <text x="40" y="67" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">ROBERTSON</text>
-                                    <text x="40" y="75" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="6">EDUCATION</text>
-                                  </svg>
+                                  <img src="/attached_assets/logo_1751823007371.png" alt="Robertson Education Centre Logo" style="width: 64px; height: 64px; object-fit: contain;" />
                                 </div>
                                 <div class="school-info">
                                   <div class="school-name">ROBERTSON EDUCATION</div>

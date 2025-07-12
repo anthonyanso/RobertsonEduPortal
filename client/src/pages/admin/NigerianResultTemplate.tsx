@@ -1,22 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-// Red school logo SVG as inline component
-const RedSchoolLogo = () => (
-  <svg width="50" height="50" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="40" r="38" fill="#DC2626" stroke="#B91C1C" strokeWidth="2"/>
-    <rect x="20" y="25" width="40" height="30" rx="2" fill="white"/>
-    <rect x="22" y="27" width="36" height="26" rx="1" fill="#DC2626"/>
-    <rect x="24" y="29" width="32" height="4" fill="white"/>
-    <rect x="24" y="35" width="32" height="4" fill="white"/>
-    <rect x="24" y="41" width="32" height="4" fill="white"/>
-    <rect x="24" y="47" width="32" height="4" fill="white"/>
-    <circle cx="40" cy="15" r="3" fill="#DC2626"/>
-    <path d="M35 15 L40 10 L45 15 Z" fill="#DC2626"/>
-    <text x="40" y="67" textAnchor="middle" fill="white" fontFamily="Arial, sans-serif" fontSize="8" fontWeight="bold">ROBERTSON</text>
-    <text x="40" y="75" textAnchor="middle" fill="white" fontFamily="Arial, sans-serif" fontSize="6">EDUCATION</text>
-  </svg>
-);
+import logoUrl from "@assets/logo_1751823007371.png";
 
 interface NigerianResultTemplateProps {
   result: any;
@@ -126,7 +111,7 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Header */}
       <div className="border-4 border-double border-black p-4 mb-6 print-border print-no-break">
         <div className="flex items-center justify-between mb-4">
-          <RedSchoolLogo />
+          <img src={logoUrl} alt="School Logo" className="h-16 w-16 object-contain" />
           <div className="text-center flex-1">
             <h1 className="text-2xl font-bold text-blue-900">{defaultSchoolInfo.name}</h1>
             <p className="text-sm text-gray-600">{defaultSchoolInfo.address}</p>
