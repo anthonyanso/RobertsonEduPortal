@@ -201,6 +201,15 @@ Changelog:
   - Print function now opens in new window with optimized print-specific CSS styling
   - PDF download creates properly formatted document with school branding and complete result details
   - Both print and PDF maintain authentic Nigerian secondary school result appearance
+- July 13, 2025. Enhanced Results page with dynamic sessions, improved modal display, and optimized PDF formatting
+  - Added dynamic session generation using current year for automatic up-to-date session options
+  - Restructured modal display to match admin result format with organized cards and tables
+  - Improved modal layout with student information card, professional subjects table, and performance summary cards
+  - Added color-coded grade and remark displays for better visual presentation
+  - Enhanced PDF generation with thin borders (0.3px) instead of thick ones for cleaner appearance
+  - Separated print content from modal display for better user experience
+  - Added proper comments section display in modal matching admin interface
+  - Optimized table styling with hover effects and proper spacing for better readability
 - July 12, 2025. Implemented comprehensive cumulative results system for individual student performance tracking
   - Enhanced student database schema with `passportPhoto` field for Base64 image storage
   - Added passport photo upload to Add Student page with file validation (image types, 5MB limit)

@@ -270,8 +270,8 @@ const downloadResultAsPDF = (result: any, student: any) => {
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = function() {
-    // Header Border
-    doc.setLineWidth(2);
+    // Header Border - thin line
+    doc.setLineWidth(0.3);
     doc.rect(10, 5, pageWidth - 20, 50);
     
     // Add logo
@@ -335,6 +335,9 @@ const downloadResultAsPDF = (result: any, student: any) => {
     // Subjects table
     const subjects = Array.isArray(result.subjects) ? result.subjects : [];
     if (subjects.length > 0) {
+      // Set thin line width for table
+      doc.setLineWidth(0.3);
+      
       // Table headers
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
@@ -390,7 +393,8 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     currentY += 15;
     
-    // Comments section
+    // Comments section with thin borders
+    doc.setLineWidth(0.3);
     doc.text("Class Teacher's Comment:", 15, currentY);
     doc.rect(15, currentY + 3, pageWidth - 30, 15);
     doc.text(result.classTeacherComment || 'N/A', 20, currentY + 10);
@@ -417,7 +421,20 @@ export default function Results() {
   const [resultData, setResultData] = useState<any>(null);
   const [showError, setShowError] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [dynamicSessions, setDynamicSessions] = useState<string[]>([]);
   const { toast } = useToast();
+
+  // Generate dynamic sessions (current and next academic years)
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const nextYear = currentYear + 1;
+    const sessions = [
+      `${currentYear}/${nextYear}`,
+      `${currentYear - 1}/${currentYear}`,
+      `${nextYear}/${nextYear + 1}`,
+    ];
+    setDynamicSessions(sessions);
+  }, []);
 
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultFormSchema),
@@ -710,9 +727,9 @@ export default function Results() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="2024/2025">2024/2025</SelectItem>
-                              <SelectItem value="2023/2024">2023/2024</SelectItem>
-                              <SelectItem value="2022/2023">2022/2023</SelectItem>
+                              {dynamicSessions.map((session) => (
+                                <SelectItem key={session} value={session}>{session}</SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -799,8 +816,118 @@ export default function Results() {
                       </Button>
                     </div>
                     
-                    {/* Nigerian Result Template */}
-                    <div id="result-print-content" className="result-container">
+                    {/* Student Information Card */}
+                    <div className="border rounded-lg p-4 mb-6 bg-gray-50">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Student Name:</span>
+                            <span className="text-gray-900">
+                              {resultData.student ? `${resultData.student.firstName} ${resultData.student.lastName}` : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Student ID:</span>
+                            <span className="text-gray-900">{resultData.result.studentId}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Class:</span>
+                            <span className="text-gray-900">{resultData.result.class}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Session:</span>
+                            <span className="text-gray-900">{resultData.result.session}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Term:</span>
+                            <span className="text-gray-900">{resultData.result.term}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Position:</span>
+                            <span className="text-gray-900">{resultData.result.position || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subjects Table */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="w-full">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-4 py-2 text-left font-semibold text-gray-700">Subject</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">CA1</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">CA2</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">Exam</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">Total</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">Grade</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">Remark</th>
+                            <th className="px-4 py-2 text-center font-semibold text-gray-700">Position</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {resultData.result.subjects && Array.isArray(resultData.result.subjects) && resultData.result.subjects.length > 0 ? (
+                            resultData.result.subjects.map((subject: any, index: number) => (
+                              <tr key={index} className="hover:bg-gray-50">
+                                <td className="px-4 py-2 font-medium text-gray-900">{String(subject.subject || 'N/A')}</td>
+                                <td className="px-4 py-2 text-center text-gray-700">{String(subject.ca1 || 'N/A')}</td>
+                                <td className="px-4 py-2 text-center text-gray-700">{String(subject.ca2 || 'N/A')}</td>
+                                <td className="px-4 py-2 text-center text-gray-700">{String(subject.exam || 'N/A')}</td>
+                                <td className="px-4 py-2 text-center font-semibold text-gray-900">{String(subject.total || subject.score || 'N/A')}</td>
+                                <td className={`px-4 py-2 text-center font-semibold ${getGradeColor(subject.grade)}`}>
+                                  {String(subject.grade || 'N/A')}
+                                </td>
+                                <td className={`px-4 py-2 text-center ${getRemarkColor(subject.remark)}`}>
+                                  {String(subject.remark || 'N/A')}
+                                </td>
+                                <td className="px-4 py-2 text-center text-gray-700">{String(subject.position || 'N/A')}</td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No subjects data available</td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Performance Summary */}
+                    <div className="grid grid-cols-4 gap-4 mt-6">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-600">{String(resultData.result.totalScore || 'N/A')}</div>
+                        <div className="text-sm text-blue-700">Total Score</div>
+                      </div>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-green-600">{String(resultData.result.average || 'N/A')}%</div>
+                        <div className="text-sm text-green-700">Average</div>
+                      </div>
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-purple-600">{String(resultData.result.gpa || 'N/A')}</div>
+                        <div className="text-sm text-purple-700">GPA</div>
+                      </div>
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-orange-600">{String(resultData.result.position || 'N/A')}</div>
+                        <div className="text-sm text-orange-700">Position</div>
+                      </div>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="grid grid-cols-1 gap-4 mt-6">
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-700 mb-2">Class Teacher's Comment</h4>
+                        <p className="text-gray-600">{String(resultData.result.classTeacherComment || 'N/A')}</p>
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-700 mb-2">Principal's Comment</h4>
+                        <p className="text-gray-600">{String(resultData.result.principalComment || 'N/A')}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Hidden Print Content */}
+                    <div id="result-print-content" className="result-container" style={{ display: 'none' }}>
                       <div className="header">
                         <img src={logoUrl} alt="Robertson Education Centre" className="logo" />
                         <div className="passport">
