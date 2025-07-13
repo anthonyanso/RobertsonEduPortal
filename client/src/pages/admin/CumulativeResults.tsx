@@ -106,6 +106,14 @@ export default function CumulativeResults() {
       const processedFirstTerm = processResult(firstTerm);
       const processedSecondTerm = processResult(secondTerm);
       const processedThirdTerm = processResult(thirdTerm);
+      
+      // Debug subject data
+      if (firstTerm && firstTerm.subjects) {
+        console.log('Debug - First term subjects for', student.firstName, ':', firstTerm.subjects);
+      }
+      if (secondTerm && secondTerm.subjects) {
+        console.log('Debug - Second term subjects for', student.firstName, ':', secondTerm.subjects);
+      }
 
       // Calculate cumulative average and GPA
       const validResults = [processedFirstTerm, processedSecondTerm, processedThirdTerm].filter(result => 
@@ -342,9 +350,9 @@ export default function CumulativeResults() {
                   <tbody>
                     ${studentResult.firstTerm.subjects.slice(0, 5).map(subject => `
                       <tr>
-                        <td>${subject.subject}</td>
-                        <td>${subject.score}</td>
-                        <td>${subject.grade}</td>
+                        <td>${subject.subject || 'N/A'}</td>
+                        <td>${subject.total || subject.score || 'N/A'}</td>
+                        <td>${subject.grade || 'N/A'}</td>
                       </tr>
                     `).join('')}
                     ${studentResult.firstTerm.subjects.length > 5 ? '<tr><td colspan="3">... and more</td></tr>' : ''}
@@ -368,9 +376,9 @@ export default function CumulativeResults() {
                   <tbody>
                     ${studentResult.secondTerm.subjects.slice(0, 5).map(subject => `
                       <tr>
-                        <td>${subject.subject}</td>
-                        <td>${subject.score}</td>
-                        <td>${subject.grade}</td>
+                        <td>${subject.subject || 'N/A'}</td>
+                        <td>${subject.total || subject.score || 'N/A'}</td>
+                        <td>${subject.grade || 'N/A'}</td>
                       </tr>
                     `).join('')}
                     ${studentResult.secondTerm.subjects.length > 5 ? '<tr><td colspan="3">... and more</td></tr>' : ''}
@@ -394,9 +402,9 @@ export default function CumulativeResults() {
                   <tbody>
                     ${studentResult.thirdTerm.subjects.slice(0, 5).map(subject => `
                       <tr>
-                        <td>${subject.subject}</td>
-                        <td>${subject.score}</td>
-                        <td>${subject.grade}</td>
+                        <td>${subject.subject || 'N/A'}</td>
+                        <td>${subject.total || subject.score || 'N/A'}</td>
+                        <td>${subject.grade || 'N/A'}</td>
                       </tr>
                     `).join('')}
                     ${studentResult.thirdTerm.subjects.length > 5 ? '<tr><td colspan="3">... and more</td></tr>' : ''}
