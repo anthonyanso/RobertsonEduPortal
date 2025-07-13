@@ -65,6 +65,522 @@ export default function ScratchCardManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Professional template generator function
+  const generateProfessionalTemplate = (cards: ScratchCard[], templateType: string) => {
+    const logoPath = '/attached_assets/logo_1751823007371.png';
+    
+    const getTemplateStyles = (type: string) => {
+      const baseStyles = `
+        @page { margin: 15mm; }
+        body { 
+          font-family: 'Georgia', serif; 
+          margin: 0; 
+          padding: 20px; 
+          background: #f8f9fa; 
+        }
+        .page-header {
+          text-align: center;
+          margin-bottom: 30px;
+          border-bottom: 3px solid #d32f2f;
+          padding-bottom: 20px;
+        }
+        .page-title {
+          font-size: 28px;
+          color: #d32f2f;
+          font-weight: bold;
+          margin: 0;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+        .page-subtitle {
+          font-size: 14px;
+          color: #666;
+          margin: 10px 0;
+        }
+      `;
+
+      switch (type) {
+        case 'standard':
+          return baseStyles + `
+            .card-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+              gap: 25px;
+              max-width: 1200px;
+              margin: 0 auto;
+            }
+            .card { 
+              background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+              border: 3px solid #d32f2f; 
+              border-radius: 15px;
+              padding: 25px; 
+              width: 320px; 
+              height: 200px; 
+              box-shadow: 0 10px 30px rgba(211, 47, 47, 0.2);
+              position: relative;
+              overflow: hidden;
+            }
+            .card::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 8px;
+              background: linear-gradient(90deg, #d32f2f, #ff5722, #d32f2f);
+            }
+            .card-header {
+              display: flex;
+              align-items: center;
+              margin-bottom: 20px;
+              padding-bottom: 15px;
+              border-bottom: 2px solid #e0e0e0;
+            }
+            .logo {
+              width: 50px;
+              height: 50px;
+              background-image: url('${logoPath}');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              margin-right: 15px;
+              border-radius: 50%;
+              border: 2px solid #d32f2f;
+              padding: 5px;
+            }
+            .school-info {
+              flex: 1;
+            }
+            .school-name {
+              font-size: 16px;
+              font-weight: bold;
+              color: #d32f2f;
+              line-height: 1.2;
+              margin: 0;
+            }
+            .card-type {
+              font-size: 11px;
+              color: #666;
+              margin-top: 3px;
+            }
+            .serial-section {
+              margin: 15px 0;
+            }
+            .serial-label {
+              font-size: 12px;
+              color: #666;
+              margin-bottom: 5px;
+              font-weight: bold;
+            }
+            .serial-number {
+              font-size: 14px;
+              font-weight: bold;
+              color: #333;
+              font-family: 'Courier New', monospace;
+              background: #f0f0f0;
+              padding: 8px;
+              border-radius: 5px;
+            }
+            .pin-section {
+              background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+              color: white;
+              padding: 15px;
+              border-radius: 10px;
+              text-align: center;
+              margin: 15px 0;
+              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+            }
+            .pin-label {
+              font-size: 11px;
+              margin-bottom: 8px;
+              opacity: 0.9;
+              font-weight: bold;
+            }
+            .pin-code {
+              font-size: 22px;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              letter-spacing: 3px;
+            }
+            .card-footer {
+              display: flex;
+              justify-content: space-between;
+              font-size: 10px;
+              color: #666;
+              margin-top: 15px;
+            }
+            .validity {
+              font-weight: bold;
+            }
+            .watermark {
+              position: absolute;
+              bottom: 15px;
+              right: 20px;
+              font-size: 10px;
+              color: #ccc;
+              transform: rotate(-15deg);
+              font-weight: bold;
+            }
+          `;
+          
+        case 'premium':
+          return baseStyles + `
+            .card-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+              gap: 30px;
+              max-width: 1200px;
+              margin: 0 auto;
+            }
+            .card { 
+              background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+              border: 4px solid #d32f2f; 
+              border-radius: 20px;
+              padding: 30px; 
+              width: 350px; 
+              height: 250px; 
+              box-shadow: 0 15px 40px rgba(211, 47, 47, 0.25);
+              position: relative;
+              overflow: hidden;
+            }
+            .card::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 10px;
+              background: linear-gradient(90deg, #d32f2f, #ff5722, #ffc107, #ff5722, #d32f2f);
+            }
+            .card::after {
+              content: '';
+              position: absolute;
+              top: 20px;
+              right: 20px;
+              width: 60px;
+              height: 60px;
+              background: radial-gradient(circle, rgba(211, 47, 47, 0.1) 0%, rgba(211, 47, 47, 0.05) 100%);
+              border-radius: 50%;
+            }
+            .card-header {
+              display: flex;
+              align-items: center;
+              margin-bottom: 25px;
+              padding-bottom: 20px;
+              border-bottom: 3px solid #e0e0e0;
+            }
+            .logo {
+              width: 60px;
+              height: 60px;
+              background-image: url('${logoPath}');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              margin-right: 20px;
+              border-radius: 50%;
+              border: 3px solid #d32f2f;
+              padding: 8px;
+              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+            }
+            .school-info {
+              flex: 1;
+            }
+            .school-name {
+              font-size: 18px;
+              font-weight: bold;
+              color: #d32f2f;
+              line-height: 1.2;
+              margin: 0;
+            }
+            .card-type {
+              font-size: 12px;
+              color: #666;
+              margin-top: 5px;
+              font-style: italic;
+            }
+            .serial-section {
+              margin: 20px 0;
+            }
+            .serial-label {
+              font-size: 13px;
+              color: #666;
+              margin-bottom: 8px;
+              font-weight: bold;
+            }
+            .serial-number {
+              font-size: 16px;
+              font-weight: bold;
+              color: #333;
+              font-family: 'Courier New', monospace;
+              background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+              padding: 12px;
+              border-radius: 8px;
+              border: 2px solid #ddd;
+            }
+            .pin-section {
+              background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+              color: white;
+              padding: 20px;
+              border-radius: 15px;
+              text-align: center;
+              margin: 20px 0;
+              box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
+            }
+            .pin-label {
+              font-size: 12px;
+              margin-bottom: 10px;
+              opacity: 0.9;
+              font-weight: bold;
+            }
+            .pin-code {
+              font-size: 26px;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              letter-spacing: 4px;
+            }
+            .card-footer {
+              display: flex;
+              justify-content: space-between;
+              font-size: 11px;
+              color: #666;
+              margin-top: 20px;
+            }
+            .validity {
+              font-weight: bold;
+            }
+            .watermark {
+              position: absolute;
+              bottom: 20px;
+              right: 25px;
+              font-size: 12px;
+              color: #ccc;
+              transform: rotate(-15deg);
+              font-weight: bold;
+            }
+          `;
+          
+        case 'bulk':
+          return baseStyles + `
+            .card-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 15px;
+              max-width: 1200px;
+              margin: 0 auto;
+            }
+            .card { 
+              background: #ffffff;
+              border: 2px solid #d32f2f; 
+              border-radius: 8px;
+              padding: 15px; 
+              width: 220px; 
+              height: 140px; 
+              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.15);
+              position: relative;
+              font-size: 11px;
+            }
+            .card-header {
+              display: flex;
+              align-items: center;
+              margin-bottom: 10px;
+              padding-bottom: 8px;
+              border-bottom: 1px solid #e0e0e0;
+            }
+            .logo {
+              width: 25px;
+              height: 25px;
+              background-image: url('${logoPath}');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              margin-right: 8px;
+            }
+            .school-name {
+              font-size: 10px;
+              font-weight: bold;
+              color: #d32f2f;
+              line-height: 1.1;
+            }
+            .serial-section {
+              margin: 8px 0;
+            }
+            .serial-label {
+              font-size: 9px;
+              color: #666;
+              margin-bottom: 2px;
+            }
+            .serial-number {
+              font-size: 10px;
+              font-weight: bold;
+              color: #333;
+              font-family: 'Courier New', monospace;
+            }
+            .pin-section {
+              background: #d32f2f;
+              color: white;
+              padding: 8px;
+              border-radius: 5px;
+              text-align: center;
+              margin: 8px 0;
+            }
+            .pin-label {
+              font-size: 8px;
+              margin-bottom: 3px;
+            }
+            .pin-code {
+              font-size: 14px;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              letter-spacing: 1px;
+            }
+            .card-footer {
+              font-size: 8px;
+              color: #666;
+              margin-top: 8px;
+            }
+          `;
+          
+        default:
+          return baseStyles + `
+            .card-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+              max-width: 1200px;
+              margin: 0 auto;
+            }
+            .card { 
+              background: #ffffff;
+              border: 2px dashed #d32f2f; 
+              border-radius: 12px;
+              padding: 20px; 
+              width: 300px; 
+              height: 180px; 
+              box-shadow: 0 8px 20px rgba(211, 47, 47, 0.15);
+              position: relative;
+            }
+            .card-header {
+              display: flex;
+              align-items: center;
+              margin-bottom: 15px;
+              padding-bottom: 10px;
+              border-bottom: 1px dashed #e0e0e0;
+            }
+            .logo {
+              width: 35px;
+              height: 35px;
+              background-image: url('${logoPath}');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              margin-right: 12px;
+            }
+            .school-name {
+              font-size: 14px;
+              font-weight: bold;
+              color: #d32f2f;
+            }
+            .serial-section {
+              margin: 12px 0;
+            }
+            .serial-label {
+              font-size: 11px;
+              color: #666;
+              margin-bottom: 3px;
+            }
+            .serial-number {
+              font-size: 12px;
+              font-weight: bold;
+              color: #333;
+              font-family: 'Courier New', monospace;
+            }
+            .pin-section {
+              background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+              color: #d32f2f;
+              padding: 12px;
+              border-radius: 8px;
+              text-align: center;
+              margin: 12px 0;
+              border: 2px solid #d32f2f;
+            }
+            .pin-label {
+              font-size: 10px;
+              margin-bottom: 5px;
+              color: #666;
+            }
+            .pin-code {
+              font-size: 18px;
+              font-weight: bold;
+              font-family: 'Courier New', monospace;
+              letter-spacing: 2px;
+            }
+            .card-footer {
+              font-size: 10px;
+              color: #666;
+              margin-top: 12px;
+            }
+            .instructions {
+              font-size: 9px;
+              color: #999;
+              margin-top: 8px;
+              line-height: 1.2;
+            }
+          `;
+      }
+    };
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Robertson Education - ${templateType.charAt(0).toUpperCase() + templateType.slice(1)} Result Checker Cards</title>
+        <style>
+          ${getTemplateStyles(templateType)}
+        </style>
+      </head>
+      <body>
+        <div class="page-header">
+          <h1 class="page-title">Robertson Education</h1>
+          <p class="page-subtitle">Official Student Result Access Cards - ${templateType.charAt(0).toUpperCase() + templateType.slice(1)} Template</p>
+        </div>
+        <div class="card-grid">
+          ${cards.map(card => `
+            <div class="card">
+              <div class="card-header">
+                <div class="logo"></div>
+                <div class="school-info">
+                  <div class="school-name">ROBERTSON EDUCATION</div>
+                  <div class="card-type">Official Result Access Card</div>
+                </div>
+              </div>
+              <div class="serial-section">
+                <div class="serial-label">SERIAL NUMBER</div>
+                <div class="serial-number">${card.serialNumber}</div>
+              </div>
+              <div class="pin-section">
+                <div class="pin-label">ACCESS PIN</div>
+                <div class="pin-code">${card.pin}</div>
+              </div>
+              <div class="card-footer">
+                <div class="validity">Valid until: ${new Date(card.expiryDate).toLocaleDateString()}</div>
+                <div>Uses: ${card.usageCount || 0}/${card.usageLimit || 30}</div>
+              </div>
+              ${templateType === 'custom' ? `
+                <div class="instructions">
+                  <p>1. Visit school website</p>
+                  <p>2. Go to Results section</p>
+                  <p>3. Enter PIN to view results</p>
+                </div>
+              ` : ''}
+              <div class="watermark">OFFICIAL</div>
+            </div>
+          `).join('')}
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
   // Fetch scratch cards
   const { data: scratchCards = [], isLoading } = useQuery<ScratchCard[]>({
     queryKey: ['/api/admin/scratch-cards'],
@@ -403,43 +919,24 @@ export default function ScratchCardManagement() {
                     const sampleCards = filteredScratchCards.slice(0, 6);
                     const printWindow = window.open('', '_blank');
                     if (printWindow) {
-                      printWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                          <title>Scratch Card Sample - ${selectedTemplate}</title>
-                          <style>
-                            body { font-family: Arial, sans-serif; margin: 20px; }
-                            .card { border: 2px solid #333; padding: 20px; margin: 20px; width: 300px; height: 200px; display: inline-block; }
-                            .header { text-align: center; font-weight: bold; color: #d32f2f; }
-                            .serial { font-size: 14px; margin: 10px 0; }
-                            .pin { font-size: 20px; font-weight: bold; margin: 15px 0; }
-                            .footer { font-size: 12px; text-align: center; color: #666; }
-                          </style>
-                        </head>
-                        <body>
-                          <h2>Robertson Education - Sample ${selectedTemplate} Template</h2>
-                          ${sampleCards.map(card => `
-                            <div class="card">
-                              <div class="header">ROBERTSON EDUCATION</div>
-                              <div class="serial">Serial: ${card.serialNumber}</div>
-                              <div class="pin">PIN: ${card.pin}</div>
-                              <div class="footer">
-                                <p>Valid until: ${new Date(card.expiryDate).toLocaleDateString()}</p>
-                                <p>For result checking only</p>
-                              </div>
-                            </div>
-                          `).join('')}
-                        </body>
-                        </html>
-                      `);
+                      const htmlContent = generateProfessionalTemplate(sampleCards, selectedTemplate);
+                      printWindow.document.write(htmlContent);
                       printWindow.document.close();
                     }
                   }}>
                     <Eye className="h-4 w-4 mr-2" />
                     Preview
                   </Button>
-                  <Button onClick={() => window.print()} className="bg-red-600 hover:bg-red-700">
+                  <Button onClick={() => {
+                    const sampleCards = filteredScratchCards.slice(0, 10);
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                      const htmlContent = generateProfessionalTemplate(sampleCards, selectedTemplate);
+                      printWindow.document.write(htmlContent);
+                      printWindow.document.close();
+                      printWindow.print();
+                    }
+                  }} className="bg-red-600 hover:bg-red-700">
                     <Printer className="h-4 w-4 mr-2" />
                     Print
                   </Button>
