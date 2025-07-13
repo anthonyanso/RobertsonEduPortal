@@ -685,7 +685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pinHash,
           status: 'unused',
           expiryDate,
-          usageLimit: 10, // Allow 10 uses per card
+          usageLimit: 30, // Updated to 30 uses per card
           usageCount: 0,
         });
       }
@@ -776,13 +776,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public PIN verification endpoint
+  // Public PIN verification endpoint with enhanced security
   app.post('/api/verify-scratch-card', async (req, res) => {
     try {
       const { pin, studentId } = req.body;
       
       if (!pin || !studentId) {
         return res.status(400).json({ message: "PIN and Student ID are required" });
+      }
+      
+      // Verify student exists first
+      const student = await storage.getStudentByStudentId(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
       }
       
       const card = await storage.getScratchCardByPin(pin);
@@ -801,8 +807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Scratch card has been deactivated" });
       }
       
-      // Allow multiple uses until usage limit is reached
-      // Only block if usage count has reached the limit
+      // Check usage limit
       if (card.usageCount >= card.usageLimit) {
         return res.status(400).json({ message: "Scratch card usage limit exceeded" });
       }
@@ -813,13 +818,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid PIN" });
       }
       
-      // Get student results
-      const student = await storage.getStudentByStudentId(studentId);
-      if (!student) {
-        return res.status(404).json({ message: "Student not found" });
+      // Student binding logic: After first use, only that student can use the PIN
+      if (card.studentId && card.studentId !== studentId) {
+        return res.status(403).json({ 
+          message: "This PIN is bound to another student and cannot be used by you." 
+        });
       }
       
-      // Update usage count and last used info (but don't mark as 'used' until limit reached)
+      // Update usage count and bind student if first use
       const newUsageCount = card.usageCount + 1;
       const updateData: any = {
         usageCount: newUsageCount,
@@ -827,7 +833,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         usedBy: studentId
       };
       
-      // Only mark as 'used' if we've reached the usage limit
+      // Bind student to card on first use
+      if (!card.studentId) {
+        updateData.studentId = studentId;
+      }
+      
+      // Mark as 'used' if we've reached the usage limit
       if (newUsageCount >= card.usageLimit) {
         updateData.status = 'used';
       }

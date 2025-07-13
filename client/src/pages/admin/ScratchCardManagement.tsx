@@ -8,9 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff, Filter } from "lucide-react";
+import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -20,6 +19,35 @@ interface ScratchCardSettings {
   defaultDuration: number;
   cardsPerBatch: number;
 }
+
+// PIN masking function
+const maskPin = (pin: string) => {
+  if (!pin) return "";
+  return pin.slice(0, 3) + "****" + pin.slice(-3);
+};
+
+// Helper functions
+const getStatusBadgeColor = (status: string, expired: boolean) => {
+  if (expired) return "bg-red-500 text-white";
+  switch (status) {
+    case "unused": return "bg-green-500 text-white";
+    case "used": return "bg-blue-500 text-white";
+    case "expired": return "bg-red-500 text-white";
+    case "deactivated": return "bg-gray-500 text-white";
+    default: return "bg-gray-500 text-white";
+  }
+};
+
+const getStatusText = (status: string, expired: boolean) => {
+  if (expired) return "Expired";
+  switch (status) {
+    case "unused": return "Unused";
+    case "used": return "Used";
+    case "expired": return "Expired";
+    case "deactivated": return "Deactivated";
+    default: return "Unknown";
+  }
+};
 
 export default function ScratchCardManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -226,7 +254,7 @@ export default function ScratchCardManagement() {
   // Filter and search cards
   const filteredCards = scratchCards.filter(card => {
     const matchesSearch = card.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         card.pin.toLowerCase().includes(searchTerm.toLowerCase());
+                         (card.studentId && card.studentId.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === "all" || card.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -236,28 +264,17 @@ export default function ScratchCardManagement() {
     return new Date(card.expiryDate) < new Date();
   };
 
-  // Get status badge color
-  const getStatusBadgeColor = (status: string, isExpired: boolean) => {
-    if (isExpired) return "bg-red-100 text-red-800";
-    switch (status) {
-      case "unused": return "bg-green-100 text-green-800";
-      case "used": return "bg-gray-100 text-gray-800";
-      case "expired": return "bg-red-100 text-red-800";
-      case "deactivated": return "bg-orange-100 text-orange-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  // Toggle PIN visibility
+  const togglePinVisibility = (cardId: number) => {
+    setShowPins(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId]
+    }));
   };
 
-  // Get status display text
-  const getStatusText = (status: string, isExpired: boolean) => {
-    if (isExpired && status !== "expired") return "Expired";
-    switch (status) {
-      case "unused": return "Unused";
-      case "used": return "Used";
-      case "expired": return "Expired";
-      case "deactivated": return "Deactivated";
-      default: return status;
-    }
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
   };
 
   // Handle bulk generation
@@ -302,19 +319,6 @@ export default function ScratchCardManagement() {
     saveSettingsMutation.mutate(settings);
   };
 
-  // Toggle PIN visibility
-  const togglePinVisibility = (cardId: number) => {
-    setShowPins(prev => ({
-      ...prev,
-      [cardId]: !prev[cardId]
-    }));
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
   // Get card statistics
   const cardStats = {
     total: scratchCards.length,
@@ -351,24 +355,24 @@ export default function ScratchCardManagement() {
                   type="number"
                   min="3"
                   value={settings.defaultDuration}
-                  onChange={(e) => setSettings(prev => ({ ...prev, defaultDuration: parseInt(e.target.value) || 3 }))}
+                  onChange={(e) => setSettings(prev => ({ ...prev, defaultDuration: parseInt(e.target.value) }))}
                 />
-                <p className="text-sm text-gray-500 mt-1">Minimum 3 months</p>
               </div>
               <div>
-                <Label htmlFor="cardsPerBatch">Default Cards per Batch</Label>
+                <Label htmlFor="cardsPerBatch">Cards Per Batch</Label>
                 <Input
                   id="cardsPerBatch"
                   type="number"
                   min="1"
                   max="1000"
                   value={settings.cardsPerBatch}
-                  onChange={(e) => setSettings(prev => ({ ...prev, cardsPerBatch: parseInt(e.target.value) || 50 }))}
+                  onChange={(e) => setSettings(prev => ({ ...prev, cardsPerBatch: parseInt(e.target.value) }))}
                 />
-                <p className="text-sm text-gray-500 mt-1">Between 1 and 1000</p>
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setSettingsDialogOpen(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => setSettingsDialogOpen(false)}>
+                  Cancel
+                </Button>
                 <Button onClick={handleSettingsSave} disabled={saveSettingsMutation.isPending}>
                   {saveSettingsMutation.isPending ? "Saving..." : "Save"}
                 </Button>
@@ -378,11 +382,11 @@ export default function ScratchCardManagement() {
         </Dialog>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-gray-900">{cardStats.total}</div>
+            <div className="text-2xl font-bold text-blue-600">{cardStats.total}</div>
             <div className="text-sm text-gray-600">Total Cards</div>
           </CardContent>
         </Card>
@@ -415,13 +419,10 @@ export default function ScratchCardManagement() {
       {/* Bulk Generation */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Plus className="h-5 w-5 mr-2" />
-            Generate Scratch Cards
-          </CardTitle>
+          <CardTitle>Bulk Generate Cards</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-end space-x-4">
+          <div className="flex items-center space-x-4">
             <div>
               <Label htmlFor="bulkCount">Number of Cards</Label>
               <Input
@@ -430,7 +431,7 @@ export default function ScratchCardManagement() {
                 min="1"
                 max="1000"
                 value={bulkCount}
-                onChange={(e) => setBulkCount(parseInt(e.target.value) || 1)}
+                onChange={(e) => setBulkCount(parseInt(e.target.value))}
                 className="w-32"
               />
             </div>
@@ -441,7 +442,7 @@ export default function ScratchCardManagement() {
                 type="number"
                 min="3"
                 value={bulkDuration}
-                onChange={(e) => setBulkDuration(parseInt(e.target.value) || 3)}
+                onChange={(e) => setBulkDuration(parseInt(e.target.value))}
                 className="w-32"
               />
             </div>
@@ -471,7 +472,7 @@ export default function ScratchCardManagement() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search by serial number or PIN..."
+                placeholder="Search by serial number or student ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -508,7 +509,7 @@ export default function ScratchCardManagement() {
                   <TableHead>Status</TableHead>
                   <TableHead>Usage</TableHead>
                   <TableHead>Expiry Date</TableHead>
-                  <TableHead>Used By</TableHead>
+                  <TableHead>Bound Student ID</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -534,7 +535,7 @@ export default function ScratchCardManagement() {
                         <TableCell className="font-mono">
                           <div className="flex items-center space-x-2">
                             <span>
-                              {showPins[card.id] ? card.pin : '•'.repeat(card.pin.length)}
+                              {showPins[card.id] ? card.pin : maskPin(card.pin)}
                             </span>
                             <Button
                               variant="ghost"
@@ -553,7 +554,7 @@ export default function ScratchCardManagement() {
                         </TableCell>
                         <TableCell>{card.usageCount}/{card.usageLimit}</TableCell>
                         <TableCell>{formatDate(card.expiryDate)}</TableCell>
-                        <TableCell>{card.usedBy || "—"}</TableCell>
+                        <TableCell className="font-mono">{card.studentId || "—"}</TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             {card.status === "unused" && !expired && (

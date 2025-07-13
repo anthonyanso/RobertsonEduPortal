@@ -1,0 +1,73 @@
+I’m building a student result management system, and I already have the "Scratch Card Management" tab set up inside the dashboard — don’t move or recreate it elsewhere. Please help me implement the full functionality there, and also fix some issues on the result-checking and printing page.
+
+📌 Scratch Card Management Tab (Inside Dashboard Only):
+Show a table of all generated scratch cards with:
+
+Serial Number
+
+Masked PIN (e.g., last 4 digits only)
+
+Status: unused, used, expired
+
+Expiry Date
+
+Bound Student ID (if already used)
+
+Created Date
+
+Actions: Delete, Deactivate, Regenerate
+
+Add a "Generate Cards" button/form with:
+
+Number of cards to generate
+
+Duration (must be at least 3 months)
+
+Automatically generate secure, unique serials and PINs
+
+PIN Usage Rules:
+
+When a student uses a PIN to check results, store their student ID with that card
+
+After that, only that same student can reuse the PIN until it expires
+
+If any other student tries to use it, block access and show an appropriate message
+
+Automatically mark PINs as expired when the expiry date is passed.
+
+Create a settings section on this tab to allow the admin to:
+
+Set the default duration (minimum 3 months)
+
+Toggle auto-expiration logic
+
+Security:
+
+PINs should be securely stored (hashed or encrypted)
+
+🧾 Result Page (Public Page for Students to Check Results):
+Fix the issue where "N/A" appears when printing results
+
+Make sure all student details are properly retrieved and displayed (name, ID, class, etc.)
+
+Ensure all dynamic data used during result view is passed correctly to the print layout
+
+Add a fallback message if data is missing instead of just showing "N/A"
+
+Ensure the PIN and Serial Number entered:
+
+Are valid and match
+
+Have not expired
+
+Belong to the student using it (after first use)
+
+Mark the PIN as used if not already
+
+🧩 Notes:
+Use the existing page layout and tech stack (do not create new pages unnecessarily).
+
+Follow existing styling.
+
+Match how other parts of the dashboard function and are styled.
+
