@@ -192,6 +192,15 @@ Changelog:
   - Enhanced modal with additional information section including attendance, behavioral rating, and teacher comments
   - Improved print functionality with dedicated print button in modal interface
   - Fixed scratch card system to allow multiple uses (up to 10 per card) instead of single-use limitation
+- July 13, 2025. Implemented professional print and PDF functionality for Results page
+  - Created dedicated print function that opens new window with only result content (no site navigation)
+  - Added comprehensive print styles with proper Nigerian result template formatting
+  - Fixed print layout to display authentic school result format with logo, passport photo, and professional styling
+  - Enhanced PDF generation with complete result data including header, student info, subjects table, and signatures
+  - Integrated both print and PDF buttons in result modal for easy access
+  - Print function now opens in new window with optimized print-specific CSS styling
+  - PDF download creates properly formatted document with school branding and complete result details
+  - Both print and PDF maintain authentic Nigerian secondary school result appearance
 - July 12, 2025. Implemented comprehensive cumulative results system for individual student performance tracking
   - Enhanced student database schema with `passportPhoto` field for Base64 image storage
   - Added passport photo upload to Add Student page with file validation (image types, 5MB limit)
