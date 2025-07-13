@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -24,6 +25,7 @@ type ResultFormData = z.infer<typeof resultFormSchema>;
 export default function Results() {
   const [resultData, setResultData] = useState<any>(null);
   const [showError, setShowError] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<ResultFormData>({
@@ -136,6 +138,7 @@ export default function Results() {
           result: parsedResult
         });
         setShowError(false);
+        setShowResultModal(true);
         toast({
           title: "Result Found",
           description: "Your academic results have been retrieved successfully.",
@@ -368,128 +371,168 @@ export default function Results() {
               </CardContent>
             </Card>
 
-            {/* Result Display */}
-            {resultData && (
-              <Card className="shadow-xl border border-gray-200 mb-8" data-aos="fade-up">
-                <CardHeader className="text-center">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="h-8 w-8 text-white" />
-                  </div>
-                  <CardTitle className="font-playfair text-2xl font-bold text-gray-900 mb-2">
-                    Result Found!
-                  </CardTitle>
-                  <p className="text-gray-600">Academic performance report</p>
-                </CardHeader>
-                <CardContent className="p-8">
-                  {/* Student Info Header */}
-                  <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Student Name</p>
-                        <p className="font-semibold text-gray-900">
-                          {resultData.student.firstName} {resultData.student.lastName}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Student ID</p>
-                        <p className="font-semibold text-gray-900">{resultData.student.studentId}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Grade Level</p>
-                        <p className="font-semibold text-gray-900">{resultData.student.gradeLevel}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Session & Term</p>
-                        <p className="font-semibold text-gray-900">
-                          {resultData.result.session} - {resultData.result.term}
-                        </p>
+            {/* Results Modal */}
+            <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
+              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Robertson Education - Academic Result
+                  </DialogTitle>
+                  <p className="text-center text-gray-600">
+                    {resultData?.result?.session} - {resultData?.result?.term}
+                  </p>
+                </DialogHeader>
+                
+                {resultData && (
+                  <div className="space-y-6" id="printable-result">
+                    {/* Student Information */}
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Student Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Full Name</p>
+                          <p className="font-semibold text-gray-800">{resultData.student.firstName} {resultData.student.lastName}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Student ID</p>
+                          <p className="font-semibold text-gray-800">{resultData.student.studentId}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Class</p>
+                          <p className="font-semibold text-gray-800">{resultData.result.class}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Date of Birth</p>
+                          <p className="font-semibold text-gray-800">{new Date(resultData.student.dateOfBirth).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Gender</p>
+                          <p className="font-semibold text-gray-800">{resultData.student.gender || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Phone</p>
+                          <p className="font-semibold text-gray-800">{resultData.student.phone || 'N/A'}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Subjects Table */}
-                  <div className="overflow-x-auto mb-6">
-                    <table className="w-full border-collapse border border-gray-300">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="border border-gray-300 px-4 py-2 text-left">Subject</th>
-                          <th className="border border-gray-300 px-4 py-2 text-center">Score</th>
-                          <th className="border border-gray-300 px-4 py-2 text-center">Grade</th>
-                          <th className="border border-gray-300 px-4 py-2 text-center">Remark</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resultData.result.subjects && Array.isArray(resultData.result.subjects) ? (
-                          resultData.result.subjects.map((subject: any, index: number) => (
-                            <tr key={index} className="hover:bg-gray-50">
-                              <td className="border border-gray-300 px-4 py-2 font-medium">
-                                {subject.subject || 'N/A'}
-                              </td>
-                              <td className="border border-gray-300 px-4 py-2 text-center">
-                                {subject.total || subject.score || 'N/A'}
-                              </td>
-                              <td className={`border border-gray-300 px-4 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
-                                {subject.grade || 'N/A'}
-                              </td>
-                              <td className={`border border-gray-300 px-4 py-2 text-center ${getRemarkColor(subject.remark)}`}>
-                                {subject.remark || 'N/A'}
+                    {/* Subjects Table */}
+                    <div className="overflow-x-auto">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Subject Results</h3>
+                      <table className="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="border border-gray-300 px-3 py-2 text-left">Subject</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">CA1</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">CA2</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">Exam</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">Total</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">Grade</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">Remark</th>
+                            <th className="border border-gray-300 px-3 py-2 text-center">Position</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {resultData.result.subjects && Array.isArray(resultData.result.subjects) ? (
+                            resultData.result.subjects.map((subject: any, index: number) => (
+                              <tr key={index} className="hover:bg-gray-50">
+                                <td className="border border-gray-300 px-3 py-2 font-medium">
+                                  {subject.subject || 'N/A'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-center">
+                                  {subject.ca1 || 'N/A'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-center">
+                                  {subject.ca2 || 'N/A'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-center">
+                                  {subject.exam || 'N/A'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-center font-bold">
+                                  {subject.total || subject.score || 'N/A'}
+                                </td>
+                                <td className={`border border-gray-300 px-3 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
+                                  {subject.grade || 'N/A'}
+                                </td>
+                                <td className={`border border-gray-300 px-3 py-2 text-center ${getRemarkColor(subject.remark)}`}>
+                                  {subject.remark || 'N/A'}
+                                </td>
+                                <td className="border border-gray-300 px-3 py-2 text-center">
+                                  {subject.position || 'N/A'}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={8} className="border border-gray-300 px-3 py-2 text-center text-gray-500">
+                                No subjects data available
                               </td>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={4} className="border border-gray-300 px-4 py-2 text-center text-gray-500">
-                              No subjects data available
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  {/* Summary */}
-                  <div className="bg-blue-50 rounded-lg p-6 mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Total Score</p>
-                        <p className="text-2xl font-bold text-blue-600">{resultData.result.totalScore || 'N/A'}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Average</p>
-                        <p className="text-2xl font-bold text-green-600">{resultData.result.average || 'N/A'}%</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">GPA</p>
-                        <p className="text-2xl font-bold text-purple-600">{resultData.result.gpa || 'N/A'}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Position</p>
-                        <p className="text-2xl font-bold text-orange-600">{resultData.result.position || 'N/A'}</p>
+                    {/* Summary */}
+                    <div className="bg-blue-50 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Performance Summary</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Total Score</p>
+                          <p className="text-2xl font-bold text-blue-600">{resultData.result.totalScore || 'N/A'}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Average</p>
+                          <p className="text-2xl font-bold text-green-600">{resultData.result.average || 'N/A'}%</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">GPA</p>
+                          <p className="text-2xl font-bold text-purple-600">{resultData.result.gpa || 'N/A'}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">Position</p>
+                          <p className="text-2xl font-bold text-orange-600">{resultData.result.position || 'N/A'}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Remarks */}
-                  {resultData.result.remarks && (
-                    <div className="bg-yellow-50 rounded-lg p-6 mb-6">
-                      <h3 className="font-bold text-gray-900 mb-2">Teacher's Remarks</h3>
-                      <p className="text-gray-700">{resultData.result.remarks}</p>
+                    {/* Additional Details */}
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Additional Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Attendance</p>
+                          <p className="font-semibold text-gray-800">{resultData.result.attendance || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Behavioral Rating</p>
+                          <p className="font-semibold text-gray-800">{resultData.result.behavioralRating || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Class Teacher's Comment</p>
+                          <p className="font-semibold text-gray-800">{resultData.result.classTeacherComment || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Principal's Comment</p>
+                          <p className="font-semibold text-gray-800">{resultData.result.principalComment || 'N/A'}</p>
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                  {/* Action Buttons */}
-                  <div className="flex justify-center space-x-4">
-                    <Button
-                      onClick={handlePrint}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
-                    >
-                      <Printer className="h-5 w-5 mr-2" />
-                      Print Result
-                    </Button>
+                    {/* Print Button */}
+                    <div className="text-center pt-4">
+                      <Button
+                        onClick={() => window.print()}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center mx-auto"
+                      >
+                        <Printer className="h-5 w-5 mr-2" />
+                        Print Result
+                      </Button>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+              </DialogContent>
+            </Dialog>
 
             {/* Error Display */}
             {showError && (

@@ -182,6 +182,16 @@ Changelog:
   - Fixed print button to work properly with HTML print preview
   - Removed white print button, keeping only the blue one for clean interface
 - July 12, 2025. Added passport photo upload functionality to student registration
+- July 13, 2025. Fixed critical API response handling issues in Results page
+  - Resolved "Cannot read properties of undefined" errors by replacing apiRequest wrapper with direct fetch() calls
+  - Added proper JSON parsing for subjects data stored as strings in the database
+  - Enhanced error handling with detailed debugging information about available results
+  - Updated display logic to use correct field names and handle parsed data properly
+  - Transformed result display from inline cards to professional modal dialog
+  - Added comprehensive result modal with all student details, complete subject breakdown (CA1, CA2, Exam, Total, Grade, Remark, Position)
+  - Enhanced modal with additional information section including attendance, behavioral rating, and teacher comments
+  - Improved print functionality with dedicated print button in modal interface
+  - Fixed scratch card system to allow multiple uses (up to 10 per card) instead of single-use limitation
 - July 12, 2025. Implemented comprehensive cumulative results system for individual student performance tracking
   - Enhanced student database schema with `passportPhoto` field for Base64 image storage
   - Added passport photo upload to Add Student page with file validation (image types, 5MB limit)
