@@ -16,6 +16,7 @@ import ViewResults from "./ViewResults";
 import ResultAnalytics from "./ResultAnalytics";
 // @ts-ignore  
 import CumulativeResults from "./CumulativeResults";
+import ScratchCardManagement from "./ScratchCardManagement";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -206,16 +207,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "view-results" && <ViewResults />}
           {activeTab === "cumulative-results" && <CumulativeResults />}
           {activeTab === "result-analytics" && <ResultAnalytics />}
-          {activeTab === "scratch-cards" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Scratch Cards Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Scratch cards management interface will be implemented here.</p>
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "scratch-cards" && <ScratchCardManagement />}
           {activeTab === "news" && (
             <Card>
               <CardHeader>

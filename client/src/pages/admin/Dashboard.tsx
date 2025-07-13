@@ -24,7 +24,6 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Swal from 'sweetalert2';
-import ScratchCardManagement from "./ScratchCardManagement";
 
 interface DashboardProps {
   onNavigate: (tab: string) => void;
@@ -486,7 +485,107 @@ export default function Admin({ onNavigate }: DashboardProps) {
 
           {/* Scratch Cards Tab */}
           <TabsContent value="scratch-cards">
-            <ScratchCardManagement />
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Scratch Cards Overview</CardTitle>
+                <Button 
+                  onClick={() => onNavigate("scratch-cards")}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Manage Cards
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Statistics Row */}
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-gray-900">{scratchCards.length}</div>
+                      <div className="text-sm text-gray-600">Total Cards</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {scratchCards.filter((card: any) => card.status === 'unused' && new Date(card.expiryDate) > new Date()).length}
+                      </div>
+                      <div className="text-sm text-gray-600">Active</div>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <div className="text-2xl font-bold text-gray-600">
+                        {scratchCards.filter((card: any) => card.status === 'used').length}
+                      </div>
+                      <div className="text-sm text-gray-600">Used</div>
+                    </div>
+                    <div className="text-center p-4 bg-red-50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">
+                        {scratchCards.filter((card: any) => card.status === 'expired' || new Date(card.expiryDate) < new Date()).length}
+                      </div>
+                      <div className="text-sm text-gray-600">Expired</div>
+                    </div>
+                  </div>
+
+                  {/* Recent Cards Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-4">Serial Number</th>
+                          <th className="text-left p-4">PIN</th>
+                          <th className="text-left p-4">Status</th>
+                          <th className="text-left p-4">Expiry Date</th>
+                          <th className="text-left p-4">Used By</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {scratchCardsLoading ? (
+                          <tr>
+                            <td colSpan={5} className="text-center p-8">Loading scratch cards...</td>
+                          </tr>
+                        ) : scratchCards.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="text-center p-8 text-gray-500">No scratch cards found</td>
+                          </tr>
+                        ) : (
+                          scratchCards.slice(0, 10).map((card: any) => {
+                            const isExpired = new Date(card.expiryDate) < new Date();
+                            const displayStatus = isExpired ? 'expired' : card.status;
+                            return (
+                              <tr key={card.id} className="border-b hover:bg-gray-50">
+                                <td className="p-4 font-mono text-sm">{card.serialNumber}</td>
+                                <td className="p-4 font-mono text-sm">{"•".repeat(card.pin.length)}</td>
+                                <td className="p-4">
+                                  <Badge className={
+                                    displayStatus === 'unused' ? 'bg-green-100 text-green-800' :
+                                    displayStatus === 'used' ? 'bg-gray-100 text-gray-800' :
+                                    displayStatus === 'expired' ? 'bg-red-100 text-red-800' :
+                                    'bg-orange-100 text-orange-800'
+                                  }>
+                                    {displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1)}
+                                  </Badge>
+                                </td>
+                                <td className="p-4 text-sm">{formatDate(card.expiryDate)}</td>
+                                <td className="p-4 text-sm">{card.usedBy || "—"}</td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {scratchCards.length > 10 && (
+                    <div className="text-center pt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => onNavigate("scratch-cards")}
+                      >
+                        View All Cards ({scratchCards.length})
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* News Tab */}
