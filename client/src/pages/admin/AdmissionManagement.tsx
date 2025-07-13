@@ -76,8 +76,24 @@ export default function AdmissionManagement() {
 
   const onSubmitSettings = async (data: AdmissionSettings) => {
     try {
-      // In real implementation, this would call the API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/admin/school-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          key: 'admission',
+          value: JSON.stringify(data)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update admission settings');
+      }
+
+      // Invalidate the query cache to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/admission-settings'] });
+      
       toast({
         title: "Settings Updated",
         description: "Admission settings have been successfully updated and published to the admission page",
@@ -94,7 +110,9 @@ export default function AdmissionManagement() {
 
   const publishAdmission = async () => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Invalidate the query cache to refresh the data on the frontend
+      queryClient.invalidateQueries({ queryKey: ['/api/admission-settings'] });
+      
       toast({
         title: "Admission Published",
         description: "Admission details have been published to the website",

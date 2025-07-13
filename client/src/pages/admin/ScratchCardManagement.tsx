@@ -428,12 +428,13 @@ export default function ScratchCardManagement() {
                 margin-bottom: 10px;
               border: 2px solid #d32f2f; 
               border-radius: 8px;
-              padding: 15px; 
-              width: 220px; 
-              height: 140px; 
+              padding: 10px; 
+              width: 200px; 
+              height: 130px; 
               box-shadow: 0 5px 15px rgba(211, 47, 47, 0.15);
               position: relative;
-              font-size: 11px;
+              font-size: 10px;
+              overflow: hidden;
             }
             .card-header {
               display: flex;
@@ -443,56 +444,62 @@ export default function ScratchCardManagement() {
               border-bottom: 1px solid #e0e0e0;
             }
             .logo {
-              width: 25px;
-              height: 25px;
+              width: 20px;
+              height: 20px;
               background-image: url('${logoPath}');
               background-size: contain;
               background-repeat: no-repeat;
               background-position: center;
-              margin-right: 8px;
+              margin-right: 6px;
+              flex-shrink: 0;
             }
             .school-name {
-              font-size: 10px;
+              font-size: 8px;
               font-weight: bold;
               color: #d32f2f;
               line-height: 1.1;
+              word-wrap: break-word;
+              overflow: hidden;
             }
             .serial-section {
               margin: 8px 0;
             }
             .serial-label {
-              font-size: 9px;
+              font-size: 7px;
               color: #666;
-              margin-bottom: 2px;
+              margin-bottom: 1px;
             }
             .serial-number {
-              font-size: 10px;
+              font-size: 8px;
               font-weight: bold;
               color: #333;
+              word-wrap: break-word;
               font-family: 'Courier New', monospace;
             }
             .pin-section {
               background: #d32f2f;
               color: white;
-              padding: 8px;
-              border-radius: 5px;
+              padding: 6px;
+              border-radius: 4px;
               text-align: center;
-              margin: 8px 0;
+              margin: 6px 0;
             }
             .pin-label {
-              font-size: 8px;
-              margin-bottom: 3px;
+              font-size: 6px;
+              margin-bottom: 2px;
             }
             .pin-code {
-              font-size: 14px;
+              font-size: 11px;
               font-weight: bold;
               font-family: 'Courier New', monospace;
-              letter-spacing: 1px;
+              letter-spacing: 0.5px;
             }
             .card-footer {
-              font-size: 8px;
+              font-size: 6px;
               color: #666;
-              margin-top: 8px;
+              margin-top: 6px;
+              text-align: center;
+              overflow: hidden;
             }
           `;
           

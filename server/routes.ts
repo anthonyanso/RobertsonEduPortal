@@ -1166,18 +1166,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get admission settings for public display
   app.get('/api/admission-settings', async (req, res) => {
     try {
-      const admissionSettings = {
-        isOpen: true,
-        startDate: "2025-01-01",
-        endDate: "2025-03-31",
-        maxApplications: 500,
-        applicationFee: 5000,
-        requirements: "Birth certificate, Previous school report, Passport photograph",
-        availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
-        contactEmail: "info@robertsoneducation.com",
-        contactPhone: "+2348146373297"
-      };
-      res.json(admissionSettings);
+      const schoolInfo = await storage.getSchoolInfo();
+      const admissionInfo = schoolInfo.find(info => info.key === 'admission');
+      
+      if (admissionInfo && admissionInfo.value) {
+        const settings = JSON.parse(admissionInfo.value);
+        res.json(settings);
+      } else {
+        // Default settings if none found
+        const defaultSettings = {
+          isOpen: true,
+          startDate: "2025-01-01",
+          endDate: "2025-03-31",
+          maxApplications: 500,
+          applicationFee: 5000,
+          requirements: "Birth certificate, Previous school report, Passport photograph",
+          availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
+          contactEmail: "info@robertsoneducation.com",
+          contactPhone: "+2348146373297"
+        };
+        res.json(defaultSettings);
+      }
     } catch (error) {
       console.error("Error fetching admission settings:", error);
       res.status(500).json({ message: "Failed to fetch admission settings" });
