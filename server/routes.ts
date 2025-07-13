@@ -717,16 +717,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/scratch-cards/generate', isAdminAuthenticated, async (req, res) => {
     try {
-      const { count = 1, expiryMonths = 3 } = req.body;
+      const { count = 1, durationMonths = 3 } = req.body;
       const scratchCards = [];
+      const bcrypt = require('bcryptjs');
       
       for (let i = 0; i < count; i++) {
+        const serialNumber = `ROB-${Date.now()}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
         const pin = Math.random().toString(36).substr(2, 12).toUpperCase();
+        const pinHash = await bcrypt.hash(pin, 10);
         const expiryDate = new Date();
-        expiryDate.setMonth(expiryDate.getMonth() + expiryMonths);
+        expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
         
         scratchCards.push({
+          serialNumber,
           pin,
+          pinHash,
+          status: 'unused',
           expiryDate,
           usageLimit: 1,
           usageCount: 0,
@@ -749,6 +755,140 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting scratch card:", error);
       res.status(500).json({ message: "Failed to delete scratch card" });
+    }
+  });
+
+  // Update scratch card status
+  app.patch('/api/admin/scratch-cards/:id/status', isAdminAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!['unused', 'used', 'expired', 'deactivated'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+      
+      await storage.updateScratchCard(id, { status });
+      res.json({ message: "Scratch card status updated successfully" });
+    } catch (error) {
+      console.error("Error updating scratch card status:", error);
+      res.status(500).json({ message: "Failed to update scratch card status" });
+    }
+  });
+
+  // Regenerate PIN
+  app.post('/api/admin/scratch-cards/:id/regenerate-pin', isAdminAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const bcrypt = require('bcryptjs');
+      
+      const pin = Math.random().toString(36).substr(2, 12).toUpperCase();
+      const pinHash = await bcrypt.hash(pin, 10);
+      
+      await storage.updateScratchCard(id, { pin, pinHash, status: 'unused', usageCount: 0, usedAt: null, usedBy: null });
+      res.json({ message: "PIN regenerated successfully" });
+    } catch (error) {
+      console.error("Error regenerating PIN:", error);
+      res.status(500).json({ message: "Failed to regenerate PIN" });
+    }
+  });
+
+  // Get scratch card settings
+  app.get('/api/admin/scratch-card-settings', isAdminAuthenticated, async (req, res) => {
+    try {
+      const settings = await storage.getSchoolInfo();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching scratch card settings:", error);
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  // Save scratch card settings
+  app.post('/api/admin/scratch-card-settings', isAdminAuthenticated, async (req, res) => {
+    try {
+      const { defaultDuration, cardsPerBatch } = req.body;
+      
+      await storage.upsertSchoolInfo({
+        key: 'scratch_card_default_duration',
+        value: defaultDuration.toString()
+      });
+      
+      await storage.upsertSchoolInfo({
+        key: 'scratch_card_batch_size',
+        value: cardsPerBatch.toString()
+      });
+      
+      res.json({ message: "Settings saved successfully" });
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      res.status(500).json({ message: "Failed to save settings" });
+    }
+  });
+
+  // Public PIN verification endpoint
+  app.post('/api/verify-scratch-card', async (req, res) => {
+    try {
+      const { pin, studentId } = req.body;
+      
+      if (!pin || !studentId) {
+        return res.status(400).json({ message: "PIN and Student ID are required" });
+      }
+      
+      const card = await storage.getScratchCardByPin(pin);
+      if (!card) {
+        return res.status(404).json({ message: "Invalid PIN" });
+      }
+      
+      // Check if card is expired
+      if (new Date(card.expiryDate) < new Date()) {
+        await storage.updateScratchCard(card.id, { status: 'expired' });
+        return res.status(400).json({ message: "Scratch card has expired" });
+      }
+      
+      // Check if card is deactivated
+      if (card.status === 'deactivated') {
+        return res.status(400).json({ message: "Scratch card has been deactivated" });
+      }
+      
+      // Check if card is already used
+      if (card.status === 'used' || card.usageCount >= card.usageLimit) {
+        return res.status(400).json({ message: "Scratch card has already been used" });
+      }
+      
+      // Verify PIN hash
+      const bcrypt = require('bcryptjs');
+      const isValidPin = await bcrypt.compare(pin, card.pinHash);
+      if (!isValidPin) {
+        return res.status(400).json({ message: "Invalid PIN" });
+      }
+      
+      // Get student results
+      const student = await storage.getStudentByStudentId(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+      
+      // Mark card as used
+      await storage.updateScratchCard(card.id, {
+        status: 'used',
+        usageCount: card.usageCount + 1,
+        usedAt: new Date(),
+        usedBy: studentId
+      });
+      
+      // Get student results
+      const results = await storage.getResults();
+      const studentResults = results.filter(r => r.studentId === studentId);
+      
+      res.json({
+        message: "PIN verified successfully",
+        student,
+        results: studentResults
+      });
+    } catch (error) {
+      console.error("Error verifying PIN:", error);
+      res.status(500).json({ message: "Failed to verify PIN" });
     }
   });
 

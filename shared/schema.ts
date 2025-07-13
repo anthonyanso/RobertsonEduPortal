@@ -102,7 +102,10 @@ export const results = pgTable("results", {
 // Scratch cards table
 export const scratchCards = pgTable("scratch_cards", {
   id: serial("id").primaryKey(),
+  serialNumber: varchar("serial_number").unique().notNull(),
   pin: varchar("pin").unique().notNull(),
+  pinHash: varchar("pin_hash").notNull(), // Encrypted/hashed PIN for security
+  status: varchar("status").default("unused").notNull(), // unused, used, expired, deactivated
   isUsed: boolean("is_used").default(false),
   usedAt: timestamp("used_at"),
   usedBy: varchar("used_by"),

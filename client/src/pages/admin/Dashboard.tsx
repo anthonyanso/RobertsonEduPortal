@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Swal from 'sweetalert2';
+import ScratchCardManagement from "./ScratchCardManagement";
 
 interface DashboardProps {
   onNavigate: (tab: string) => void;
@@ -116,37 +117,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
     },
   });
 
-  // Generate scratch cards mutation
-  const generateCardsMutation = useMutation({
-    mutationFn: async ({ count, expiryMonths }: { count: number; expiryMonths: number }) => {
-      return await apiRequest("POST", "/api/admin/scratch-cards/generate", { count, expiryMonths });
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Scratch cards generated successfully!",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/scratch-cards"] });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to generate scratch cards",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   // Generic delete mutation for other items
   const deleteMutation = useMutation({
@@ -195,17 +166,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
     },
   });
 
-  const handleGenerateCards = () => {
-    const count = prompt("How many scratch cards would you like to generate?", "10");
-    const expiryMonths = prompt("Expiry period in months?", "3");
-    
-    if (count && expiryMonths) {
-      generateCardsMutation.mutate({
-        count: parseInt(count),
-        expiryMonths: parseInt(expiryMonths),
-      });
-    }
-  };
+
 
   const handleDelete = async (endpoint: string, id: number, itemName: string) => {
     const result = await Swal.fire({
@@ -525,73 +486,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
 
           {/* Scratch Cards Tab */}
           <TabsContent value="scratch-cards">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Scratch Cards Management</CardTitle>
-                <Button 
-                  onClick={handleGenerateCards}
-                  disabled={generateCardsMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700"
-                >
-                  {generateCardsMutation.isPending ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Plus className="h-4 w-4 mr-2" />
-                  )}
-                  Generate Cards
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-4">PIN</th>
-                        <th className="text-left p-4">Status</th>
-                        <th className="text-left p-4">Usage</th>
-                        <th className="text-left p-4">Expiry Date</th>
-                        <th className="text-left p-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {scratchCardsLoading ? (
-                        <tr>
-                          <td colSpan={5} className="text-center p-8">Loading scratch cards...</td>
-                        </tr>
-                      ) : scratchCards.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="text-center p-8 text-gray-500">No scratch cards found</td>
-                        </tr>
-                      ) : (
-                        scratchCards.map((card: any) => (
-                          <tr key={card.id} className="border-b hover:bg-gray-50">
-                            <td className="p-4 font-mono">{card.pin}</td>
-                            <td className="p-4">
-                              <Badge className={card.isUsed ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'}>
-                                {card.isUsed ? 'Used' : 'Active'}
-                              </Badge>
-                            </td>
-                            <td className="p-4">{card.usageCount}/{card.usageLimit}</td>
-                            <td className="p-4">{formatDate(card.expiryDate)}</td>
-                            <td className="p-4">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleDelete("/api/admin/scratch-cards", card.id, "scratch card")}
-                                title="Delete Scratch Card"
-                                disabled={deleteMutation.isPending}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+            <ScratchCardManagement />
           </TabsContent>
 
           {/* News Tab */}
