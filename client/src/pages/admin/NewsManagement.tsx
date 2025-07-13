@@ -365,12 +365,16 @@ export default function NewsManagement() {
                             src={item.featuredImage}
                             alt={item.title}
                             className="w-12 h-12 object-cover rounded"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.nextElementSibling?.classList.remove('hidden');
+                            }}
                           />
-                        ) : (
-                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                            <Image className="h-6 w-6 text-gray-400" />
-                          </div>
-                        )}
+                        ) : null}
+                        <div className={`w-12 h-12 bg-gray-200 rounded flex items-center justify-center ${item.featuredImage ? 'hidden' : ''}`}>
+                          <Image className="h-6 w-6 text-gray-400" />
+                        </div>
                       </TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell>{item.author}</TableCell>

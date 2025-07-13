@@ -1,68 +1,9 @@
 import { useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { MapPin, Phone, Mail, Clock, Send, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { MapPin, Phone, Mail, Clock, Facebook, Twitter, Instagram, Linkedin, MessageCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-
-const contactFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().optional(),
-  subject: z.string().min(1, "Subject is required"),
-  message: z.string().min(1, "Message is required"),
-});
-
-type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export default function Contact() {
-  const { toast } = useToast();
-
-  const form = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-    },
-  });
-
-  const submitMutation = useMutation({
-    mutationFn: async (data: ContactFormData) => {
-      return await apiRequest("POST", "/api/contact", data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Message Sent",
-        description: "Thank you for your message. We will get back to you soon!",
-      });
-      form.reset();
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = (data: ContactFormData) => {
-    submitMutation.mutate(data);
-  };
-
   useEffect(() => {
     // Initialize AOS
     const initAOS = async () => {
@@ -82,266 +23,249 @@ export default function Contact() {
     {
       icon: MapPin,
       title: "Address",
-      details: ["1. Theo Okeke's Close, Ozuda Market Area", "Obosi Anambra State. Reg No:7779525"],
-      color: "bg-red-600"
+      details: "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+      subDetails: "Reg No: 7779525",
+      color: "text-red-600"
     },
     {
       icon: Phone,
-      title: "Phone",
-      details: ["+2348146373297", "+2347016774165"],
-      color: "bg-yellow-500"
+      title: "Phone Numbers",
+      details: "+234 814 637 3297",
+      subDetails: "+234 701 677 4165",
+      color: "text-blue-600"
     },
     {
       icon: Mail,
       title: "Email",
-      details: ["info@robertsoneducation.com"],
-      color: "bg-red-600"
+      details: "info@robertsoneducation.com",
+      subDetails: "Official communication",
+      color: "text-green-600"
     },
     {
       icon: Clock,
       title: "Office Hours",
-      details: ["Monday - Friday: 8:00 AM - 5:00 PM", "Weekends: Closed"],
-      color: "bg-yellow-500"
+      details: "Monday - Friday: 8:00 AM - 5:00 PM",
+      subDetails: "Weekends: Closed",
+      color: "text-purple-600"
     }
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "#", color: "bg-blue-600 hover:bg-blue-700" },
-    { icon: Twitter, href: "#", color: "bg-blue-400 hover:bg-blue-500" },
-    { icon: Instagram, href: "#", color: "bg-pink-600 hover:bg-pink-700" },
-    { icon: Linkedin, href: "#", color: "bg-blue-800 hover:bg-blue-900" },
+    { icon: Facebook, href: "#", label: "Facebook", color: "hover:text-blue-600" },
+    { icon: Twitter, href: "#", label: "Twitter", color: "hover:text-blue-400" },
+    { icon: Instagram, href: "#", label: "Instagram", color: "hover:text-pink-600" },
+    { icon: Linkedin, href: "#", label: "LinkedIn", color: "hover:text-blue-700" }
   ];
 
   return (
-    <div className="min-h-screen">
-      <section className="py-20 bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Hero Section */}
+      <section className="py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16" data-aos="fade-up">
-            <h1 className="font-playfair text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <div className="text-center mb-12 md:mb-16" data-aos="fade-up">
+            <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
               Contact Us
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We'd love to hear from you. Get in touch with Robertson Education for any inquiries or to schedule a visit.
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+              Get in touch with Robertson Education. We're here to help with admissions, 
+              inquiries, and any questions about our educational programs.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Information Section */}
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {contactInfo.map((info, index) => (
+              <Card 
+                key={index} 
+                className="text-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+              >
+                <CardHeader className="pb-4">
+                  <div className={`mx-auto w-16 h-16 md:w-20 md:h-20 ${info.color} bg-gray-50 rounded-full flex items-center justify-center mb-4`}>
+                    <info.icon className="h-8 w-8 md:h-10 md:w-10" />
+                  </div>
+                  <CardTitle className="text-lg md:text-xl text-gray-900">
+                    {info.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-sm md:text-base text-gray-700 font-medium mb-2">
+                    {info.details}
+                  </p>
+                  <p className="text-xs md:text-sm text-gray-500">
+                    {info.subDetails}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Actions Section */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12" data-aos="fade-up">
+            <h2 className="font-playfair text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Quick Actions
+            </h2>
+            <p className="text-lg text-gray-600">
+              Choose how you'd like to reach us
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
+            {/* Call Us */}
+            <div className="text-center" data-aos="fade-up" data-aos-delay="100">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-full w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center mb-4">
+                <Phone className="h-8 w-8 md:h-10 md:w-10 text-white" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Call Us</h3>
+              <p className="text-sm md:text-base text-gray-600 mb-4">
+                Speak directly with our admissions team
+              </p>
+              <Button 
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-sm md:text-base"
+                onClick={() => window.open('tel:+2348146373297')}
+              >
+                Call Now
+              </Button>
+            </div>
+
+            {/* Email Us */}
+            <div className="text-center" data-aos="fade-up" data-aos-delay="200">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-full w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center mb-4">
+                <Mail className="h-8 w-8 md:h-10 md:w-10 text-white" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Email Us</h3>
+              <p className="text-sm md:text-base text-gray-600 mb-4">
+                Send us your questions and inquiries
+              </p>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm md:text-base"
+                onClick={() => window.open('mailto:info@robertsoneducation.com')}
+              >
+                Send Email
+              </Button>
+            </div>
+
+            {/* Visit Us */}
+            <div className="text-center" data-aos="fade-up" data-aos-delay="300">
+              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-full w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center mb-4">
+                <MapPin className="h-8 w-8 md:h-10 md:w-10 text-white" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Visit Us</h3>
+              <p className="text-sm md:text-base text-gray-600 mb-4">
+                Come to our campus for a personal tour
+              </p>
+              <Button 
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 text-sm md:text-base"
+                onClick={() => window.open('https://maps.google.com/?q=Theo+Okeke+Close+Ozuda+Market+Obosi+Anambra+State')}
+              >
+                Get Directions
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Map and Additional Info */}
+      <section className="py-12 md:py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+            {/* Map */}
             <div data-aos="fade-right">
-              <h2 className="font-playfair text-3xl font-bold text-gray-900 mb-8">Get in Touch</h2>
-              
-              <div className="space-y-6">
-                {contactInfo.map((info, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <div className={`w-12 h-12 ${info.color} rounded-full flex items-center justify-center flex-shrink-0`}>
-                      <info.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{info.title}</h3>
-                      {info.details.map((detail, detailIndex) => (
-                        <p key={detailIndex} className="text-gray-600">
-                          {detail}
-                        </p>
-                      ))}
+              <Card className="overflow-hidden shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl md:text-2xl text-gray-900">
+                    Our Location
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="h-64 md:h-80 bg-gray-200 flex items-center justify-center">
+                    <div className="text-center">
+                      <MapPin className="h-12 w-12 md:h-16 md:w-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-sm md:text-base text-gray-600">
+                        Interactive map coming soon
+                      </p>
+                      <Button 
+                        className="mt-4 bg-red-600 hover:bg-red-700 text-white text-sm md:text-base"
+                        onClick={() => window.open('https://maps.google.com/?q=Theo+Okeke+Close+Ozuda+Market+Obosi+Anambra+State')}
+                      >
+                        Open in Google Maps
+                      </Button>
                     </div>
                   </div>
-                ))}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Additional Information */}
+            <div className="space-y-6 md:space-y-8" data-aos="fade-left">
+              <div>
+                <h3 className="font-playfair text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                  Why Choose Robertson Education?
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-red-100 rounded-full p-2 flex-shrink-0">
+                      <MessageCircle className="h-4 w-4 md:h-5 md:w-5 text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 text-sm md:text-base">Responsive Support</h4>
+                      <p className="text-gray-600 text-sm md:text-base">
+                        Our team responds to inquiries within 24 hours
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-blue-100 rounded-full p-2 flex-shrink-0">
+                      <Clock className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 text-sm md:text-base">Flexible Hours</h4>
+                      <p className="text-gray-600 text-sm md:text-base">
+                        Extended office hours for your convenience
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-green-100 rounded-full p-2 flex-shrink-0">
+                      <MapPin className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 text-sm md:text-base">Convenient Location</h4>
+                      <p className="text-gray-600 text-sm md:text-base">
+                        Easily accessible location in Obosi, Anambra State
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Social Media */}
-              <div className="mt-8">
-                <h3 className="font-semibold text-gray-900 mb-4">Follow Us</h3>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4 text-lg md:text-xl">
+                  Connect With Us
+                </h4>
                 <div className="flex space-x-4">
                   {socialLinks.map((social, index) => (
                     <a
                       key={index}
                       href={social.href}
-                      className={`w-10 h-10 ${social.color} rounded-full flex items-center justify-center text-white transition-colors`}
+                      className={`bg-white p-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ${social.color}`}
+                      aria-label={social.label}
                     >
-                      <social.icon className="h-5 w-5" />
+                      <social.icon className="h-5 w-5 md:h-6 md:w-6" />
                     </a>
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Contact Form */}
-            <div data-aos="fade-left">
-              <Card className="bg-gray-50">
-                <CardContent className="p-8">
-                  <h2 className="font-playfair text-3xl font-bold text-gray-900 mb-8">Send us a Message</h2>
-                  
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="firstName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-semibold text-gray-700">
-                                First Name *
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter your first name"
-                                  {...field}
-                                  className="focus:ring-red-600 focus:border-red-600"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="lastName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-semibold text-gray-700">
-                                Last Name *
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter your last name"
-                                  {...field}
-                                  className="focus:ring-red-600 focus:border-red-600"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700">
-                              Email Address *
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="email"
-                                placeholder="Enter your email address"
-                                {...field}
-                                className="focus:ring-red-600 focus:border-red-600"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700">
-                              Phone Number
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="tel"
-                                placeholder="Enter your phone number"
-                                {...field}
-                                className="focus:ring-red-600 focus:border-red-600"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700">
-                              Subject *
-                            </FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="focus:ring-red-600 focus:border-red-600">
-                                  <SelectValue placeholder="Select a subject" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="admission">Admission Inquiry</SelectItem>
-                                <SelectItem value="general">General Information</SelectItem>
-                                <SelectItem value="academic">Academic Programs</SelectItem>
-                                <SelectItem value="support">Technical Support</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="message"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-semibold text-gray-700">
-                              Message *
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Enter your message"
-                                className="focus:ring-red-600 focus:border-red-600"
-                                rows={5}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <Button
-                        type="submit"
-                        disabled={submitMutation.isPending}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-lg text-lg font-semibold"
-                      >
-                        {submitMutation.isPending ? (
-                          <div className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Sending...
-                          </div>
-                        ) : (
-                          <>
-                            <Send className="h-5 w-5 mr-2" />
-                            Send Message
-                          </>
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Map Section */}
-          <div className="mt-16" data-aos="fade-up">
-            <h2 className="font-playfair text-3xl font-bold text-gray-900 mb-8 text-center">Find Us</h2>
-            <div className="rounded-2xl overflow-hidden shadow-xl">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.1234567890!2d-74.0059413!3d40.7482937!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQ0JzUxLjkiTiA3NMKwMDA'MjEuNCJX!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus"
-                width="100%"
-                height="400"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Robertson Education Location"
-              />
             </div>
           </div>
         </div>
