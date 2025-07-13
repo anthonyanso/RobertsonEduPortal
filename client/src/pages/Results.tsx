@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Search, GraduationCap, CheckCircle, AlertTriangle, Printer } from "lucide-react";
+import { Search, GraduationCap, CheckCircle, AlertTriangle, Printer, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import jsPDF from 'jspdf';
+import logoUrl from "@assets/logo_1751823007371.png";
 
 const resultFormSchema = z.object({
   studentId: z.string().min(1, "Student ID is required"),
@@ -21,6 +23,169 @@ const resultFormSchema = z.object({
 });
 
 type ResultFormData = z.infer<typeof resultFormSchema>;
+
+// PDF Download Function
+const downloadResultAsPDF = (result: any, student: any) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let currentY = 10;
+  
+  const checkPageSpace = (requiredHeight: number) => {
+    if (currentY + requiredHeight > pageHeight - 20) {
+      doc.addPage();
+      currentY = 20;
+      return true;
+    }
+    return false;
+  };
+  
+  // Load logo and add to PDF
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = function() {
+    // Header Border
+    doc.setLineWidth(2);
+    doc.rect(10, 5, pageWidth - 20, 50);
+    
+    // Add logo
+    doc.addImage(img, "PNG", 15, 10, 32, 32);
+    
+    // Header section
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
+    
+    doc.setFontSize(11);
+    doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 26, { align: "center" });
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 32, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
+    
+    // Add passport photo
+    if (student && student.passportPhoto) {
+      try {
+        doc.addImage(student.passportPhoto, "JPEG", pageWidth - 47, 10, 32, 32);
+      } catch (e) {
+        doc.rect(pageWidth - 47, 10, 32, 32);
+        doc.setFontSize(7);
+        doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
+        doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
+      }
+    } else {
+      doc.rect(pageWidth - 47, 10, 32, 32);
+      doc.setFontSize(7);
+      doc.text("PASSPORT", pageWidth - 31, 23, { align: "center" });
+      doc.text("PHOTO", pageWidth - 31, 29, { align: "center" });
+    }
+    
+    // Result sheet title
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 45, { align: "center" });
+    doc.setFontSize(10);
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 52, { align: "center" });
+    
+    currentY = 65;
+    
+    // Student Information
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Student's Name: ${student.firstName} ${student.lastName}`, 15, currentY);
+    doc.text(`Session: ${result.session}`, pageWidth / 2 + 10, currentY);
+    currentY += 6;
+    doc.text(`Admission No: ${result.studentId}`, 15, currentY);
+    doc.text(`Term: ${result.term}`, pageWidth / 2 + 10, currentY);
+    currentY += 6;
+    doc.text(`Class: ${result.class}`, 15, currentY);
+    doc.text(`No. in Class: ${result.outOf || 'N/A'}`, pageWidth / 2 + 10, currentY);
+    currentY += 10;
+    
+    // Subjects table
+    const subjects = Array.isArray(result.subjects) ? result.subjects : [];
+    if (subjects.length > 0) {
+      // Table headers
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      const headers = ['Subject', 'CA1', 'CA2', 'Exam', 'Total', 'Grade', 'Remark', 'Position'];
+      const colWidths = [40, 20, 20, 25, 25, 20, 30, 25];
+      let startX = 15;
+      
+      headers.forEach((header, i) => {
+        doc.rect(startX, currentY, colWidths[i], 8);
+        doc.text(header, startX + colWidths[i]/2, currentY + 5, { align: "center" });
+        startX += colWidths[i];
+      });
+      currentY += 8;
+      
+      // Table rows
+      doc.setFont("helvetica", "normal");
+      subjects.forEach((subject: any) => {
+        startX = 15;
+        const values = [
+          subject.subject || 'N/A',
+          String(subject.ca1 || 'N/A'),
+          String(subject.ca2 || 'N/A'),
+          String(subject.exam || 'N/A'),
+          String(subject.total || subject.score || 'N/A'),
+          String(subject.grade || 'N/A'),
+          String(subject.remark || 'N/A'),
+          String(subject.position || 'N/A')
+        ];
+        
+        values.forEach((value, i) => {
+          doc.rect(startX, currentY, colWidths[i], 8);
+          doc.text(value, startX + colWidths[i]/2, currentY + 5, { align: "center" });
+          startX += colWidths[i];
+        });
+        currentY += 8;
+      });
+    }
+    
+    currentY += 10;
+    
+    // Performance Summary
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("PERFORMANCE SUMMARY", 15, currentY);
+    currentY += 8;
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Total Score: ${result.totalScore || 'N/A'}`, 15, currentY);
+    doc.text(`Average: ${result.average || 'N/A'}%`, 70, currentY);
+    doc.text(`GPA: ${result.gpa || 'N/A'}`, 125, currentY);
+    doc.text(`Position: ${result.position || 'N/A'}`, 170, currentY);
+    
+    currentY += 15;
+    
+    // Comments section
+    doc.text("Class Teacher's Comment:", 15, currentY);
+    doc.rect(15, currentY + 3, pageWidth - 30, 15);
+    doc.text(result.classTeacherComment || 'N/A', 20, currentY + 10);
+    
+    currentY += 25;
+    doc.text("Principal's Comment:", 15, currentY);
+    doc.rect(15, currentY + 3, pageWidth - 30, 15);
+    doc.text(result.principalComment || 'N/A', 20, currentY + 10);
+    
+    // Save PDF
+    doc.save(`${student.firstName}_${student.lastName}_${result.session}_${result.term}_Result.pdf`);
+  };
+  
+  img.onerror = function() {
+    console.error("Failed to load logo image");
+    // Continue without logo
+    doc.save(`${student.firstName}_${student.lastName}_${result.session}_${result.term}_Result.pdf`);
+  };
+  
+  img.src = logoUrl;
+};
 
 export default function Results() {
   const [resultData, setResultData] = useState<any>(null);
@@ -390,149 +555,241 @@ export default function Results() {
                 
                 {resultData && (
                   <div className="space-y-6" id="printable-result">
-                    {/* Student Information */}
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Student Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Full Name</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.student.firstName || '')} {String(resultData.student.lastName || '')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Student ID</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.student.studentId || 'N/A')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Class</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.result.class || 'N/A')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Date of Birth</p>
-                          <p className="font-semibold text-gray-800">{resultData.student.dateOfBirth ? new Date(resultData.student.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Gender</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.student.gender || 'N/A')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Phone</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.student.phone || 'N/A')}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Subjects Table */}
-                    <div className="overflow-x-auto">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Subject Results</h3>
-                      <table className="w-full border-collapse border border-gray-300 text-sm">
-                        <thead>
-                          <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-3 py-2 text-left">Subject</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">CA1</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">CA2</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">Exam</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">Total</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">Grade</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">Remark</th>
-                            <th className="border border-gray-300 px-3 py-2 text-center">Position</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {resultData.result.subjects && Array.isArray(resultData.result.subjects) && resultData.result.subjects.length > 0 ? (
-                            resultData.result.subjects.map((subject: any, index: number) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="border border-gray-300 px-3 py-2 font-medium">
-                                  {String(subject.subject || 'N/A')}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {String(subject.ca1 || 'N/A')}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {String(subject.ca2 || 'N/A')}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {String(subject.exam || 'N/A')}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-center font-bold">
-                                  {String(subject.total || subject.score || 'N/A')}
-                                </td>
-                                <td className={`border border-gray-300 px-3 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
-                                  {String(subject.grade || 'N/A')}
-                                </td>
-                                <td className={`border border-gray-300 px-3 py-2 text-center ${getRemarkColor(subject.remark)}`}>
-                                  {String(subject.remark || 'N/A')}
-                                </td>
-                                <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {String(subject.position || 'N/A')}
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan={8} className="border border-gray-300 px-3 py-2 text-center text-gray-500">
-                                No subjects data available
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="bg-blue-50 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Performance Summary</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Total Score</p>
-                          <p className="text-2xl font-bold text-blue-600">{String(resultData.result.totalScore || 'N/A')}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Average</p>
-                          <p className="text-2xl font-bold text-green-600">{String(resultData.result.average || 'N/A')}%</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">GPA</p>
-                          <p className="text-2xl font-bold text-purple-600">{String(resultData.result.gpa || 'N/A')}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Position</p>
-                          <p className="text-2xl font-bold text-orange-600">{String(resultData.result.position || 'N/A')}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Additional Details */}
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Additional Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Attendance</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.result.attendance || 'N/A')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Behavioral Rating</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.result.behavioralRating || 'N/A')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Class Teacher's Comment</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.result.classTeacherComment || 'N/A')}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Principal's Comment</p>
-                          <p className="font-semibold text-gray-800">{String(resultData.result.principalComment || 'N/A')}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Print Button */}
-                    <div className="text-center pt-4">
+                    {/* Action Buttons */}
+                    <div className="flex justify-center gap-4 mb-6">
                       <Button
                         onClick={() => window.print()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center mx-auto"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
                       >
-                        <Printer className="h-5 w-5 mr-2" />
+                        <Printer size={20} />
                         Print Result
                       </Button>
+                      <Button
+                        onClick={() => downloadResultAsPDF(resultData.result, resultData.student)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+                      >
+                        <Download size={20} />
+                        Download PDF
+                      </Button>
+                    </div>
+                    
+                    {/* Nigerian Result Template */}
+                    <div className="bg-white p-4 font-serif print:p-2 print:bg-white" style={{ fontFamily: 'Times New Roman, serif' }}>
+                      {/* Header */}
+                      <div className="border-4 border-double border-black p-2 mb-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="h-12 w-12 border-2 border-black flex items-center justify-center bg-white">
+                            <img 
+                              src={logoUrl} 
+                              alt="Robertson Education Centre" 
+                              className="h-12 w-12 object-contain"
+                              style={{
+                                width: '48px',
+                                height: '48px',
+                                objectFit: 'contain',
+                                display: 'block',
+                                opacity: 1,
+                                visibility: 'visible'
+                              }}
+                            />
+                          </div>
+                          <div className="text-center flex-1">
+                            <h1 className="text-lg font-bold text-blue-900">ROBERTSON EDUCATION</h1>
+                            <p className="text-xs text-gray-600">Excellence in Education - Nurturing Tomorrow's Leaders</p>
+                            <p className="text-xs text-gray-500">
+                              Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu
+                            </p>
+                            <p className="text-xs font-semibold text-blue-800">"Knowledge • Character • Service"</p>
+                          </div>
+                          <div className="h-12 w-12 border-2 border-gray-300 flex items-center justify-center bg-gray-50">
+                            <img 
+                              src={`/api/student-photo/${resultData.student?.studentId}`}
+                              alt="Student Passport" 
+                              className="h-12 w-12 object-cover"
+                              style={{
+                                width: '48px',
+                                height: '48px',
+                                objectFit: 'cover',
+                                display: 'block',
+                                opacity: 1,
+                                visibility: 'visible'
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (placeholder) {
+                                  placeholder.style.display = 'flex';
+                                }
+                              }}
+                            />
+                            <span className="text-xs text-gray-400 w-full h-full flex items-center justify-center" style={{ display: 'none' }}>
+                              PASSPORT
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="text-center border-t border-b py-1">
+                          <h2 className="text-base font-bold">CONTINUOUS ASSESSMENT REPORT SHEET</h2>
+                          <p className="text-xs">Academic Session: {resultData.result.session} | {resultData.result.term}</p>
+                        </div>
+                      </div>
+
+                      {/* Student Information */}
+                      <div className="grid grid-cols-2 gap-4 mb-3">
+                        <div className="space-y-1">
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Student's Name:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.student ? `${resultData.student.firstName} ${resultData.student.lastName}` : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Admission No:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.result.studentId}
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Class:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.result.class}
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Age:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.student?.dateOfBirth ? new Date().getFullYear() - new Date(resultData.student.dateOfBirth).getFullYear() : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Session:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.result.session}
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Term:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.result.term}
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">No. in Class:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.result.outOf || 'N/A'}
+                            </span>
+                          </div>
+                          <div className="flex">
+                            <span className="font-semibold text-xs w-24">Position:</span>
+                            <span className="border-b border-dotted border-gray-400 flex-1 pl-1 text-xs">
+                              {resultData.result.position || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Subjects Table */}
+                      <div className="mb-3">
+                        <table className="w-full border-collapse border border-black text-xs">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="border border-black px-2 py-1 text-left">SUBJECTS</th>
+                              <th className="border border-black px-2 py-1 text-center">CA1 (20)</th>
+                              <th className="border border-black px-2 py-1 text-center">CA2 (20)</th>
+                              <th className="border border-black px-2 py-1 text-center">EXAM (60)</th>
+                              <th className="border border-black px-2 py-1 text-center">TOTAL (100)</th>
+                              <th className="border border-black px-2 py-1 text-center">GRADE</th>
+                              <th className="border border-black px-2 py-1 text-center">REMARK</th>
+                              <th className="border border-black px-2 py-1 text-center">POSITION</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {resultData.result.subjects && Array.isArray(resultData.result.subjects) && resultData.result.subjects.length > 0 ? (
+                              resultData.result.subjects.map((subject: any, index: number) => (
+                                <tr key={index}>
+                                  <td className="border border-black px-2 py-1 font-medium">
+                                    {String(subject.subject || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center">
+                                    {String(subject.ca1 || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center">
+                                    {String(subject.ca2 || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center">
+                                    {String(subject.exam || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center font-bold">
+                                    {String(subject.total || subject.score || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center font-bold">
+                                    {String(subject.grade || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center">
+                                    {String(subject.remark || 'N/A')}
+                                  </td>
+                                  <td className="border border-black px-2 py-1 text-center">
+                                    {String(subject.position || 'N/A')}
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={8} className="border border-black px-2 py-1 text-center text-gray-500">
+                                  No subjects data available
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Performance Summary */}
+                      <div className="grid grid-cols-4 gap-2 mb-3 text-xs">
+                        <div className="border border-black p-2 text-center">
+                          <p className="font-semibold">Total Score</p>
+                          <p className="font-bold text-blue-600">{String(resultData.result.totalScore || 'N/A')}</p>
+                        </div>
+                        <div className="border border-black p-2 text-center">
+                          <p className="font-semibold">Average</p>
+                          <p className="font-bold text-green-600">{String(resultData.result.average || 'N/A')}%</p>
+                        </div>
+                        <div className="border border-black p-2 text-center">
+                          <p className="font-semibold">GPA</p>
+                          <p className="font-bold text-purple-600">{String(resultData.result.gpa || 'N/A')}</p>
+                        </div>
+                        <div className="border border-black p-2 text-center">
+                          <p className="font-semibold">Position</p>
+                          <p className="font-bold text-orange-600">{String(resultData.result.position || 'N/A')}</p>
+                        </div>
+                      </div>
+
+                      {/* Comments */}
+                      <div className="space-y-2 text-xs">
+                        <div className="border border-black p-2">
+                          <p className="font-semibold mb-1">Class Teacher's Comment:</p>
+                          <p className="min-h-[20px]">{String(resultData.result.classTeacherComment || 'N/A')}</p>
+                        </div>
+                        <div className="border border-black p-2">
+                          <p className="font-semibold mb-1">Principal's Comment:</p>
+                          <p className="min-h-[20px]">{String(resultData.result.principalComment || 'N/A')}</p>
+                        </div>
+                      </div>
+
+                      {/* Signatures */}
+                      <div className="grid grid-cols-2 gap-4 mt-4 text-xs">
+                        <div className="text-center">
+                          <div className="border-b border-black w-32 mx-auto mb-1"></div>
+                          <p>Class Teacher's Signature</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="border-b border-black w-32 mx-auto mb-1"></div>
+                          <p>Principal's Signature</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
