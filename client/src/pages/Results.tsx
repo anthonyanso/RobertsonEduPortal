@@ -133,6 +133,11 @@ export default function Results() {
           }
         }
         
+        // Ensure subjects is always an array
+        if (!Array.isArray(parsedResult.subjects)) {
+          parsedResult.subjects = [];
+        }
+        
         setResultData({
           student: data.student,
           result: parsedResult
@@ -391,27 +396,27 @@ export default function Results() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-sm text-gray-600">Full Name</p>
-                          <p className="font-semibold text-gray-800">{resultData.student.firstName} {resultData.student.lastName}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.student.firstName || '')} {String(resultData.student.lastName || '')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Student ID</p>
-                          <p className="font-semibold text-gray-800">{resultData.student.studentId}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.student.studentId || 'N/A')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Class</p>
-                          <p className="font-semibold text-gray-800">{resultData.result.class}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.result.class || 'N/A')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Date of Birth</p>
-                          <p className="font-semibold text-gray-800">{new Date(resultData.student.dateOfBirth).toLocaleDateString()}</p>
+                          <p className="font-semibold text-gray-800">{resultData.student.dateOfBirth ? new Date(resultData.student.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Gender</p>
-                          <p className="font-semibold text-gray-800">{resultData.student.gender || 'N/A'}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.student.gender || 'N/A')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Phone</p>
-                          <p className="font-semibold text-gray-800">{resultData.student.phone || 'N/A'}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.student.phone || 'N/A')}</p>
                         </div>
                       </div>
                     </div>
@@ -433,32 +438,32 @@ export default function Results() {
                           </tr>
                         </thead>
                         <tbody>
-                          {resultData.result.subjects && Array.isArray(resultData.result.subjects) ? (
+                          {resultData.result.subjects && Array.isArray(resultData.result.subjects) && resultData.result.subjects.length > 0 ? (
                             resultData.result.subjects.map((subject: any, index: number) => (
                               <tr key={index} className="hover:bg-gray-50">
                                 <td className="border border-gray-300 px-3 py-2 font-medium">
-                                  {subject.subject || 'N/A'}
+                                  {String(subject.subject || 'N/A')}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {subject.ca1 || 'N/A'}
+                                  {String(subject.ca1 || 'N/A')}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {subject.ca2 || 'N/A'}
+                                  {String(subject.ca2 || 'N/A')}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {subject.exam || 'N/A'}
+                                  {String(subject.exam || 'N/A')}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-center font-bold">
-                                  {subject.total || subject.score || 'N/A'}
+                                  {String(subject.total || subject.score || 'N/A')}
                                 </td>
                                 <td className={`border border-gray-300 px-3 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
-                                  {subject.grade || 'N/A'}
+                                  {String(subject.grade || 'N/A')}
                                 </td>
                                 <td className={`border border-gray-300 px-3 py-2 text-center ${getRemarkColor(subject.remark)}`}>
-                                  {subject.remark || 'N/A'}
+                                  {String(subject.remark || 'N/A')}
                                 </td>
                                 <td className="border border-gray-300 px-3 py-2 text-center">
-                                  {subject.position || 'N/A'}
+                                  {String(subject.position || 'N/A')}
                                 </td>
                               </tr>
                             ))
@@ -479,19 +484,19 @@ export default function Results() {
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="text-center">
                           <p className="text-sm text-gray-600">Total Score</p>
-                          <p className="text-2xl font-bold text-blue-600">{resultData.result.totalScore || 'N/A'}</p>
+                          <p className="text-2xl font-bold text-blue-600">{String(resultData.result.totalScore || 'N/A')}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-sm text-gray-600">Average</p>
-                          <p className="text-2xl font-bold text-green-600">{resultData.result.average || 'N/A'}%</p>
+                          <p className="text-2xl font-bold text-green-600">{String(resultData.result.average || 'N/A')}%</p>
                         </div>
                         <div className="text-center">
                           <p className="text-sm text-gray-600">GPA</p>
-                          <p className="text-2xl font-bold text-purple-600">{resultData.result.gpa || 'N/A'}</p>
+                          <p className="text-2xl font-bold text-purple-600">{String(resultData.result.gpa || 'N/A')}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-sm text-gray-600">Position</p>
-                          <p className="text-2xl font-bold text-orange-600">{resultData.result.position || 'N/A'}</p>
+                          <p className="text-2xl font-bold text-orange-600">{String(resultData.result.position || 'N/A')}</p>
                         </div>
                       </div>
                     </div>
@@ -502,19 +507,19 @@ export default function Results() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm text-gray-600">Attendance</p>
-                          <p className="font-semibold text-gray-800">{resultData.result.attendance || 'N/A'}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.result.attendance || 'N/A')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Behavioral Rating</p>
-                          <p className="font-semibold text-gray-800">{resultData.result.behavioralRating || 'N/A'}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.result.behavioralRating || 'N/A')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Class Teacher's Comment</p>
-                          <p className="font-semibold text-gray-800">{resultData.result.classTeacherComment || 'N/A'}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.result.classTeacherComment || 'N/A')}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Principal's Comment</p>
-                          <p className="font-semibold text-gray-800">{resultData.result.principalComment || 'N/A'}</p>
+                          <p className="font-semibold text-gray-800">{String(resultData.result.principalComment || 'N/A')}</p>
                         </div>
                       </div>
                     </div>
