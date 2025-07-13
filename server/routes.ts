@@ -826,6 +826,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint for debugging
+  app.get('/api/test-data', async (req, res) => {
+    try {
+      const students = await storage.getStudents();
+      const results = await storage.getResults();
+      const scratchCards = await storage.getScratchCards();
+      
+      res.json({
+        students: students.slice(0, 3),
+        results: results.slice(0, 3),
+        scratchCards: scratchCards.map(card => ({
+          id: card.id,
+          serialNumber: card.serialNumber,
+          pin: card.pin,
+          status: card.status,
+          usageCount: card.usageCount,
+          usageLimit: card.usageLimit
+        }))
+      });
+    } catch (error) {
+      console.error("Error fetching test data:", error);
+      res.status(500).json({ message: "Failed to fetch test data" });
+    }
+  });
+
   // Admin news routes
   app.get('/api/admin/news', isAdminAuthenticated, async (req, res) => {
     try {

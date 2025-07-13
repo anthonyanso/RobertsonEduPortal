@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Search, GraduationCap, CheckCircle, AlertTriangle, Download, Printer } from "lucide-react";
+import { Search, GraduationCap, CheckCircle, AlertTriangle, Printer } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -15,36 +15,14 @@ import { apiRequest } from "@/lib/queryClient";
 const resultFormSchema = z.object({
   studentId: z.string().min(1, "Student ID is required"),
   pin: z.string().min(1, "Scratch card PIN is required"),
-  session: z.string().min(1, "Session/Term is required"),
+  session: z.string().min(1, "Session is required"),
+  term: z.string().min(1, "Term is required"),
 });
 
 type ResultFormData = z.infer<typeof resultFormSchema>;
 
-interface ResultData {
-  student: {
-    name: string;
-    studentId: string;
-    gradeLevel: string;
-  };
-  result: {
-    session: string;
-    term: string;
-    subjects: Array<{
-      subject: string;
-      score: number;
-      grade: string;
-      remark: string;
-    }>;
-    totalScore: number;
-    average: number;
-    gpa: number;
-    position?: number;
-    remarks?: string;
-  };
-}
-
 export default function Results() {
-  const [resultData, setResultData] = useState<ResultData | null>(null);
+  const [resultData, setResultData] = useState<any>(null);
   const [showError, setShowError] = useState(false);
   const { toast } = useToast();
 
@@ -54,12 +32,12 @@ export default function Results() {
       studentId: "",
       pin: "",
       session: "",
+      term: "",
     },
   });
 
   const checkResultMutation = useMutation({
     mutationFn: async (data: ResultFormData) => {
-      const [session, term] = data.session.split('-');
       const response = await apiRequest("POST", "/api/verify-scratch-card", {
         pin: data.pin,
         studentId: data.studentId
@@ -67,37 +45,42 @@ export default function Results() {
       return response;
     },
     onSuccess: (data) => {
-      // Transform the response to match the expected format
-      const transformedData = {
-        student: {
-          name: `${data.student.firstName} ${data.student.lastName}`,
-          studentId: data.student.studentId,
-          gradeLevel: data.student.gradeLevel,
-        },
-        result: data.results.length > 0 ? {
-          session: data.results[0].session,
-          term: data.results[0].term,
-          subjects: data.results[0].subjects,
-          totalScore: data.results[0].totalScore,
-          average: data.results[0].average,
-          gpa: data.results[0].gpa,
-          position: data.results[0].position,
-          remarks: data.results[0].remarks,
-        } : null
-      };
-      setResultData(transformedData);
-      setShowError(false);
-      toast({
-        title: "Result Found",
-        description: "Your academic results have been retrieved successfully.",
-      });
+      console.log("API Response:", data);
+      
+      // Find the specific result matching the session and term
+      const formValues = form.getValues();
+      const selectedResult = data.results.find((result: any) => 
+        result.session === formValues.session && 
+        result.term === formValues.term
+      );
+      
+      if (selectedResult) {
+        setResultData({
+          student: data.student,
+          result: selectedResult
+        });
+        setShowError(false);
+        toast({
+          title: "Result Found",
+          description: "Your academic results have been retrieved successfully.",
+        });
+      } else {
+        setResultData(null);
+        setShowError(true);
+        toast({
+          title: "No Result Found",
+          description: `No result found for ${formValues.session} - ${formValues.term}`,
+          variant: "destructive",
+        });
+      }
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("API Error:", error);
       setResultData(null);
       setShowError(true);
       toast({
-        title: "Result Not Found",
-        description: "Please check your Student ID and Scratch Card PIN and try again.",
+        title: "Error",
+        description: error.message || "Please check your Student ID and Scratch Card PIN and try again.",
         variant: "destructive",
       });
     },
@@ -111,16 +94,8 @@ export default function Results() {
     window.print();
   };
 
-  const handleDownload = () => {
-    // Implementation would generate PDF of results
-    toast({
-      title: "Download Started",
-      description: "Your result PDF is being generated.",
-    });
-  };
-
   const getGradeColor = (grade: string) => {
-    switch (grade.toUpperCase()) {
+    switch (grade?.toUpperCase()) {
       case 'A':
         return 'text-green-600';
       case 'B':
@@ -137,7 +112,7 @@ export default function Results() {
   };
 
   const getRemarkColor = (remark: string) => {
-    switch (remark.toLowerCase()) {
+    switch (remark?.toLowerCase()) {
       case 'excellent':
         return 'text-green-600';
       case 'very good':
@@ -206,7 +181,7 @@ export default function Results() {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter your student ID"
+                              placeholder="Enter your student ID (e.g., ROB-20250712-JKJO)"
                               {...field}
                               className="focus:ring-red-600 focus:border-red-600"
                             />
@@ -245,21 +220,43 @@ export default function Results() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-semibold text-gray-700">
-                            Session/Term *
+                            Session *
                           </FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="focus:ring-red-600 focus:border-red-600">
-                                <SelectValue placeholder="Select Session/Term" />
+                                <SelectValue placeholder="Select Session" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="2024-first">2024 - First Term</SelectItem>
-                              <SelectItem value="2024-second">2024 - Second Term</SelectItem>
-                              <SelectItem value="2024-third">2024 - Third Term</SelectItem>
-                              <SelectItem value="2023-first">2023 - First Term</SelectItem>
-                              <SelectItem value="2023-second">2023 - Second Term</SelectItem>
-                              <SelectItem value="2023-third">2023 - Third Term</SelectItem>
+                              <SelectItem value="2024/2025">2024/2025</SelectItem>
+                              <SelectItem value="2023/2024">2023/2024</SelectItem>
+                              <SelectItem value="2022/2023">2022/2023</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="term"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-gray-700">
+                            Term *
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="focus:ring-red-600 focus:border-red-600">
+                                <SelectValue placeholder="Select Term" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="First Term">First Term</SelectItem>
+                              <SelectItem value="Second Term">Second Term</SelectItem>
+                              <SelectItem value="Third Term">Third Term</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -303,40 +300,55 @@ export default function Results() {
                 </CardHeader>
                 <CardContent className="p-8">
                   {/* Student Info Header */}
-                  <div className="bg-red-600 text-white p-6 rounded-lg mb-6">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h4 className="font-playfair text-xl font-bold">{resultData.student.name}</h4>
-                        <p className="text-yellow-400">Student ID: {resultData.student.studentId}</p>
-                        <p className="text-yellow-400">Grade: {resultData.student.gradeLevel}</p>
+                        <p className="text-sm text-gray-600">Student Name</p>
+                        <p className="font-semibold text-gray-900">
+                          {resultData.student.firstName} {resultData.student.lastName}
+                        </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm">Session: {resultData.result.session} - {resultData.result.term}</p>
-                        <p className="text-sm">Date: {new Date().toLocaleDateString()}</p>
+                      <div>
+                        <p className="text-sm text-gray-600">Student ID</p>
+                        <p className="font-semibold text-gray-900">{resultData.student.studentId}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Grade Level</p>
+                        <p className="font-semibold text-gray-900">{resultData.student.gradeLevel}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Session & Term</p>
+                        <p className="font-semibold text-gray-900">
+                          {resultData.result.session} - {resultData.result.term}
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Subjects Table */}
                   <div className="overflow-x-auto mb-6">
-                    <table className="w-full border-collapse border border-gray-200">
+                    <table className="w-full border-collapse border border-gray-300">
                       <thead>
-                        <tr className="bg-gray-50">
-                          <th className="border border-gray-200 px-4 py-3 text-left font-semibold">Subject</th>
-                          <th className="border border-gray-200 px-4 py-3 text-center font-semibold">Score</th>
-                          <th className="border border-gray-200 px-4 py-3 text-center font-semibold">Grade</th>
-                          <th className="border border-gray-200 px-4 py-3 text-center font-semibold">Remark</th>
+                        <tr className="bg-gray-100">
+                          <th className="border border-gray-300 px-4 py-2 text-left">Subject</th>
+                          <th className="border border-gray-300 px-4 py-2 text-center">Score</th>
+                          <th className="border border-gray-300 px-4 py-2 text-center">Grade</th>
+                          <th className="border border-gray-300 px-4 py-2 text-center">Remark</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {resultData.result.subjects.map((subject, index) => (
-                          <tr key={index}>
-                            <td className="border border-gray-200 px-4 py-3">{subject.subject}</td>
-                            <td className="border border-gray-200 px-4 py-3 text-center">{subject.score}</td>
-                            <td className={`border border-gray-200 px-4 py-3 text-center font-semibold ${getGradeColor(subject.grade)}`}>
+                        {resultData.result.subjects?.map((subject: any, index: number) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="border border-gray-300 px-4 py-2 font-medium">
+                              {subject.subject}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {subject.score}
+                            </td>
+                            <td className={`border border-gray-300 px-4 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
                               {subject.grade}
                             </td>
-                            <td className={`border border-gray-200 px-4 py-3 text-center ${getRemarkColor(subject.remark)}`}>
+                            <td className={`border border-gray-300 px-4 py-2 text-center ${getRemarkColor(subject.remark)}`}>
                               {subject.remark}
                             </td>
                           </tr>
@@ -345,39 +357,44 @@ export default function Results() {
                     </table>
                   </div>
 
-                  {/* Summary Stats */}
-                  <div className="grid md:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                      <h5 className="font-semibold text-green-700">Total Score</h5>
-                      <p className="text-2xl font-bold text-green-800">
-                        {resultData.result.totalScore}/{resultData.result.subjects.length * 100}
-                      </p>
-                    </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                      <h5 className="font-semibold text-blue-700">Average</h5>
-                      <p className="text-2xl font-bold text-blue-800">{resultData.result.average}%</p>
-                    </div>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                      <h5 className="font-semibold text-yellow-700">GPA</h5>
-                      <p className="text-2xl font-bold text-yellow-800">{resultData.result.gpa}/4.0</p>
+                  {/* Summary */}
+                  <div className="bg-blue-50 rounded-lg p-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Total Score</p>
+                        <p className="text-2xl font-bold text-blue-600">{resultData.result.totalScore}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Average</p>
+                        <p className="text-2xl font-bold text-green-600">{resultData.result.average}%</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">GPA</p>
+                        <p className="text-2xl font-bold text-purple-600">{resultData.result.gpa}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Position</p>
+                        <p className="text-2xl font-bold text-orange-600">{resultData.result.position || 'N/A'}</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  {/* Remarks */}
+                  {resultData.result.remarks && (
+                    <div className="bg-yellow-50 rounded-lg p-6 mb-6">
+                      <h3 className="font-bold text-gray-900 mb-2">Teacher's Remarks</h3>
+                      <p className="text-gray-700">{resultData.result.remarks}</p>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-center space-x-4">
                     <Button
                       onClick={handlePrint}
-                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
                     >
-                      <Printer className="h-4 w-4 mr-2" />
-                      Printer Result
-                    </Button>
-                    <Button
-                      onClick={handleDownload}
-                      className="bg-yellow-500 hover:bg-yellow-400 text-white px-6 py-3 rounded-lg font-semibold"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download PDF
+                      <Printer className="h-5 w-5 mr-2" />
+                      Print Result
                     </Button>
                   </div>
                 </CardContent>
@@ -386,51 +403,18 @@ export default function Results() {
 
             {/* Error Display */}
             {showError && (
-              <Card className="bg-red-50 border border-red-200 mb-8" data-aos="fade-up">
-                <CardContent className="p-8 text-center">
+              <Card className="shadow-xl border border-red-200 mb-8" data-aos="fade-up">
+                <CardHeader className="text-center">
                   <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <AlertTriangle className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="font-playfair text-2xl font-bold text-red-800 mb-2">Result Not Found</h3>
-                  <p className="text-red-600 mb-4">Please check your Student ID and Scratch Card PIN and try again.</p>
-                  <p className="text-sm text-red-500">If you continue to experience issues, please contact the school administration.</p>
-                </CardContent>
+                  <CardTitle className="font-playfair text-2xl font-bold text-red-900 mb-2">
+                    Result Not Found
+                  </CardTitle>
+                  <p className="text-red-600">Please check your credentials and try again</p>
+                </CardHeader>
               </Card>
             )}
-          </div>
-
-          {/* Instructions */}
-          <div className="mt-16 max-w-4xl mx-auto" data-aos="fade-up">
-            <h3 className="font-playfair text-2xl font-bold text-gray-900 mb-6 text-center">
-              How to Check Your Results
-            </h3>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  step: "1",
-                  title: "Get Your PIN",
-                  description: "Purchase a scratch card from the school or authorized vendor and scratch off the silver coating to reveal your PIN."
-                },
-                {
-                  step: "2",
-                  title: "Enter Details",
-                  description: "Fill in your Student ID, Scratch Card PIN, and select the appropriate session/term from the dropdown menu."
-                },
-                {
-                  step: "3",
-                  title: "View Results",
-                  description: "Click 'Check Results' to view your academic performance. You can print or download your results for your records."
-                }
-              ].map((instruction, index) => (
-                <div key={index} className="text-center">
-                  <div className={`w-16 h-16 ${index % 2 === 0 ? 'bg-red-600' : 'bg-yellow-500'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <span className="text-2xl font-bold text-white">{instruction.step}</span>
-                  </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{instruction.title}</h4>
-                  <p className="text-gray-600">{instruction.description}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
