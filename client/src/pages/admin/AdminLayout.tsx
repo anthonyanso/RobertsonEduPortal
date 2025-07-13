@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck, Plus, FileText, BarChart3 } from "lucide-react";
+import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck, Plus, FileText, BarChart3, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Dashboard from "./Dashboard";
 // @ts-ignore
@@ -29,6 +29,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [studentsDropdownOpen, setStudentsDropdownOpen] = useState(false);
   const [resultsDropdownOpen, setResultsDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -89,16 +90,22 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden text-gray-500 hover:text-gray-700"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
               <img src={logoUrl} alt="Robertson Education" className="h-8 w-8 object-contain" />
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">Robertson Education</h1>
-                <p className="text-sm text-gray-500">Admin Panel</p>
+                <h1 className="text-base sm:text-lg font-semibold text-gray-900">Robertson Education</h1>
+                <p className="text-xs sm:text-sm text-gray-500">Admin Panel</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {adminUser && (
-                <div className="text-sm text-gray-600">
+                <div className="text-xs sm:text-sm text-gray-600 hidden sm:block">
                   Welcome, {adminUser.firstName} {adminUser.lastName}
                 </div>
               )}
@@ -106,19 +113,39 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-1 sm:space-x-2"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-screen">
+        <aside className={`
+          fixed md:static inset-y-0 left-0 z-50 w-64 bg-white shadow-sm min-h-screen transform transition-transform duration-300 ease-in-out md:translate-x-0
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+          <div className="flex justify-between items-center p-4 md:hidden">
+            <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
           <nav className="p-4">
             <div className="space-y-2">
               {menuItems.map((item) => {
@@ -181,7 +208,10 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileMenuOpen(false);
+                    }}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                       activeTab === item.id
                         ? "bg-red-50 text-red-600 border-l-4 border-red-600"
@@ -199,7 +229,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {activeTab === "dashboard" && <Dashboard onNavigate={setActiveTab} />}
           {activeTab === "add-student" && <AddStudent />}
           {activeTab === "view-students" && <ViewStudents />}

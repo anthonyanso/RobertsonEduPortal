@@ -62,6 +62,9 @@ export default function ScratchCardManagement() {
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [printTemplateOpen, setPrintTemplateOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("standard");
+  const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [printCount, setPrintCount] = useState(10);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -581,6 +584,32 @@ export default function ScratchCardManagement() {
     `;
   };
 
+  // Handle card selection
+  const handleCardSelection = (cardId: number) => {
+    setSelectedCards(prev => 
+      prev.includes(cardId) 
+        ? prev.filter(id => id !== cardId)
+        : [...prev, cardId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedCards([]);
+    } else {
+      setSelectedCards(filteredScratchCards.map(card => card.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  // Get selected cards for printing
+  const getSelectedCardsForPrint = () => {
+    if (selectedCards.length === 0) {
+      return filteredScratchCards.slice(0, printCount);
+    }
+    return filteredScratchCards.filter(card => selectedCards.includes(card.id));
+  };
+
   // Fetch scratch cards
   const { data: scratchCards = [], isLoading } = useQuery<ScratchCard[]>({
     queryKey: ['/api/admin/scratch-cards'],
@@ -906,20 +935,35 @@ export default function ScratchCardManagement() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="print-count">Number of Cards to Print</Label>
+                  <Input
+                    id="print-count"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={printCount}
+                    onChange={(e) => setPrintCount(parseInt(e.target.value) || 10)}
+                    placeholder="Enter number of cards"
+                  />
+                </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">
-                    {selectedTemplate === 'standard' && 'Basic scratch card with PIN and serial number'}
-                    {selectedTemplate === 'premium' && 'Enhanced design with school logo and branding'}
-                    {selectedTemplate === 'bulk' && 'Multiple cards per page for efficient printing'}
-                    {selectedTemplate === 'custom' && 'Customizable template with additional fields'}
+                    {selectedTemplate === 'standard' && 'Clean professional design with school logo and official branding'}
+                    {selectedTemplate === 'premium' && 'Enhanced premium layout with larger logo and advanced styling'}
+                    {selectedTemplate === 'bulk' && 'Compact 3-column layout optimized for efficient bulk printing'}
+                    {selectedTemplate === 'custom' && 'Customizable template with usage instructions and professional appearance'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Will print {selectedCards.length > 0 ? `${selectedCards.length} selected cards` : `first ${printCount} cards`}
                   </p>
                 </div>
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => {
-                    const sampleCards = filteredScratchCards.slice(0, 6);
+                    const cardsToPreview = getSelectedCardsForPrint();
                     const printWindow = window.open('', '_blank');
                     if (printWindow) {
-                      const htmlContent = generateProfessionalTemplate(sampleCards, selectedTemplate);
+                      const htmlContent = generateProfessionalTemplate(cardsToPreview, selectedTemplate);
                       printWindow.document.write(htmlContent);
                       printWindow.document.close();
                     }
@@ -928,17 +972,17 @@ export default function ScratchCardManagement() {
                     Preview
                   </Button>
                   <Button onClick={() => {
-                    const sampleCards = filteredScratchCards.slice(0, 10);
+                    const cardsToPrint = getSelectedCardsForPrint();
                     const printWindow = window.open('', '_blank');
                     if (printWindow) {
-                      const htmlContent = generateProfessionalTemplate(sampleCards, selectedTemplate);
+                      const htmlContent = generateProfessionalTemplate(cardsToPrint, selectedTemplate);
                       printWindow.document.write(htmlContent);
                       printWindow.document.close();
                       printWindow.print();
                     }
                   }} className="bg-red-600 hover:bg-red-700">
                     <Printer className="h-4 w-4 mr-2" />
-                    Print
+                    Print {selectedCards.length > 0 ? `${selectedCards.length} Cards` : `${printCount} Cards`}
                   </Button>
                 </div>
               </div>
@@ -1113,25 +1157,33 @@ export default function ScratchCardManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Serial Number</TableHead>
-                  <TableHead>PIN</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Usage</TableHead>
-                  <TableHead>Expiry Date</TableHead>
-                  <TableHead>Bound Student ID</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                  </TableHead>
+                  <TableHead className="min-w-[120px]">Serial Number</TableHead>
+                  <TableHead className="min-w-[100px]">PIN</TableHead>
+                  <TableHead className="min-w-[80px] hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="min-w-[80px] hidden md:table-cell">Usage</TableHead>
+                  <TableHead className="min-w-[100px] hidden lg:table-cell">Expiry Date</TableHead>
+                  <TableHead className="min-w-[120px] hidden xl:table-cell">Bound Student ID</TableHead>
+                  <TableHead className="min-w-[120px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       Loading scratch cards...
                     </TableCell>
                   </TableRow>
                 ) : filteredScratchCards.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                       No scratch cards found
                     </TableCell>
                   </TableRow>
@@ -1139,11 +1191,19 @@ export default function ScratchCardManagement() {
                   filteredScratchCards.map((card) => {
                     const expired = isCardExpired(card);
                     return (
-                      <TableRow key={card.id}>
-                        <TableCell className="font-mono">{card.serialNumber}</TableCell>
+                      <TableRow key={card.id} className={selectedCards.includes(card.id) ? 'bg-blue-50' : ''}>
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedCards.includes(card.id)}
+                            onChange={() => handleCardSelection(card.id)}
+                            className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                          />
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{card.serialNumber}</TableCell>
                         <TableCell className="font-mono">
-                          <div className="flex items-center space-x-2">
-                            <span>
+                          <div className="flex items-center space-x-1 sm:space-x-2">
+                            <span className="text-sm">
                               {showPins[card.id] ? card.pin : maskPin(card.pin)}
                             </span>
                             <Button
@@ -1165,22 +1225,23 @@ export default function ScratchCardManagement() {
                             </Button>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <Badge className={getStatusBadgeColor(card.status, expired)}>
                             {getStatusText(card.status, expired)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{card.usageCount}/{card.usageLimit}</TableCell>
-                        <TableCell>{formatDate(card.expiryDate)}</TableCell>
-                        <TableCell className="font-mono">{card.studentId || "—"}</TableCell>
+                        <TableCell className="hidden md:table-cell text-sm">{card.usageCount}/{card.usageLimit}</TableCell>
+                        <TableCell className="hidden lg:table-cell text-sm">{formatDate(card.expiryDate)}</TableCell>
+                        <TableCell className="hidden xl:table-cell font-mono text-sm">{card.studentId || "—"}</TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1 sm:space-x-2">
                             {card.status === "unused" && !expired && (
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => updateStatusMutation.mutate({ id: card.id, status: "deactivated" })}
                                 disabled={updateStatusMutation.isPending}
+                                className="h-8 w-8 p-0"
                               >
                                 <Ban className="h-3 w-3" />
                               </Button>
@@ -1191,6 +1252,7 @@ export default function ScratchCardManagement() {
                                 size="sm"
                                 onClick={() => updateStatusMutation.mutate({ id: card.id, status: "unused" })}
                                 disabled={updateStatusMutation.isPending}
+                                className="h-8 w-8 p-0"
                               >
                                 <RefreshCw className="h-3 w-3" />
                               </Button>
@@ -1201,13 +1263,15 @@ export default function ScratchCardManagement() {
                                 size="sm"
                                 onClick={() => regeneratePinMutation.mutate(card.id)}
                                 disabled={regeneratePinMutation.isPending}
+                                className="h-8 w-8 p-0"
+                                title="Regenerate PIN"
                               >
                                 <RefreshCw className="h-3 w-3" />
                               </Button>
                             )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
                               </AlertDialogTrigger>
