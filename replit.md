@@ -226,7 +226,7 @@ Changelog:
   - Increased PIN usage limit from 10 to 30 attempts per card for better accessibility
   - Added PIN regeneration functionality for expired cards (3-month expiry with admin regeneration)
   - Updated scratch card schema to link PINs to specific students (studentId field)
-  - Implemented email functionality for contact form using SendGrid integration
+  - Implemented email functionality for contact form using SMTP integration
   - Created comprehensive email service with contact form notifications to info@robertsoneducation.com
   - Updated all frontend pages with correct school information:
     - Address: 1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525
@@ -272,3 +272,12 @@ Changelog:
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Updates
+
+- July 13, 2025. Updated email service to use SMTP instead of SendGrid
+  - Replaced SendGrid email service with standard SMTP configuration
+  - Added nodemailer package for email handling
+  - Removed SendGrid dependency from the project
+  - Updated email service to use environment variables: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+  - Maintained same contact form functionality with SMTP backend

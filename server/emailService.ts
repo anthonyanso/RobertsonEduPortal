@@ -1,13 +1,15 @@
-import { MailService } from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
 
-if (!process.env.SENDGRID_API_KEY) {
-  console.warn("SENDGRID_API_KEY environment variable not set - email functionality will be disabled");
-}
-
-const mailService = new MailService();
-if (process.env.SENDGRID_API_KEY) {
-  mailService.setApiKey(process.env.SENDGRID_API_KEY);
-}
+// SMTP configuration - using Gmail as default
+const transporter = nodemailer.createTransporter({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER || 'info@robertsoneducation.com',
+    pass: process.env.SMTP_PASS || 'Robertsoneducation123*',
+  },
+});
 
 interface EmailParams {
   to: string;
@@ -18,15 +20,15 @@ interface EmailParams {
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn("Cannot send email - SENDGRID_API_KEY not configured");
+  if (!process.env.SMTP_USER && !process.env.EMAIL_USER) {
+    console.warn("Cannot send email - SMTP_USER or EMAIL_USER not configured");
     return false;
   }
 
   try {
-    await mailService.send({
-      to: params.to,
+    await transporter.sendMail({
       from: params.from,
+      to: params.to,
       subject: params.subject,
       text: params.text,
       html: params.html,
@@ -34,7 +36,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     console.log(`Email sent successfully to ${params.to}`);
     return true;
   } catch (error) {
-    console.error('SendGrid email error:', error);
+    console.error('SMTP email error:', error);
     return false;
   }
 }
@@ -59,7 +61,7 @@ export async function sendContactFormEmail(formData: {
 
   return await sendEmail({
     to: 'info@robertsoneducation.com',
-    from: 'info@robertsoneducation.com',
+    from: process.env.SMTP_USER || process.env.EMAIL_USER || 'info@robertsoneducation.com',
     subject: `Contact Form: ${formData.subject}`,
     html: emailContent,
     text: `

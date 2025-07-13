@@ -350,15 +350,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Contact message route
+  // Contact form submission with email
   app.post('/api/contact', async (req, res) => {
     try {
       const validatedData = insertContactMessageSchema.parse(req.body);
+      
+      // Save to database
       const message = await storage.createContactMessage(validatedData);
-      res.json(message);
+      
+      // Send email notification
+      const { sendContactFormEmail } = await import('./emailService');
+      const emailSent = await sendContactFormEmail(validatedData);
+      
+      if (!emailSent) {
+        console.warn("Email notification failed for contact form submission");
+      }
+      
+      res.json({ 
+        message: "Contact form submitted successfully", 
+        id: message.id,
+        emailSent
+      });
     } catch (error) {
-      console.error("Error creating contact message:", error);
-      res.status(500).json({ message: "Failed to create contact message" });
+      console.error("Error processing contact form:", error);
+      res.status(500).json({ message: "Failed to process contact form" });
     }
   });
 
