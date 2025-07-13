@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Edit, Trash2, Image, Calendar, User, Eye, Upload, X } from "lucide-react";
+import { Plus, Edit, Trash2, Image as ImageIcon, Calendar, User, Eye, Upload, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -380,7 +380,7 @@ export default function NewsManagement() {
                               }}
                             />
                           ) : null}
-                          <Image className={`h-6 w-6 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
+                          <ImageIcon className={`h-6 w-6 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>

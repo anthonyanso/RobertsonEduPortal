@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Calendar, User, Tag, X } from "lucide-react";
+import { Search, Calendar, User, Tag, X, Image as ImageIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -153,7 +153,7 @@ export default function News() {
                         }}
                       />
                     ) : null}
-                    <Image className={`h-16 w-16 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
+                    <ImageIcon className={`h-16 w-16 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
                   </div>
                   <CardContent className="p-3 sm:p-4 md:p-6">
                     <div className="flex items-center justify-between mb-2 sm:mb-3">
