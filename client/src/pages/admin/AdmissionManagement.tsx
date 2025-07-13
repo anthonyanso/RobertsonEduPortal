@@ -52,56 +52,12 @@ interface AdmissionApplication {
 }
 
 export default function AdmissionManagement() {
-  const [activeTab, setActiveTab] = useState("applications");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedApplication, setSelectedApplication] = useState<AdmissionApplication | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Mock data for demonstration
-  const applications: AdmissionApplication[] = [
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@email.com",
-      phone: "08123456789",
-      dateOfBirth: "2008-05-15",
-      gender: "Male",
-      address: "123 Main St, Lagos",
-      guardianName: "Jane Doe",
-      guardianPhone: "08123456790",
-      guardianEmail: "jane.doe@email.com",
-      previousSchool: "ABC Primary School",
-      classApplying: "JSS 1",
-      status: "pending",
-      submittedAt: "2025-01-10T10:30:00Z",
-      notes: "Good academic record"
-    },
-    {
-      id: 2,
-      firstName: "Mary",
-      lastName: "Johnson",
-      email: "mary.johnson@email.com",
-      phone: "08123456791",
-      dateOfBirth: "2007-08-20",
-      gender: "Female",
-      address: "456 Oak Ave, Abuja",
-      guardianName: "Robert Johnson",
-      guardianPhone: "08123456792",
-      guardianEmail: "robert.johnson@email.com",
-      previousSchool: "XYZ Secondary School",
-      classApplying: "JSS 2",
-      status: "approved",
-      submittedAt: "2025-01-08T14:15:00Z",
-      notes: "Excellent grades"
-    }
-  ];
-
-  const admissionSettings: AdmissionSettings = {
+  // Current admission settings
+  const currentSettings = {
     isOpen: true,
     startDate: "2025-01-01",
     endDate: "2025-03-31",
@@ -115,24 +71,8 @@ export default function AdmissionManagement() {
 
   const form = useForm<AdmissionSettings>({
     resolver: zodResolver(admissionSettingsSchema),
-    defaultValues: admissionSettings,
+    defaultValues: currentSettings,
   });
-
-  const filteredApplications = applications.filter(app => {
-    const matchesSearch = `${app.firstName} ${app.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         app.classApplying.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || app.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const updateApplicationStatus = (id: number, status: 'approved' | 'rejected') => {
-    // In real implementation, this would call the API
-    toast({
-      title: "Status Updated",
-      description: `Application has been ${status}`,
-    });
-  };
 
   const onSubmitSettings = async (data: AdmissionSettings) => {
     try {
@@ -140,7 +80,7 @@ export default function AdmissionManagement() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
         title: "Settings Updated",
-        description: "Admission settings have been successfully updated",
+        description: "Admission settings have been successfully updated and published to the admission page",
       });
       setIsSettingsDialogOpen(false);
     } catch (error) {
@@ -152,23 +92,20 @@ export default function AdmissionManagement() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
-      case 'rejected':
-        return <Badge className="bg-red-100 text-red-800"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
-      default:
-        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+  const publishAdmission = async () => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast({
+        title: "Admission Published",
+        description: "Admission details have been published to the website",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to publish admission details",
+        variant: "destructive",
+      });
     }
-  };
-
-  const exportApplications = () => {
-    // In real implementation, this would generate CSV/PDF
-    toast({
-      title: "Export Started",
-      description: "Applications are being exported...",
-    });
   };
 
   return (
@@ -184,23 +121,23 @@ export default function AdmissionManagement() {
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button 
-            onClick={exportApplications}
+            onClick={publishAdmission}
             variant="outline"
             className="w-full sm:w-auto"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Export
+            <FileText className="h-4 w-4 mr-2" />
+            Publish to Website
           </Button>
           <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                Edit Admission Details
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Admission Settings</DialogTitle>
+                <DialogTitle>Admission Details Configuration</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmitSettings)} className="space-y-4">
@@ -337,7 +274,7 @@ export default function AdmissionManagement() {
                     <Button type="button" variant="outline" onClick={() => setIsSettingsDialogOpen(false)}>
                       Cancel
                     </Button>
-                    <Button type="submit">Save Settings</Button>
+                    <Button type="submit">Save & Publish</Button>
                   </div>
                 </form>
               </Form>
@@ -346,16 +283,22 @@ export default function AdmissionManagement() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Current Settings Display */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Applications</p>
-                <p className="text-2xl font-bold">{applications.length}</p>
+                <p className="text-sm text-gray-600">Admission Status</p>
+                <p className="text-lg font-bold text-green-600">
+                  {currentSettings.isOpen ? "Open" : "Closed"}
+                </p>
               </div>
-              <Users className="h-8 w-8 text-blue-600" />
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
+                currentSettings.isOpen ? 'bg-green-100' : 'bg-red-100'
+              }`}>
+                {currentSettings.isOpen ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -363,12 +306,12 @@ export default function AdmissionManagement() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {applications.filter(app => app.status === 'pending').length}
-                </p>
+                <p className="text-sm text-gray-600">Application Fee</p>
+                <p className="text-lg font-bold">₦{currentSettings.applicationFee.toLocaleString()}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-600" />
+              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -376,198 +319,58 @@ export default function AdmissionManagement() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Approved</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {applications.filter(app => app.status === 'approved').length}
-                </p>
+                <p className="text-sm text-gray-600">Available Classes</p>
+                <p className="text-lg font-bold">{currentSettings.availableClasses.length}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {applications.filter(app => app.status === 'rejected').length}
-                </p>
+              <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                <GraduationCap className="h-5 w-5 text-purple-600" />
               </div>
-              <XCircle className="h-8 w-8 text-red-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search applications..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Applications Table */}
+      {/* Admission Details Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Applications</CardTitle>
+          <CardTitle>Current Admission Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
-                  <TableHead className="hidden sm:table-cell">Class</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Submitted</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredApplications.map((application) => (
-                  <TableRow key={application.id}>
-                    <TableCell className="font-medium">
-                      {application.firstName} {application.lastName}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{application.email}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{application.classApplying}</TableCell>
-                    <TableCell>{getStatusBadge(application.status)}</TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {new Date(application.submittedAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedApplication(application);
-                            setIsViewDialogOpen(true);
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {application.status === 'pending' && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateApplicationStatus(application.id, 'approved')}
-                              className="text-green-600 hover:text-green-700"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateApplicationStatus(application.id, 'rejected')}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium text-gray-900">Application Period</h4>
+                <p className="text-sm text-gray-600">
+                  {new Date(currentSettings.startDate).toLocaleDateString()} - {new Date(currentSettings.endDate).toLocaleDateString()}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Maximum Applications</h4>
+                <p className="text-sm text-gray-600">{currentSettings.maxApplications} applications</p>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Contact Information</h4>
+                <p className="text-sm text-gray-600">{currentSettings.contactEmail}</p>
+                <p className="text-sm text-gray-600">{currentSettings.contactPhone}</p>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Available Classes</h4>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {currentSettings.availableClasses.map((cls) => (
+                    <Badge key={cls} variant="secondary" className="text-xs">
+                      {cls}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900">Requirements</h4>
+              <p className="text-sm text-gray-600 mt-1">{currentSettings.requirements}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* View Application Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Application Details</DialogTitle>
-          </DialogHeader>
-          {selectedApplication && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium">Student Name</Label>
-                  <p className="text-sm">{selectedApplication.firstName} {selectedApplication.lastName}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Email</Label>
-                  <p className="text-sm">{selectedApplication.email}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Phone</Label>
-                  <p className="text-sm">{selectedApplication.phone}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Date of Birth</Label>
-                  <p className="text-sm">{new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Gender</Label>
-                  <p className="text-sm">{selectedApplication.gender}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Class Applying</Label>
-                  <p className="text-sm">{selectedApplication.classApplying}</p>
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Address</Label>
-                <p className="text-sm">{selectedApplication.address}</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium">Guardian Name</Label>
-                  <p className="text-sm">{selectedApplication.guardianName}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Guardian Phone</Label>
-                  <p className="text-sm">{selectedApplication.guardianPhone}</p>
-                </div>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Guardian Email</Label>
-                <p className="text-sm">{selectedApplication.guardianEmail}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Previous School</Label>
-                <p className="text-sm">{selectedApplication.previousSchool}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Status</Label>
-                <div className="mt-1">{getStatusBadge(selectedApplication.status)}</div>
-              </div>
-              {selectedApplication.notes && (
-                <div>
-                  <Label className="text-sm font-medium">Notes</Label>
-                  <p className="text-sm">{selectedApplication.notes}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

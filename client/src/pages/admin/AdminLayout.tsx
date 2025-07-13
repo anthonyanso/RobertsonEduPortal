@@ -22,8 +22,6 @@ import NewsManagement from "./NewsManagement";
 import SettingsPage from "./Settings";
 // @ts-ignore
 import AdmissionManagement from "./AdmissionManagement";
-// @ts-ignore
-import MessageManagement from "./MessageManagement";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -73,7 +71,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
     { id: "scratch-cards", label: "Scratch Cards", icon: CreditCard },
     { id: "news", label: "News Management", icon: Newspaper },
     { id: "admissions", label: "Admissions", icon: UserPlus },
-    { id: "messages", label: "Messages", icon: MessageSquare },
+
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -247,7 +245,6 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "scratch-cards" && <ScratchCardManagement />}
           {activeTab === "news" && <NewsManagement />}
           {activeTab === "admissions" && <AdmissionManagement />}
-          {activeTab === "messages" && <MessageManagement />}
           {activeTab === "settings" && <SettingsPage />}
         </main>
       </div>

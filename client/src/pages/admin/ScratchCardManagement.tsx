@@ -70,7 +70,7 @@ export default function ScratchCardManagement() {
 
   // Professional template generator function
   const generateProfessionalTemplate = (cards: ScratchCard[], templateType: string) => {
-    const logoPath = `${window.location.origin}/attached_assets/logo_1751823007371.png`;
+    const logoPath = '/attached_assets/logo_1751823007371.png';
     
     const getTemplateStyles = (type: string) => {
       const baseStyles = `
@@ -178,6 +178,19 @@ export default function ScratchCardManagement() {
               border-radius: 50%;
               border: 1px solid #d32f2f;
               padding: 3px;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              flex-shrink: 0;
+            }
+            .logo:before {
+              content: '';
+              display: block;
+              width: 100%;
+              height: 100%;
+              background-image: url('${logoPath}');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
             }
             .school-info {
               flex: 1;
@@ -588,7 +601,9 @@ export default function ScratchCardManagement() {
           ${cards.map(card => `
             <div class="card">
               <div class="card-header">
-                <div class="logo"></div>
+                <div class="logo">
+                  <img src="${logoPath}" alt="Robertson Education" style="width: 100%; height: 100%; object-fit: contain;" />
+                </div>
                 <div class="school-info">
                   <div class="school-name">ROBERTSON EDUCATION</div>
                   <div class="card-type">Official Result Access Card</div>
