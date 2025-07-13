@@ -46,15 +46,48 @@ export default function Results() {
     },
     onSuccess: (data) => {
       console.log("API Response:", data);
+      console.log("Data structure:", {
+        hasData: !!data,
+        hasResults: !!data?.results,
+        resultsType: Array.isArray(data?.results) ? 'array' : typeof data?.results,
+        resultsLength: data?.results?.length,
+        resultsContent: data?.results,
+        hasStudent: !!data?.student,
+        studentContent: data?.student
+      });
+      
+      // Check if we have results data
+      if (!data || !data.results || !Array.isArray(data.results)) {
+        console.error("Invalid data structure:", data);
+        setResultData(null);
+        setShowError(true);
+        toast({
+          title: "No Results Available",
+          description: "No results found for this student.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       // Find the specific result matching the session and term
       const formValues = form.getValues();
+      console.log("Looking for result with:", {
+        session: formValues.session,
+        term: formValues.term,
+        availableResults: data.results.map((r: any) => ({
+          session: r.session,
+          term: r.term,
+          id: r.id
+        }))
+      });
+      
       const selectedResult = data.results.find((result: any) => 
         result.session === formValues.session && 
         result.term === formValues.term
       );
       
       if (selectedResult) {
+        console.log("Found matching result:", selectedResult);
         setResultData({
           student: data.student,
           result: selectedResult
@@ -65,6 +98,7 @@ export default function Results() {
           description: "Your academic results have been retrieved successfully.",
         });
       } else {
+        console.log("No matching result found");
         setResultData(null);
         setShowError(true);
         toast({
@@ -76,6 +110,11 @@ export default function Results() {
     },
     onError: (error: any) => {
       console.error("API Error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response
+      });
       setResultData(null);
       setShowError(true);
       toast({
@@ -337,22 +376,30 @@ export default function Results() {
                         </tr>
                       </thead>
                       <tbody>
-                        {resultData.result.subjects?.map((subject: any, index: number) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="border border-gray-300 px-4 py-2 font-medium">
-                              {subject.subject}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {subject.score}
-                            </td>
-                            <td className={`border border-gray-300 px-4 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
-                              {subject.grade}
-                            </td>
-                            <td className={`border border-gray-300 px-4 py-2 text-center ${getRemarkColor(subject.remark)}`}>
-                              {subject.remark}
+                        {resultData.result.subjects && Array.isArray(resultData.result.subjects) ? (
+                          resultData.result.subjects.map((subject: any, index: number) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              <td className="border border-gray-300 px-4 py-2 font-medium">
+                                {subject.subject || 'N/A'}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2 text-center">
+                                {subject.score || 'N/A'}
+                              </td>
+                              <td className={`border border-gray-300 px-4 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
+                                {subject.grade || 'N/A'}
+                              </td>
+                              <td className={`border border-gray-300 px-4 py-2 text-center ${getRemarkColor(subject.remark)}`}>
+                                {subject.remark || 'N/A'}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="border border-gray-300 px-4 py-2 text-center text-gray-500">
+                              No subjects data available
                             </td>
                           </tr>
-                        ))}
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -362,15 +409,15 @@ export default function Results() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="text-center">
                         <p className="text-sm text-gray-600">Total Score</p>
-                        <p className="text-2xl font-bold text-blue-600">{resultData.result.totalScore}</p>
+                        <p className="text-2xl font-bold text-blue-600">{resultData.result.totalScore || 'N/A'}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-gray-600">Average</p>
-                        <p className="text-2xl font-bold text-green-600">{resultData.result.average}%</p>
+                        <p className="text-2xl font-bold text-green-600">{resultData.result.average || 'N/A'}%</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-gray-600">GPA</p>
-                        <p className="text-2xl font-bold text-purple-600">{resultData.result.gpa}</p>
+                        <p className="text-2xl font-bold text-purple-600">{resultData.result.gpa || 'N/A'}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-gray-600">Position</p>
