@@ -289,12 +289,12 @@ export default function NewsManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">News Management System</h2>
-          <p className="text-gray-600">Create, edit, and manage news articles for your website</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">News Management System</h2>
+          <p className="text-sm sm:text-base text-gray-600">Create, edit, and manage news articles for your website</p>
         </div>
-        <Button onClick={handleNew} className="bg-red-600 hover:bg-red-700">
+        <Button onClick={handleNew} className="bg-red-600 hover:bg-red-700 w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add News Article
         </Button>
@@ -336,14 +336,14 @@ export default function NewsManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Content Preview</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="min-w-[80px]">Image</TableHead>
+                  <TableHead className="min-w-[150px]">Title</TableHead>
+                  <TableHead className="min-w-[120px] hidden md:table-cell">Author</TableHead>
+                  <TableHead className="min-w-[100px] hidden lg:table-cell">Category</TableHead>
+                  <TableHead className="min-w-[200px] hidden xl:table-cell">Content Preview</TableHead>
+                  <TableHead className="min-w-[80px] hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="min-w-[120px] hidden lg:table-cell">Date</TableHead>
+                  <TableHead className="min-w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -363,10 +363,10 @@ export default function NewsManagement() {
                   news.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell>
-                        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden">
                           {item.featuredImage ? (
                             <img
-                              src={item.featuredImage}
+                              src={`/api/news-image/${item.id}`}
                               alt={item.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -383,23 +383,28 @@ export default function NewsManagement() {
                               }}
                             />
                           ) : null}
-                          <ImageIcon className={`h-6 w-6 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
+                          <ImageIcon className={`h-4 w-4 sm:h-6 sm:w-6 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{item.title}</TableCell>
-                      <TableCell>{item.author}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium">
+                        <div className="max-w-[150px] sm:max-w-[200px] truncate">{item.title}</div>
+                        <div className="text-xs text-gray-500 sm:hidden">{item.author}</div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{item.author}</TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         <Badge className={getCategoryColor(item.category)}>
                           {item.category}
                         </Badge>
                       </TableCell>
-                      <TableCell>{truncateContent(item.content)}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden xl:table-cell">
+                        <div className="max-w-[200px] truncate">{truncateContent(item.content)}</div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant={item.published ? "default" : "secondary"}>
                           {item.published ? "Published" : "Draft"}
                         </Badge>
                       </TableCell>
-                      <TableCell>{formatDate(item.createdAt)}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{formatDate(item.createdAt)}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button

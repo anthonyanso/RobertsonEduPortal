@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff, Copy } from "lucide-react";
+import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff, Copy, Printer } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -60,6 +60,8 @@ export default function ScratchCardManagement() {
     cardsPerBatch: 50
   });
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [printTemplateOpen, setPrintTemplateOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState("standard");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -347,19 +349,103 @@ export default function ScratchCardManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Scratch Card Management</h2>
-          <p className="text-gray-600">Manage scratch cards for student result access</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Scratch Card Management</h2>
+          <p className="text-sm sm:text-base text-gray-600">Manage scratch cards for student result access</p>
         </div>
-        <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <Dialog open={printTemplateOpen} onOpenChange={setPrintTemplateOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <Printer className="h-4 w-4 mr-2" />
+                Print Templates
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Print Templates</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="template-select">Select Template</Label>
+                  <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="standard">Standard Card Template</SelectItem>
+                      <SelectItem value="premium">Premium Card Template</SelectItem>
+                      <SelectItem value="bulk">Bulk Print Template</SelectItem>
+                      <SelectItem value="custom">Custom Template</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    {selectedTemplate === 'standard' && 'Basic scratch card with PIN and serial number'}
+                    {selectedTemplate === 'premium' && 'Enhanced design with school logo and branding'}
+                    {selectedTemplate === 'bulk' && 'Multiple cards per page for efficient printing'}
+                    {selectedTemplate === 'custom' && 'Customizable template with additional fields'}
+                  </p>
+                </div>
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={() => {
+                    const sampleCards = filteredScratchCards.slice(0, 6);
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                      printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                          <title>Scratch Card Sample - ${selectedTemplate}</title>
+                          <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            .card { border: 2px solid #333; padding: 20px; margin: 20px; width: 300px; height: 200px; display: inline-block; }
+                            .header { text-align: center; font-weight: bold; color: #d32f2f; }
+                            .serial { font-size: 14px; margin: 10px 0; }
+                            .pin { font-size: 20px; font-weight: bold; margin: 15px 0; }
+                            .footer { font-size: 12px; text-align: center; color: #666; }
+                          </style>
+                        </head>
+                        <body>
+                          <h2>Robertson Education - Sample ${selectedTemplate} Template</h2>
+                          ${sampleCards.map(card => `
+                            <div class="card">
+                              <div class="header">ROBERTSON EDUCATION</div>
+                              <div class="serial">Serial: ${card.serialNumber}</div>
+                              <div class="pin">PIN: ${card.pin}</div>
+                              <div class="footer">
+                                <p>Valid until: ${new Date(card.expiryDate).toLocaleDateString()}</p>
+                                <p>For result checking only</p>
+                              </div>
+                            </div>
+                          `).join('')}
+                        </body>
+                        </html>
+                      `);
+                      printWindow.document.close();
+                    }
+                  }}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview
+                  </Button>
+                  <Button onClick={() => window.print()} className="bg-red-600 hover:bg-red-700">
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
             <DialogHeader>
               <DialogTitle>Scratch Card Settings</DialogTitle>
             </DialogHeader>
@@ -396,6 +482,7 @@ export default function ScratchCardManagement() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Statistics */}

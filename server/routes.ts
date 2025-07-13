@@ -664,6 +664,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve news images
+  app.get('/api/news-image/:newsId', async (req, res) => {
+    try {
+      const newsId = parseInt(req.params.newsId);
+      console.log("Fetching image for news ID:", newsId);
+      
+      // Get news item from database
+      const newsItem = await storage.getNewsItem(newsId);
+      
+      if (!newsItem) {
+        console.log("No news item found for ID:", newsId);
+        return res.status(404).json({ message: 'News item not found' });
+      }
+      
+      if (!newsItem.featuredImage) {
+        console.log("No featured image for news ID:", newsId);
+        return res.status(404).json({ message: 'No image found' });
+      }
+      
+      // If it's a file path, serve the file
+      if (newsItem.featuredImage.startsWith('/uploads/')) {
+        const filePath = path.join(process.cwd(), newsItem.featuredImage);
+        console.log("Serving file from path:", filePath);
+        
+        if (fs.existsSync(filePath)) {
+          const ext = path.extname(newsItem.featuredImage).toLowerCase();
+          const contentType = {
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.gif': 'image/gif'
+          }[ext] || 'application/octet-stream';
+          
+          res.setHeader('Content-Type', contentType);
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.sendFile(filePath);
+        } else {
+          console.log("Image file not found:", filePath);
+          return res.status(404).json({ message: 'Image file not found' });
+        }
+      } else {
+        // If it's base64 data, handle it
+        const matches = newsItem.featuredImage.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+          
+          res.set({
+            'Content-Type': mimeType,
+            'Content-Length': buffer.length,
+            'Cache-Control': 'public, max-age=3600'
+          });
+          
+          res.send(buffer);
+        } else {
+          console.log("Invalid image format for news ID:", newsId);
+          return res.status(400).json({ message: 'Invalid image format' });
+        }
+      }
+    } catch (error) {
+      console.error("Error serving news image:", error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   app.post('/api/admin/students', isAdminAuthenticated, async (req, res) => {
     try {
       const validatedData = insertStudentSchema.parse(req.body);

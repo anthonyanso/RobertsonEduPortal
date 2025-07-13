@@ -299,3 +299,15 @@ Preferred communication style: Simple, everyday language.
   - Removed SendGrid dependency from the project
   - Updated email service to use environment variables: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
   - Maintained same contact form functionality with SMTP backend
+- July 13, 2025. Enhanced admin interface with news image support and responsive design
+  - Added news image endpoint `/api/news-image/:newsId` using same method as student photo endpoint
+  - Updated News.tsx and NewsManagement.tsx to use new image endpoint for proper image display
+  - Fixed news image display issues with proper error handling and fallback icons
+  - Made admin interface fully responsive with mobile-first design across all screen sizes
+  - Enhanced NewsManagement.tsx with responsive table headers and column visibility
+  - Added responsive buttons, typography, and spacing throughout admin interface
+  - Improved table layouts with proper overflow handling for mobile devices
+  - Added print template dropdown functionality to scratch card management
+  - Created comprehensive print template system with Standard, Premium, Bulk, and Custom options
+  - Added print preview functionality with sample scratch card generation
+  - Enhanced scratch card management with responsive design and improved user experience

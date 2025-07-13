@@ -136,7 +136,7 @@ export default function News() {
                   <div className="w-full h-40 sm:h-48 lg:h-52 bg-gray-200 flex items-center justify-center relative overflow-hidden">
                     {item.featuredImage ? (
                       <img 
-                        src={item.featuredImage} 
+                        src={`/api/news-image/${item.id}`} 
                         alt={item.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
