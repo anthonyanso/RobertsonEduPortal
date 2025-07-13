@@ -99,9 +99,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
-  }, (req, res, next) => {
-    const filePath = path.join(uploadsDir, req.path);
+  });
+  
+  app.get('/uploads/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(uploadsDir, filename);
+    
     if (fs.existsSync(filePath)) {
+      // Set appropriate content type
+      const ext = path.extname(filename).toLowerCase();
+      const contentType = {
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif'
+      }[ext] || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
       res.sendFile(filePath);
     } else {
       res.status(404).json({ message: 'File not found' });

@@ -130,9 +130,9 @@ export default function News() {
             ) : (
               filteredNews.map((item: any, index: number) => (
                 <Card key={item.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow" data-aos="fade-up" data-aos-delay={index * 100}>
-                  {item.imageUrl && (
+                  {item.featuredImage && (
                     <img 
-                      src={item.imageUrl} 
+                      src={item.featuredImage} 
                       alt={item.title} 
                       className="w-full h-48 object-cover"
                     />
