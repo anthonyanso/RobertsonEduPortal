@@ -70,7 +70,7 @@ export default function ScratchCardManagement() {
 
   // Professional template generator function
   const generateProfessionalTemplate = (cards: ScratchCard[], templateType: string) => {
-    const logoPath = '/attached_assets/logo_1751823007371.png';
+    const logoPath = `${window.location.origin}/attached_assets/logo_1751823007371.png`;
     
     const getTemplateStyles = (type: string) => {
       const baseStyles = `

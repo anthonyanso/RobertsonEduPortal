@@ -20,6 +20,10 @@ import ScratchCardManagement from "./ScratchCardManagement";
 import NewsManagement from "./NewsManagement";
 // @ts-ignore
 import SettingsPage from "./Settings";
+// @ts-ignore
+import AdmissionManagement from "./AdmissionManagement";
+// @ts-ignore
+import MessageManagement from "./MessageManagement";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -242,26 +246,8 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "result-analytics" && <ResultAnalytics />}
           {activeTab === "scratch-cards" && <ScratchCardManagement />}
           {activeTab === "news" && <NewsManagement />}
-          {activeTab === "admissions" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Admissions Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Admissions management interface will be implemented here.</p>
-              </CardContent>
-            </Card>
-          )}
-          {activeTab === "messages" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Messages Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Messages management interface will be implemented here.</p>
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "admissions" && <AdmissionManagement />}
+          {activeTab === "messages" && <MessageManagement />}
           {activeTab === "settings" && <SettingsPage />}
         </main>
       </div>
