@@ -29,6 +29,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, like, or } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -59,10 +60,12 @@ export interface IStorage {
   getScratchCards(): Promise<ScratchCard[]>;
   getScratchCard(id: number): Promise<ScratchCard | undefined>;
   getScratchCardByPin(pin: string): Promise<ScratchCard | undefined>;
+  getScratchCardByStudentId(studentId: string): Promise<ScratchCard | undefined>;
   createScratchCard(scratchCard: InsertScratchCard): Promise<ScratchCard>;
   createScratchCards(scratchCards: InsertScratchCard[]): Promise<ScratchCard[]>;
   updateScratchCard(id: number, scratchCard: Partial<InsertScratchCard>): Promise<ScratchCard>;
   deleteScratchCard(id: number): Promise<void>;
+  regeneratePinForStudent(studentId: string): Promise<ScratchCard>;
   
   // News operations
   getNews(): Promise<News[]>;
@@ -215,6 +218,11 @@ export class DatabaseStorage implements IStorage {
     return scratchCard;
   }
 
+  async getScratchCardByStudentId(studentId: string): Promise<ScratchCard | undefined> {
+    const [scratchCard] = await db.select().from(scratchCards).where(eq(scratchCards.studentId, studentId));
+    return scratchCard;
+  }
+
   async createScratchCard(scratchCard: InsertScratchCard): Promise<ScratchCard> {
     const [newScratchCard] = await db.insert(scratchCards).values(scratchCard).returning();
     return newScratchCard;
@@ -236,6 +244,50 @@ export class DatabaseStorage implements IStorage {
 
   async deleteScratchCard(id: number): Promise<void> {
     await db.delete(scratchCards).where(eq(scratchCards.id, id));
+  }
+
+  async regeneratePinForStudent(studentId: string): Promise<ScratchCard> {
+    // Generate new PIN
+    const newPin = Math.floor(100000 + Math.random() * 900000).toString();
+    const pinHash = await bcrypt.hash(newPin, 10);
+    
+    // Set new expiry date (3 months from now)
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 3);
+    
+    // Update existing card or create new one
+    const existingCard = await this.getScratchCardByStudentId(studentId);
+    
+    if (existingCard) {
+      const [updatedCard] = await db
+        .update(scratchCards)
+        .set({
+          pin: newPin,
+          pinHash,
+          expiryDate,
+          status: "unused",
+          usageCount: 0,
+          usageLimit: 30,
+          updatedAt: new Date()
+        })
+        .where(eq(scratchCards.id, existingCard.id))
+        .returning();
+      return updatedCard;
+    } else {
+      // Create new card
+      const serialNumber = `SN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      const newCard = await this.createScratchCard({
+        serialNumber,
+        pin: newPin,
+        pinHash,
+        studentId,
+        expiryDate,
+        status: "unused",
+        usageCount: 0,
+        usageLimit: 30
+      });
+      return newCard;
+    }
   }
 
   // News operations

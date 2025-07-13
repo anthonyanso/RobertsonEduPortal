@@ -986,6 +986,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact form submission with email
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const validatedData = insertContactMessageSchema.parse(req.body);
+      
+      // Save to database
+      const message = await storage.createContactMessage(validatedData);
+      
+      // Send email notification
+      const { sendContactFormEmail } = await import('./emailService');
+      const emailSent = await sendContactFormEmail(validatedData);
+      
+      if (!emailSent) {
+        console.warn("Email notification failed for contact form submission");
+      }
+      
+      res.json({ 
+        message: "Contact form submitted successfully", 
+        id: message.id,
+        emailSent
+      });
+    } catch (error) {
+      console.error("Error processing contact form:", error);
+      res.status(500).json({ message: "Failed to process contact form" });
+    }
+  });
+
+  // Regenerate PIN for student
+  app.post('/api/admin/scratch-cards/regenerate/:studentId', isAdminAuthenticated, async (req, res) => {
+    try {
+      const studentId = req.params.studentId;
+      
+      // Verify student exists
+      const student = await storage.getStudentByStudentId(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+      
+      // Regenerate PIN for student
+      const newCard = await storage.regeneratePinForStudent(studentId);
+      
+      res.json({
+        message: "PIN regenerated successfully",
+        scratchCard: {
+          id: newCard.id,
+          serialNumber: newCard.serialNumber,
+          pin: newCard.pin,
+          studentId: newCard.studentId,
+          expiryDate: newCard.expiryDate,
+          usageLimit: newCard.usageLimit,
+          usageCount: newCard.usageCount,
+          status: newCard.status
+        }
+      });
+    } catch (error) {
+      console.error("Error regenerating PIN:", error);
+      res.status(500).json({ message: "Failed to regenerate PIN" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -65,9 +65,35 @@ export default function CumulativeResults() {
     queryKey: ['/api/admin/results'],
   });
 
+  // Generate dynamic sessions based on current calendar and academic year
+  const generateDynamicSessions = () => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-11 (January = 0)
+    
+    const sessions = [];
+    
+    // Academic year runs from September to August
+    let currentAcademicYear: number;
+    if (currentMonth >= 8) { // September (8) to December (11)
+      currentAcademicYear = currentYear;
+    } else { // January (0) to August (7)
+      currentAcademicYear = currentYear - 1;
+    }
+    
+    // Generate sessions for past 2 years, current year, and next 2 years
+    for (let i = -2; i <= 2; i++) {
+      const sessionStartYear = currentAcademicYear + i;
+      const sessionEndYear = sessionStartYear + 1;
+      sessions.push(`${sessionStartYear}/${sessionEndYear}`);
+    }
+    
+    return sessions;
+  };
+
   // Get available sessions and classes
-  const availableSessions = [...new Set(results.map(r => r.session))].sort();
-  const availableClasses = [...new Set(results.map(r => r.class))].sort();
+  const availableSessions = generateDynamicSessions();
+  const availableClasses = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 
   // Calculate cumulative results
   useEffect(() => {

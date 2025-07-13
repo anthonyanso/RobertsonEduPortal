@@ -103,14 +103,15 @@ export const results = pgTable("results", {
 export const scratchCards = pgTable("scratch_cards", {
   id: serial("id").primaryKey(),
   serialNumber: varchar("serial_number").unique().notNull(),
-  pin: varchar("pin").unique().notNull(),
+  pin: varchar("pin").notNull(), // Removed unique constraint to allow regeneration
   pinHash: varchar("pin_hash").notNull(), // Encrypted/hashed PIN for security
+  studentId: varchar("student_id"), // Link PIN to specific student (optional for now)
   status: varchar("status").default("unused").notNull(), // unused, used, expired, deactivated
   isUsed: boolean("is_used").default(false),
   usedAt: timestamp("used_at"),
   usedBy: varchar("used_by"),
   expiryDate: timestamp("expiry_date").notNull(),
-  usageLimit: integer("usage_limit").default(1),
+  usageLimit: integer("usage_limit").default(30), // Increased to 30 attempts
   usageCount: integer("usage_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

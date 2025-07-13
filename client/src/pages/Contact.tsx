@@ -82,25 +82,25 @@ export default function Contact() {
     {
       icon: MapPin,
       title: "Address",
-      details: ["123 Education Drive, Academic District", "City, State 12345"],
+      details: ["1. Theo Okeke's Close, Ozuda Market Area", "Obosi Anambra State. Reg No:7779525"],
       color: "bg-red-600"
     },
     {
       icon: Phone,
       title: "Phone",
-      details: ["+1 (555) 123-4567", "+1 (555) 987-6543"],
+      details: ["+2348146373297", "+2347016774165"],
       color: "bg-yellow-500"
     },
     {
       icon: Mail,
       title: "Email",
-      details: ["info@robertsoneducation.com", "admissions@robertsoneducation.com"],
+      details: ["info@robertsoneducation.com"],
       color: "bg-red-600"
     },
     {
       icon: Clock,
       title: "Office Hours",
-      details: ["Monday - Friday: 8:00 AM - 5:00 PM", "Saturday: 9:00 AM - 2:00 PM"],
+      details: ["Monday - Friday: 8:00 AM - 5:00 PM", "Weekends: Closed"],
       color: "bg-yellow-500"
     }
   ];

@@ -220,6 +220,21 @@ Changelog:
   - Replaced "N/A" values with meaningful default comments for better user experience
   - Updated both Results checker and Admin result creation to use dynamic session generation
   - Improved print and PDF templates with updated school information and branding
+- July 13, 2025. Comprehensive system enhancements for scratch card management, contact functionality, and school information
+  - Fixed cumulative results page to use dynamic session generation matching other admin pages
+  - Enhanced scratch card system with unique PINs per student (removed global uniqueness constraint)
+  - Increased PIN usage limit from 10 to 30 attempts per card for better accessibility
+  - Added PIN regeneration functionality for expired cards (3-month expiry with admin regeneration)
+  - Updated scratch card schema to link PINs to specific students (studentId field)
+  - Implemented email functionality for contact form using SendGrid integration
+  - Created comprehensive email service with contact form notifications to info@robertsoneducation.com
+  - Updated all frontend pages with correct school information:
+    - Address: 1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525
+    - Phone: +2348146373297, +2347016774165
+    - Email: info@robertsoneducation.com
+    - Office Hours: Monday-Friday 8:00 AM - 5:00 PM (weekends closed)
+  - Enhanced footer, contact page, and about page with authentic school details
+  - Added regeneration API endpoint for admin-controlled PIN renewal after expiry
 - July 12, 2025. Implemented comprehensive cumulative results system for individual student performance tracking
   - Enhanced student database schema with `passportPhoto` field for Base64 image storage
   - Added passport photo upload to Add Student page with file validation (image types, 5MB limit)

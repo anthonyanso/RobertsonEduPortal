@@ -127,11 +127,11 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <div className="space-y-2 text-gray-300">
               <p className="flex items-center">
                 <MapPin className="h-4 w-4 mr-2" />
-                123 Education Drive, Academic District
+                1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State
               </p>
               <p className="flex items-center">
                 <Phone className="h-4 w-4 mr-2" />
-                +1 (555) 123-4567
+                +2348146373297
               </p>
               <p className="flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
