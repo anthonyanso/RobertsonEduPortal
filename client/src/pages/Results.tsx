@@ -74,14 +74,27 @@ export default function Results() {
         studentContent: data?.student
       });
       
+      // Check if we have valid data
+      if (!data || !data.student) {
+        console.error("Invalid data structure - no student data:", data);
+        setResultData(null);
+        setShowError(true);
+        toast({
+          title: "Error",
+          description: "Student data not found.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       // Check if we have results data
-      if (!data || !data.results || !Array.isArray(data.results)) {
-        console.error("Invalid data structure:", data);
+      if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
+        console.error("No results found for student:", data.student);
         setResultData(null);
         setShowError(true);
         toast({
           title: "No Results Available",
-          description: "No results found for this student.",
+          description: "No results found for this student. Please contact your school administrator.",
           variant: "destructive",
         });
         return;
@@ -106,9 +119,21 @@ export default function Results() {
       
       if (selectedResult) {
         console.log("Found matching result:", selectedResult);
+        
+        // Parse subjects if it's a string
+        let parsedResult = { ...selectedResult };
+        if (typeof selectedResult.subjects === 'string') {
+          try {
+            parsedResult.subjects = JSON.parse(selectedResult.subjects);
+          } catch (error) {
+            console.error("Error parsing subjects:", error);
+            parsedResult.subjects = [];
+          }
+        }
+        
         setResultData({
           student: data.student,
-          result: selectedResult
+          result: parsedResult
         });
         setShowError(false);
         toast({
@@ -121,7 +146,7 @@ export default function Results() {
         setShowError(true);
         toast({
           title: "No Result Found",
-          description: `No result found for ${formValues.session} - ${formValues.term}`,
+          description: `No result found for ${formValues.session} - ${formValues.term}. Available results: ${data.results.map((r: any) => `${r.session} ${r.term}`).join(', ')}`,
           variant: "destructive",
         });
       }
@@ -401,7 +426,7 @@ export default function Results() {
                                 {subject.subject || 'N/A'}
                               </td>
                               <td className="border border-gray-300 px-4 py-2 text-center">
-                                {subject.score || 'N/A'}
+                                {subject.total || subject.score || 'N/A'}
                               </td>
                               <td className={`border border-gray-300 px-4 py-2 text-center font-bold ${getGradeColor(subject.grade)}`}>
                                 {subject.grade || 'N/A'}
