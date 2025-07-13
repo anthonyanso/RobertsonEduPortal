@@ -336,13 +336,13 @@ export default function NewsManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[80px]">Image</TableHead>
-                  <TableHead className="min-w-[150px]">Title</TableHead>
-                  <TableHead className="min-w-[120px] hidden md:table-cell">Author</TableHead>
-                  <TableHead className="min-w-[100px] hidden lg:table-cell">Category</TableHead>
-                  <TableHead className="min-w-[200px] hidden xl:table-cell">Content Preview</TableHead>
-                  <TableHead className="min-w-[80px] hidden sm:table-cell">Status</TableHead>
-                  <TableHead className="min-w-[120px] hidden lg:table-cell">Date</TableHead>
+                  <TableHead className="w-16 sm:w-20">Image</TableHead>
+                  <TableHead className="min-w-[120px]">Title</TableHead>
+                  <TableHead className="min-w-[100px] hidden md:table-cell">Author</TableHead>
+                  <TableHead className="min-w-[80px] hidden lg:table-cell">Category</TableHead>
+                  <TableHead className="min-w-[150px] hidden xl:table-cell">Content Preview</TableHead>
+                  <TableHead className="min-w-[70px] hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="min-w-[100px] hidden lg:table-cell">Date</TableHead>
                   <TableHead className="min-w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -459,9 +459,9 @@ export default function NewsManagement() {
         }
         setIsDialogOpen(open);
       }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">
               {editingNews ? "Edit News Article" : "Create New Article"}
             </DialogTitle>
           </DialogHeader>
@@ -482,7 +482,7 @@ export default function NewsManagement() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="author"

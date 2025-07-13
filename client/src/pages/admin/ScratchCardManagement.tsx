@@ -75,6 +75,15 @@ export default function ScratchCardManagement() {
     const getTemplateStyles = (type: string) => {
       const baseStyles = `
         @page { margin: 15mm; }
+        @media print {
+          .card { 
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .card-grid .card:nth-child(6n) {
+            page-break-after: always;
+          }
+        }
         body { 
           font-family: 'Georgia', serif; 
           margin: 0; 
@@ -364,15 +373,19 @@ export default function ScratchCardManagement() {
           
         case 'bulk':
           return baseStyles + `
-            .card-grid {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 15px;
-              max-width: 1200px;
-              margin: 0 auto;
-            }
-            .card { 
-              background: #ffffff;
+            @media print {
+              .card-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                max-width: 1200px;
+                margin: 0 auto;
+              }
+              .card { 
+                background: #ffffff;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin-bottom: 20px;
               border: 2px solid #d32f2f; 
               border-radius: 8px;
               padding: 15px; 
