@@ -667,6 +667,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve news images
   app.get('/api/news-image/:newsId', async (req, res) => {
     try {
+      const newsId = req.params.newsId;
+      console.log("Fetching image for news ID:", newsId);
+      
+      // Use pool.query to avoid Drizzle ORM issues
+      const result = await pool.query('SELECT featured_image FROM news WHERE id = $1', [parseInt(newsId)]);
+      
+      if (result.rows.length === 0 || !result.rows[0].featured_image) {
+        console.log("No image found for news:", newsId);
+        return res.status(404).json({ message: "Image not found" });
+      }
+
+      const featuredImage = result.rows[0].featured_image;
+      console.log("Found image, length:", featuredImage.length);
+      
+      // Extract the base64 data and mime type
+      const matches = featuredImage.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (!matches) {
+        console.log("Invalid image format for news:", newsId);
+        return res.status(400).json({ message: "Invalid image format" });
+      }
+
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      res.set({
+        'Content-Type': mimeType,
+        'Content-Length': buffer.length,
+        'Cache-Control': 'public, max-age=3600'
+      });
+
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error serving news image:", error);
+      res.status(500).json({ message: "Failed to serve image" });
+    }
+  });
+
+  // Serve news images
+  app.get('/api/news-image/:newsId', async (req, res) => {
+    try {
       const newsId = parseInt(req.params.newsId);
       console.log("Fetching image for news ID:", newsId);
       
@@ -1119,6 +1160,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching admission applications:", error);
       res.status(500).json({ message: "Failed to fetch admission applications" });
+    }
+  });
+
+  // Get admission settings for public display
+  app.get('/api/admission-settings', async (req, res) => {
+    try {
+      const admissionSettings = {
+        isOpen: true,
+        startDate: "2025-01-01",
+        endDate: "2025-03-31",
+        maxApplications: 500,
+        applicationFee: 5000,
+        requirements: "Birth certificate, Previous school report, Passport photograph",
+        availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
+        contactEmail: "info@robertsoneducation.com",
+        contactPhone: "+2348146373297"
+      };
+      res.json(admissionSettings);
+    } catch (error) {
+      console.error("Error fetching admission settings:", error);
+      res.status(500).json({ message: "Failed to fetch admission settings" });
     }
   });
 

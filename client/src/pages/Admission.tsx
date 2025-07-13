@@ -1,12 +1,17 @@
 import { useEffect } from "react";
-import { Download, FileText, Phone, MapPin, Clock } from "lucide-react";
+import { Download, FileText, Phone, MapPin, Clock, Calendar, Users, DollarSign, CheckCircle, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { generateAdmissionPDF } from "@/lib/pdfGenerator";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Admission() {
+  const { data: admissionSettings, isLoading } = useQuery({
+    queryKey: ['/api/admission-settings'],
+  });
+
   const handleDownloadPDF = () => {
-    // Generate a blank PDF form for download
     const blankFormData = {
       firstName: "",
       lastName: "",
@@ -128,6 +133,63 @@ export default function Admission() {
                       </p>
                     </div>
                   </div>
+
+                  {/* Admission Status */}
+                  {admissionSettings && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                        <h3 className="font-semibold text-green-800">Admission Status</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-700">
+                            Application Period: {new Date(admissionSettings.startDate).toLocaleDateString()} - {new Date(admissionSettings.endDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-700">
+                            Maximum Applications: {admissionSettings.maxApplications}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-700">
+                            Application Fee: ₦{admissionSettings.applicationFee?.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Available Classes */}
+                  {admissionSettings && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                      <h3 className="font-semibold text-blue-800 mb-4">Available Classes</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {admissionSettings.availableClasses.map((cls: string) => (
+                          <Badge key={cls} variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+                            {cls}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Required Documents */}
+                  {admissionSettings && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+                      <h3 className="font-semibold text-orange-800 mb-3">
+                        <FileText className="inline-block mr-2 h-5 w-5" />
+                        Required Documents
+                      </h3>
+                      <p className="text-orange-700">
+                        {admissionSettings.requirements}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-3 flex items-center">

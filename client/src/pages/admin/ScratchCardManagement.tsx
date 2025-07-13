@@ -70,7 +70,9 @@ export default function ScratchCardManagement() {
 
   // Professional template generator function
   const generateProfessionalTemplate = (cards: ScratchCard[], templateType: string) => {
-    const logoPath = '/attached_assets/logo_1751823007371.png';
+    const logoPath = `${window.location.origin}/attached_assets/logo_1751823007371.png`;
+    // Alternative logo in case URL doesn't work
+    const logoBase64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjQ1IiBmaWxsPSIjZDMyZjJmIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI1MCIgeT0iNTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+UkU8L3RleHQ+Cjwvc3ZnPgo=";
     
     const getTemplateStyles = (type: string) => {
       const baseStyles = `
@@ -602,7 +604,7 @@ export default function ScratchCardManagement() {
             <div class="card">
               <div class="card-header">
                 <div class="logo">
-                  <img src="${logoPath}" alt="Robertson Education" style="width: 100%; height: 100%; object-fit: contain;" />
+                  <img src="${logoPath}" alt="Robertson Education" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='${logoBase64}'; this.alt='RE';" />
                 </div>
                 <div class="school-info">
                   <div class="school-name">ROBERTSON EDUCATION</div>
