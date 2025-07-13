@@ -74,40 +74,53 @@ export default function ScratchCardManagement() {
     
     const getTemplateStyles = (type: string) => {
       const baseStyles = `
-        @page { margin: 15mm; }
+        @page { 
+          margin: 10mm; 
+          size: A4;
+        }
         @media print {
+          body { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background: white !important;
+          }
           .card { 
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            margin: 5px !important;
+            box-shadow: none !important;
+          }
+          .card-grid {
+            page-break-inside: auto !important;
           }
           .card-grid .card:nth-child(6n) {
-            page-break-after: always;
+            page-break-after: always !important;
           }
         }
         body { 
           font-family: 'Georgia', serif; 
           margin: 0; 
-          padding: 20px; 
-          background: #f8f9fa; 
+          padding: 10px; 
+          background: white; 
         }
         .page-header {
           text-align: center;
-          margin-bottom: 30px;
-          border-bottom: 3px solid #d32f2f;
-          padding-bottom: 20px;
+          margin-bottom: 20px;
+          border-bottom: 2px solid #d32f2f;
+          padding-bottom: 15px;
         }
         .page-title {
-          font-size: 28px;
+          font-size: 24px;
           color: #d32f2f;
           font-weight: bold;
           margin: 0;
           text-transform: uppercase;
-          letter-spacing: 2px;
+          letter-spacing: 1px;
         }
         .page-subtitle {
-          font-size: 14px;
+          font-size: 12px;
           color: #666;
-          margin: 10px 0;
+          margin: 8px 0;
         }
       `;
 
@@ -116,19 +129,25 @@ export default function ScratchCardManagement() {
           return baseStyles + `
             .card-grid {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-              gap: 25px;
-              max-width: 1200px;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 15px;
+              max-width: 100%;
               margin: 0 auto;
+            }
+            @media print {
+              .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+              }
             }
             .card { 
               background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
-              border: 3px solid #d32f2f; 
-              border-radius: 15px;
-              padding: 25px; 
-              width: 320px; 
-              height: 200px; 
-              box-shadow: 0 10px 30px rgba(211, 47, 47, 0.2);
+              border: 2px solid #d32f2f; 
+              border-radius: 10px;
+              padding: 15px; 
+              width: 280px; 
+              height: 160px; 
+              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.2);
               position: relative;
               overflow: hidden;
             }
@@ -144,91 +163,91 @@ export default function ScratchCardManagement() {
             .card-header {
               display: flex;
               align-items: center;
-              margin-bottom: 20px;
-              padding-bottom: 15px;
-              border-bottom: 2px solid #e0e0e0;
+              margin-bottom: 12px;
+              padding-bottom: 8px;
+              border-bottom: 1px solid #e0e0e0;
             }
             .logo {
-              width: 50px;
-              height: 50px;
+              width: 35px;
+              height: 35px;
               background-image: url('${logoPath}');
               background-size: contain;
               background-repeat: no-repeat;
               background-position: center;
-              margin-right: 15px;
+              margin-right: 10px;
               border-radius: 50%;
-              border: 2px solid #d32f2f;
-              padding: 5px;
+              border: 1px solid #d32f2f;
+              padding: 3px;
             }
             .school-info {
               flex: 1;
             }
             .school-name {
-              font-size: 16px;
+              font-size: 12px;
               font-weight: bold;
               color: #d32f2f;
-              line-height: 1.2;
+              line-height: 1.1;
               margin: 0;
             }
             .card-type {
-              font-size: 11px;
+              font-size: 9px;
               color: #666;
-              margin-top: 3px;
+              margin-top: 2px;
             }
             .serial-section {
-              margin: 15px 0;
+              margin: 8px 0;
             }
             .serial-label {
-              font-size: 12px;
+              font-size: 10px;
               color: #666;
-              margin-bottom: 5px;
+              margin-bottom: 4px;
               font-weight: bold;
             }
             .serial-number {
-              font-size: 14px;
+              font-size: 11px;
               font-weight: bold;
               color: #333;
               font-family: 'Courier New', monospace;
               background: #f0f0f0;
-              padding: 8px;
-              border-radius: 5px;
+              padding: 5px;
+              border-radius: 3px;
             }
             .pin-section {
               background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
               color: white;
-              padding: 15px;
-              border-radius: 10px;
+              padding: 10px;
+              border-radius: 8px;
               text-align: center;
-              margin: 15px 0;
-              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+              margin: 8px 0;
+              box-shadow: 0 3px 10px rgba(211, 47, 47, 0.3);
             }
             .pin-label {
-              font-size: 11px;
-              margin-bottom: 8px;
+              font-size: 9px;
+              margin-bottom: 5px;
               opacity: 0.9;
               font-weight: bold;
             }
             .pin-code {
-              font-size: 22px;
+              font-size: 16px;
               font-weight: bold;
               font-family: 'Courier New', monospace;
-              letter-spacing: 3px;
+              letter-spacing: 2px;
             }
             .card-footer {
               display: flex;
               justify-content: space-between;
-              font-size: 10px;
+              font-size: 8px;
               color: #666;
-              margin-top: 15px;
+              margin-top: 8px;
             }
             .validity {
               font-weight: bold;
             }
             .watermark {
               position: absolute;
-              bottom: 15px;
-              right: 20px;
-              font-size: 10px;
+              bottom: 10px;
+              right: 15px;
+              font-size: 8px;
               color: #ccc;
               transform: rotate(-15deg);
               font-weight: bold;
@@ -239,19 +258,25 @@ export default function ScratchCardManagement() {
           return baseStyles + `
             .card-grid {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-              gap: 30px;
-              max-width: 1200px;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 20px;
+              max-width: 100%;
               margin: 0 auto;
+            }
+            @media print {
+              .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+              }
             }
             .card { 
               background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-              border: 4px solid #d32f2f; 
-              border-radius: 20px;
-              padding: 30px; 
-              width: 350px; 
-              height: 250px; 
-              box-shadow: 0 15px 40px rgba(211, 47, 47, 0.25);
+              border: 3px solid #d32f2f; 
+              border-radius: 15px;
+              padding: 18px; 
+              width: 300px; 
+              height: 180px; 
+              box-shadow: 0 8px 25px rgba(211, 47, 47, 0.25);
               position: relative;
               overflow: hidden;
             }
@@ -277,94 +302,94 @@ export default function ScratchCardManagement() {
             .card-header {
               display: flex;
               align-items: center;
-              margin-bottom: 25px;
-              padding-bottom: 20px;
-              border-bottom: 3px solid #e0e0e0;
+              margin-bottom: 15px;
+              padding-bottom: 12px;
+              border-bottom: 2px solid #e0e0e0;
             }
             .logo {
-              width: 60px;
-              height: 60px;
+              width: 40px;
+              height: 40px;
               background-image: url('${logoPath}');
               background-size: contain;
               background-repeat: no-repeat;
               background-position: center;
-              margin-right: 20px;
+              margin-right: 12px;
               border-radius: 50%;
-              border: 3px solid #d32f2f;
-              padding: 8px;
-              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+              border: 2px solid #d32f2f;
+              padding: 5px;
+              box-shadow: 0 3px 10px rgba(211, 47, 47, 0.3);
             }
             .school-info {
               flex: 1;
             }
             .school-name {
-              font-size: 18px;
+              font-size: 13px;
               font-weight: bold;
               color: #d32f2f;
               line-height: 1.2;
               margin: 0;
             }
             .card-type {
-              font-size: 12px;
+              font-size: 10px;
               color: #666;
-              margin-top: 5px;
+              margin-top: 3px;
               font-style: italic;
             }
             .serial-section {
-              margin: 20px 0;
+              margin: 12px 0;
             }
             .serial-label {
-              font-size: 13px;
+              font-size: 11px;
               color: #666;
-              margin-bottom: 8px;
+              margin-bottom: 5px;
               font-weight: bold;
             }
             .serial-number {
-              font-size: 16px;
+              font-size: 12px;
               font-weight: bold;
               color: #333;
               font-family: 'Courier New', monospace;
               background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
-              padding: 12px;
-              border-radius: 8px;
-              border: 2px solid #ddd;
+              padding: 8px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
             }
             .pin-section {
               background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
               color: white;
-              padding: 20px;
-              border-radius: 15px;
+              padding: 12px;
+              border-radius: 12px;
               text-align: center;
-              margin: 20px 0;
-              box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
+              margin: 12px 0;
+              box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
             }
             .pin-label {
-              font-size: 12px;
-              margin-bottom: 10px;
+              font-size: 10px;
+              margin-bottom: 6px;
               opacity: 0.9;
               font-weight: bold;
             }
             .pin-code {
-              font-size: 26px;
+              font-size: 18px;
               font-weight: bold;
               font-family: 'Courier New', monospace;
-              letter-spacing: 4px;
+              letter-spacing: 2px;
             }
             .card-footer {
               display: flex;
               justify-content: space-between;
-              font-size: 11px;
+              font-size: 9px;
               color: #666;
-              margin-top: 20px;
+              margin-top: 12px;
             }
             .validity {
               font-weight: bold;
             }
             .watermark {
               position: absolute;
-              bottom: 20px;
-              right: 25px;
-              font-size: 12px;
+              bottom: 12px;
+              right: 18px;
+              font-size: 10px;
               color: #ccc;
               transform: rotate(-15deg);
               font-weight: bold;
@@ -377,15 +402,15 @@ export default function ScratchCardManagement() {
               .card-grid {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 15px;
-                max-width: 1200px;
+                gap: 8px;
+                max-width: 100%;
                 margin: 0 auto;
               }
               .card { 
                 background: #ffffff;
                 page-break-inside: avoid;
                 break-inside: avoid;
-                margin-bottom: 20px;
+                margin-bottom: 10px;
               border: 2px solid #d32f2f; 
               border-radius: 8px;
               padding: 15px; 

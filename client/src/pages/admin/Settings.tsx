@@ -1,0 +1,532 @@
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Settings as SettingsIcon, School, Mail, Phone, MapPin, Clock, Save, RefreshCw } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const schoolInfoSchema = z.object({
+  schoolName: z.string().min(1, "School name is required"),
+  address: z.string().min(1, "Address is required"),
+  phone1: z.string().min(1, "Primary phone is required"),
+  phone2: z.string().optional(),
+  email: z.string().email("Invalid email address"),
+  website: z.string().url("Invalid website URL").optional().or(z.literal("")),
+  registrationNumber: z.string().min(1, "Registration number is required"),
+  motto: z.string().optional(),
+  vision: z.string().optional(),
+  mission: z.string().optional(),
+});
+
+const systemSettingsSchema = z.object({
+  enableResultChecker: z.boolean(),
+  enableAdmissions: z.boolean(),
+  enableNewsSystem: z.boolean(),
+  maxScratchCardUsage: z.number().min(1).max(100),
+  scratchCardExpiryDays: z.number().min(1).max(365),
+  autoGenerateStudentId: z.boolean(),
+  emailNotifications: z.boolean(),
+  maintenanceMode: z.boolean(),
+});
+
+type SchoolInfoData = z.infer<typeof schoolInfoSchema>;
+type SystemSettingsData = z.infer<typeof systemSettingsSchema>;
+
+export default function Settings() {
+  const [activeTab, setActiveTab] = useState("school");
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+
+  const schoolForm = useForm<SchoolInfoData>({
+    resolver: zodResolver(schoolInfoSchema),
+    defaultValues: {
+      schoolName: "Robertson Education",
+      address: "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+      phone1: "+2348146373297",
+      phone2: "+2347016774165",
+      email: "info@robertsoneducation.com",
+      website: "",
+      registrationNumber: "7779525",
+      motto: "Excellence in Education",
+      vision: "To be the leading educational institution in Nigeria",
+      mission: "To provide quality education and shape future leaders",
+    },
+  });
+
+  const systemForm = useForm<SystemSettingsData>({
+    resolver: zodResolver(systemSettingsSchema),
+    defaultValues: {
+      enableResultChecker: true,
+      enableAdmissions: true,
+      enableNewsSystem: true,
+      maxScratchCardUsage: 30,
+      scratchCardExpiryDays: 90,
+      autoGenerateStudentId: true,
+      emailNotifications: true,
+      maintenanceMode: false,
+    },
+  });
+
+  const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
+    setIsSaving(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Success",
+        description: "School information updated successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update school information",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const onSubmitSystemSettings = async (data: SystemSettingsData) => {
+    setIsSaving(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Success",
+        description: "System settings updated successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update system settings",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const resetToDefaults = () => {
+    if (activeTab === "school") {
+      schoolForm.reset();
+    } else {
+      systemForm.reset();
+    }
+    toast({
+      title: "Reset Complete",
+      description: "Settings have been reset to default values",
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center space-x-3">
+          <SettingsIcon className="h-8 w-8 text-red-600" />
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Settings Management</h1>
+            <p className="text-sm sm:text-base text-gray-600">Configure school information and system settings</p>
+          </div>
+        </div>
+        <Button 
+          onClick={resetToDefaults}
+          variant="outline"
+          className="w-full sm:w-auto"
+          disabled={isSaving}
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Reset to Defaults
+        </Button>
+      </div>
+
+      {/* Settings Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="school" className="flex items-center space-x-2">
+            <School className="h-4 w-4" />
+            <span>School Info</span>
+          </TabsTrigger>
+          <TabsTrigger value="system" className="flex items-center space-x-2">
+            <SettingsIcon className="h-4 w-4" />
+            <span>System</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* School Information Tab */}
+        <TabsContent value="school" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <School className="h-5 w-5" />
+                <span>School Information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...schoolForm}>
+                <form onSubmit={schoolForm.handleSubmit(onSubmitSchoolInfo)} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={schoolForm.control}
+                      name="schoolName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>School Name *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter school name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={schoolForm.control}
+                      name="registrationNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Registration Number *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter registration number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={schoolForm.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address *</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Enter school address" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={schoolForm.control}
+                      name="phone1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Primary Phone *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter primary phone" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={schoolForm.control}
+                      name="phone2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Secondary Phone</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter secondary phone" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={schoolForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email *</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="Enter email address" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={schoolForm.control}
+                      name="website"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Website</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter website URL" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={schoolForm.control}
+                    name="motto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>School Motto</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter school motto" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={schoolForm.control}
+                    name="vision"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vision Statement</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Enter vision statement" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={schoolForm.control}
+                    name="mission"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mission Statement</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Enter mission statement" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
+                    {isSaving ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Save School Information
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* System Settings Tab */}
+        <TabsContent value="system" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <SettingsIcon className="h-5 w-5" />
+                <span>System Configuration</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...systemForm}>
+                <form onSubmit={systemForm.handleSubmit(onSubmitSystemSettings)} className="space-y-6">
+                  {/* Feature Controls */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Feature Controls</h3>
+                    
+                    <FormField
+                      control={systemForm.control}
+                      name="enableResultChecker"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Result Checker</FormLabel>
+                            <FormDescription>Enable student result checking system</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={systemForm.control}
+                      name="enableAdmissions"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Admissions</FormLabel>
+                            <FormDescription>Enable online admission applications</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={systemForm.control}
+                      name="enableNewsSystem"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">News System</FormLabel>
+                            <FormDescription>Enable news and announcements</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Scratch Card Settings */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Scratch Card Settings</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={systemForm.control}
+                        name="maxScratchCardUsage"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Max Usage per Card</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="1" 
+                                max="100" 
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormDescription>Maximum number of times a card can be used</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={systemForm.control}
+                        name="scratchCardExpiryDays"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Expiry Days</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="1" 
+                                max="365" 
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormDescription>Number of days before card expires</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Other Settings */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Other Settings</h3>
+                    
+                    <FormField
+                      control={systemForm.control}
+                      name="autoGenerateStudentId"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Auto-Generate Student ID</FormLabel>
+                            <FormDescription>Automatically generate student IDs</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={systemForm.control}
+                      name="emailNotifications"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Email Notifications</FormLabel>
+                            <FormDescription>Send email notifications to administrators</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={systemForm.control}
+                      name="maintenanceMode"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Maintenance Mode</FormLabel>
+                            <FormDescription>Enable maintenance mode (disables public access)</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
+                    {isSaving ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Save System Settings
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

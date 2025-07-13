@@ -18,6 +18,8 @@ import ResultAnalytics from "./ResultAnalytics";
 import CumulativeResults from "./CumulativeResults";
 import ScratchCardManagement from "./ScratchCardManagement";
 import NewsManagement from "./NewsManagement";
+// @ts-ignore
+import SettingsPage from "./Settings";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -260,16 +262,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
               </CardContent>
             </Card>
           )}
-          {activeTab === "settings" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Settings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Settings interface will be implemented here.</p>
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "settings" && <SettingsPage />}
         </main>
       </div>
     </div>
