@@ -102,7 +102,7 @@ export default function AdmissionManagement() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          key: 'admission',
+          key: 'admission_settings',
           value: JSON.stringify(data)
         })
       });
@@ -329,13 +329,13 @@ export default function AdmissionManagement() {
               <div>
                 <p className="text-sm text-gray-600">Admission Status</p>
                 <p className="text-lg font-bold text-green-600">
-                  {currentSettings.isOpen ? "Open" : "Closed"}
+  {currentSettings?.isOpen ? "Open" : "Closed"}
                 </p>
               </div>
               <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                currentSettings.isOpen ? 'bg-green-100' : 'bg-red-100'
+                currentSettings?.isOpen ? 'bg-green-100' : 'bg-red-100'
               }`}>
-                {currentSettings.isOpen ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
+                {currentSettings?.isOpen ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
               </div>
             </div>
           </CardContent>
@@ -345,7 +345,7 @@ export default function AdmissionManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Application Fee</p>
-                <p className="text-lg font-bold">₦{currentSettings.applicationFee.toLocaleString()}</p>
+                <p className="text-lg font-bold">₦{currentSettings?.applicationFee?.toLocaleString() || '0'}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                 <Users className="h-5 w-5 text-blue-600" />
@@ -358,7 +358,7 @@ export default function AdmissionManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Available Classes</p>
-                <p className="text-lg font-bold">{currentSettings.availableClasses.length}</p>
+                <p className="text-lg font-bold">{currentSettings?.availableClasses?.length || 0}</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
                 <GraduationCap className="h-5 w-5 text-purple-600" />
@@ -379,32 +379,32 @@ export default function AdmissionManagement() {
               <div>
                 <h4 className="font-medium text-gray-900">Application Period</h4>
                 <p className="text-sm text-gray-600">
-                  {new Date(currentSettings.startDate).toLocaleDateString()} - {new Date(currentSettings.endDate).toLocaleDateString()}
+                  {currentSettings?.startDate ? new Date(currentSettings.startDate).toLocaleDateString() : 'N/A'} - {currentSettings?.endDate ? new Date(currentSettings.endDate).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Maximum Applications</h4>
-                <p className="text-sm text-gray-600">{currentSettings.maxApplications} applications</p>
+                <p className="text-sm text-gray-600">{currentSettings?.maxApplications || 0} applications</p>
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Contact Information</h4>
-                <p className="text-sm text-gray-600">{currentSettings.contactEmail}</p>
-                <p className="text-sm text-gray-600">{currentSettings.contactPhone}</p>
+                <p className="text-sm text-gray-600">{currentSettings?.contactEmail || 'N/A'}</p>
+                <p className="text-sm text-gray-600">{currentSettings?.contactPhone || 'N/A'}</p>
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Available Classes</h4>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {currentSettings.availableClasses.map((cls) => (
+                  {currentSettings?.availableClasses?.map((cls) => (
                     <Badge key={cls} variant="secondary" className="text-xs">
                       {cls}
                     </Badge>
-                  ))}
+                  )) || <span className="text-gray-500">No classes available</span>}
                 </div>
               </div>
             </div>
             <div>
               <h4 className="font-medium text-gray-900">Requirements</h4>
-              <p className="text-sm text-gray-600 mt-1">{currentSettings.requirements}</p>
+              <p className="text-sm text-gray-600 mt-1">{currentSettings?.requirements || 'No requirements specified'}</p>
             </div>
           </div>
         </CardContent>

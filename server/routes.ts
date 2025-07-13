@@ -1167,7 +1167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admission-settings', async (req, res) => {
     try {
       const schoolInfo = await storage.getSchoolInfo();
-      const admissionInfo = schoolInfo.find(info => info.key === 'admission');
+      const admissionInfo = schoolInfo.find(info => info.key === 'admission' || info.key === 'admission_settings');
       
       if (admissionInfo && admissionInfo.value) {
         const settings = JSON.parse(admissionInfo.value);
