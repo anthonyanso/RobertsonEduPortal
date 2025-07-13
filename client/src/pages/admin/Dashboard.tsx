@@ -498,32 +498,6 @@ export default function Admin({ onNavigate }: DashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Statistics Row */}
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                      <div className="text-2xl font-bold text-gray-900">{scratchCards.length}</div>
-                      <div className="text-sm text-gray-600">Total Cards</div>
-                    </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
-                        {scratchCards.filter((card: any) => card.status === 'unused' && new Date(card.expiryDate) > new Date()).length}
-                      </div>
-                      <div className="text-sm text-gray-600">Active</div>
-                    </div>
-                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                      <div className="text-2xl font-bold text-gray-600">
-                        {scratchCards.filter((card: any) => card.status === 'used').length}
-                      </div>
-                      <div className="text-sm text-gray-600">Used</div>
-                    </div>
-                    <div className="text-center p-4 bg-red-50 rounded-lg">
-                      <div className="text-2xl font-bold text-red-600">
-                        {scratchCards.filter((card: any) => card.status === 'expired' || new Date(card.expiryDate) < new Date()).length}
-                      </div>
-                      <div className="text-sm text-gray-600">Expired</div>
-                    </div>
-                  </div>
-
                   {/* Recent Cards Table */}
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
