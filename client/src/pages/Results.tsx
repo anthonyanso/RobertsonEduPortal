@@ -59,11 +59,33 @@ export default function Results() {
 
   const checkResultMutation = useMutation({
     mutationFn: async (data: ResultFormData) => {
-      const response = await apiRequest("POST", "/api/check-result", data);
-      return response.json();
+      const [session, term] = data.session.split('-');
+      const response = await apiRequest("POST", "/api/verify-scratch-card", {
+        pin: data.pin,
+        studentId: data.studentId
+      });
+      return response;
     },
     onSuccess: (data) => {
-      setResultData(data);
+      // Transform the response to match the expected format
+      const transformedData = {
+        student: {
+          name: `${data.student.firstName} ${data.student.lastName}`,
+          studentId: data.student.studentId,
+          gradeLevel: data.student.gradeLevel,
+        },
+        result: data.results.length > 0 ? {
+          session: data.results[0].session,
+          term: data.results[0].term,
+          subjects: data.results[0].subjects,
+          totalScore: data.results[0].totalScore,
+          average: data.results[0].average,
+          gpa: data.results[0].gpa,
+          position: data.results[0].position,
+          remarks: data.results[0].remarks,
+        } : null
+      };
+      setResultData(transformedData);
       setShowError(false);
       toast({
         title: "Result Found",
@@ -82,12 +104,7 @@ export default function Results() {
   });
 
   const onSubmit = (data: ResultFormData) => {
-    const [session, term] = data.session.split('-');
-    checkResultMutation.mutate({
-      ...data,
-      session,
-      term,
-    });
+    checkResultMutation.mutate(data);
   };
 
   const handlePrint = () => {

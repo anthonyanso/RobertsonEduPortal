@@ -362,69 +362,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Result checker route
-  app.post('/api/check-result', async (req, res) => {
-    try {
-      const { studentId, pin, session, term } = req.body;
-      
-      // Check if scratch card is valid
-      const scratchCard = await storage.getScratchCardByPin(pin);
-      if (!scratchCard) {
-        return res.status(400).json({ message: "Invalid scratch card PIN" });
-      }
-
-      // Check if scratch card is expired
-      if (new Date() > scratchCard.expiryDate) {
-        return res.status(400).json({ message: "Scratch card has expired" });
-      }
-
-      // Check if scratch card has been used too many times
-      if (scratchCard.usageCount >= scratchCard.usageLimit) {
-        return res.status(400).json({ message: "Scratch card has reached its usage limit" });
-      }
-
-      // Get student result
-      const result = await storage.getResultByStudentAndSession(studentId, session, term);
-      if (!result) {
-        return res.status(404).json({ message: "Result not found for the specified student and session" });
-      }
-
-      // Get student info
-      const student = await storage.getStudentByStudentId(studentId);
-      if (!student) {
-        return res.status(404).json({ message: "Student not found" });
-      }
-
-      // Update scratch card usage
-      await storage.updateScratchCard(scratchCard.id, {
-        usageCount: scratchCard.usageCount + 1,
-        usedAt: new Date(),
-        usedBy: studentId,
-      });
-
-      res.json({
-        student: {
-          name: `${student.firstName} ${student.lastName}`,
-          studentId: student.studentId,
-          gradeLevel: student.gradeLevel,
-        },
-        result: {
-          session: result.session,
-          term: result.term,
-          subjects: result.subjects,
-          totalScore: result.totalScore,
-          average: result.average,
-          gpa: result.gpa,
-          position: result.position,
-          remarks: result.remarks,
-        },
-      });
-    } catch (error) {
-      console.error("Error checking result:", error);
-      res.status(500).json({ message: "Failed to check result" });
-    }
-  });
-
   // School info route
   app.get('/api/school-info', async (req, res) => {
     try {
@@ -719,7 +656,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { count = 1, durationMonths = 3 } = req.body;
       const scratchCards = [];
-      const bcrypt = require('bcryptjs');
       
       for (let i = 0; i < count; i++) {
         const serialNumber = `ROB-${Date.now()}-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
@@ -780,7 +716,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/scratch-cards/:id/regenerate-pin', isAdminAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const bcrypt = require('bcryptjs');
       
       const pin = Math.random().toString(36).substr(2, 12).toUpperCase();
       const pinHash = await bcrypt.hash(pin, 10);
@@ -857,7 +792,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Verify PIN hash
-      const bcrypt = require('bcryptjs');
       const isValidPin = await bcrypt.compare(pin, card.pinHash);
       if (!isValidPin) {
         return res.status(400).json({ message: "Invalid PIN" });
