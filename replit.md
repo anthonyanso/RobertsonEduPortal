@@ -210,6 +210,11 @@ Changelog:
   - Added cumulative summary with overall grade classifications (DISTINCTION, CREDIT, PASS, FAIL)
   - Created professional printable format with signatures section for teachers and parents
   - Enhanced navigation with new "Cumulative Results" option under Results dropdown menu
+  - Optimized cumulative results print template to fit on one page with compact layout
+  - Changed print layout to 3-column grid for terms (First, Second, Third) with condensed subject tables
+  - Reduced font sizes and margins for better space utilization while maintaining readability
+  - Limited subject display to top 5 subjects per term to save space
+  - Implemented compact summary grid with essential performance metrics
 
 ## User Preferences
 

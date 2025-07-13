@@ -145,28 +145,144 @@ export default function CumulativeResults() {
           <head>
             <title>Cumulative Report - ${studentResult.student.firstName} ${studentResult.student.lastName}</title>
             <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .logo { width: 65px; height: 65px; margin: 0 auto 10px; }
-              .student-info { margin-bottom: 30px; }
-              .term-section { margin-bottom: 25px; }
-              .term-title { background-color: #f0f0f0; padding: 10px; font-weight: bold; }
-              table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              th { background-color: #f2f2f2; font-weight: bold; }
-              .summary { margin-top: 30px; padding: 20px; background-color: #f9f9f9; }
-              .grade-excellent { color: green; font-weight: bold; }
-              .grade-good { color: blue; font-weight: bold; }
-              .grade-fair { color: orange; font-weight: bold; }
-              .grade-poor { color: red; font-weight: bold; }
-              .signatures { margin-top: 40px; display: flex; justify-content: space-between; }
-              .signature { text-align: center; width: 200px; }
-              .signature-line { border-bottom: 1px solid #000; margin-bottom: 5px; height: 40px; }
-              .trend-up { color: green; font-weight: bold; }
-              .trend-down { color: red; font-weight: bold; }
-              .trend-stable { color: gray; font-weight: bold; }
+              @page { 
+                size: A4; 
+                margin: 10mm; 
+              }
+              body { 
+                font-family: Arial, sans-serif; 
+                font-size: 10px; 
+                line-height: 1.2; 
+                margin: 0; 
+                padding: 0; 
+              }
+              .header { 
+                text-align: center; 
+                margin-bottom: 15px; 
+                border-bottom: 1px solid #000; 
+                padding-bottom: 10px; 
+              }
+              .logo { 
+                width: 40px; 
+                height: 40px; 
+                margin: 0 auto 5px; 
+              }
+              .header h1 { 
+                font-size: 14px; 
+                margin: 5px 0; 
+                color: #d32f2f; 
+              }
+              .header h2 { 
+                font-size: 12px; 
+                margin: 3px 0; 
+              }
+              .student-info { 
+                background: #f9f9f9; 
+                padding: 8px; 
+                margin-bottom: 15px; 
+                border-radius: 4px; 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 10px; 
+                font-size: 9px; 
+              }
+              .terms-container { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr 1fr; 
+                gap: 8px; 
+                margin-bottom: 15px; 
+              }
+              .term-compact { 
+                border: 1px solid #ccc; 
+                padding: 6px; 
+                border-radius: 4px; 
+                font-size: 8px; 
+              }
+              .term-compact h4 { 
+                margin: 0 0 6px 0; 
+                font-size: 9px; 
+                color: #d32f2f; 
+                text-align: center; 
+                background: #f0f0f0; 
+                padding: 3px; 
+                border-radius: 2px; 
+              }
+              .term-compact table { 
+                width: 100%; 
+                border-collapse: collapse; 
+                font-size: 7px; 
+                margin-bottom: 4px; 
+              }
+              .term-compact th, 
+              .term-compact td { 
+                border: 1px solid #ddd; 
+                padding: 2px; 
+                text-align: left; 
+              }
+              .term-compact th { 
+                background: #f8f8f8; 
+                font-weight: bold; 
+              }
+              .term-stats { 
+                font-size: 8px; 
+                text-align: center; 
+                font-weight: bold; 
+                background: #f9f9f9; 
+                padding: 3px; 
+                border-radius: 2px; 
+                margin-top: 4px; 
+              }
+              .no-record { 
+                text-align: center; 
+                color: #666; 
+                font-style: italic; 
+                padding: 20px; 
+              }
+              .summary { 
+                background: #f9f9f9; 
+                padding: 10px; 
+                border-radius: 4px; 
+                margin-bottom: 15px; 
+                font-size: 9px; 
+              }
+              .summary h3 { 
+                margin: 0 0 8px 0; 
+                font-size: 11px; 
+                color: #d32f2f; 
+                text-align: center; 
+              }
+              .summary-grid { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 8px; 
+              }
+              .grade-excellent { color: #2e7d32; font-weight: bold; }
+              .grade-good { color: #1976d2; font-weight: bold; }
+              .grade-fair { color: #f57c00; font-weight: bold; }
+              .grade-poor { color: #d32f2f; font-weight: bold; }
+              .trend-up { color: #2e7d32; font-weight: bold; }
+              .trend-down { color: #d32f2f; font-weight: bold; }
+              .trend-stable { color: #757575; font-weight: bold; }
+              .signatures { 
+                display: flex; 
+                justify-content: space-between; 
+                margin-top: 15px; 
+              }
+              .signature { 
+                text-align: center; 
+                width: 30%; 
+                font-size: 8px; 
+              }
+              .signature-line { 
+                border-bottom: 1px solid #000; 
+                margin-bottom: 3px; 
+                height: 25px; 
+              }
               @media print {
-                body { margin: 0; }
+                body { 
+                  print-color-adjust: exact; 
+                  -webkit-print-color-adjust: exact; 
+                }
                 .no-print { display: none; }
               }
             </style>
@@ -179,96 +295,119 @@ export default function CumulativeResults() {
             </div>
             
             <div class="student-info">
-              <h3>Student Information</h3>
-              <p><strong>Name:</strong> ${studentResult.student.firstName} ${studentResult.student.lastName}</p>
-              <p><strong>Student ID:</strong> ${studentResult.student.studentId}</p>
-              <p><strong>Class:</strong> ${selectedClass}</p>
-              <p><strong>Session:</strong> ${selectedSession}</p>
-              <p><strong>Overall Position:</strong> ${studentResult.cumulativePosition} out of ${cumulativeResults.length}</p>
-              <p><strong>Generated on:</strong> ${new Date().toLocaleDateString()}</p>
+              <div>
+                <p><strong>Name:</strong> ${studentResult.student.firstName} ${studentResult.student.lastName}</p>
+                <p><strong>Student ID:</strong> ${studentResult.student.studentId}</p>
+                <p><strong>Class:</strong> ${selectedClass}</p>
+              </div>
+              <div>
+                <p><strong>Session:</strong> ${selectedSession}</p>
+                <p><strong>Position:</strong> ${studentResult.cumulativePosition} of ${cumulativeResults.length}</p>
+                <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+              </div>
             </div>
 
-            ${studentResult.firstTerm ? `
-            <div class="term-section">
-              <div class="term-title">FIRST TERM PERFORMANCE</div>
-              <table>
-                <thead>
-                  <tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr>
-                </thead>
-                <tbody>
-                  ${studentResult.firstTerm.subjects.map(subject => `
-                    <tr>
-                      <td>${subject.subject}</td>
-                      <td>${subject.score}</td>
-                      <td>${subject.grade}</td>
-                      <td>${subject.remark || 'Good'}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-              <p><strong>Average:</strong> ${typeof studentResult.firstTerm.average === 'number' ? studentResult.firstTerm.average.toFixed(1) : 'N/A'}% | <strong>GPA:</strong> ${typeof studentResult.firstTerm.gpa === 'number' ? studentResult.firstTerm.gpa.toFixed(2) : 'N/A'} | <strong>Position:</strong> ${studentResult.firstTerm.position}/${studentResult.firstTerm.outOf}</p>
-            </div>
-            ` : '<div class="term-section"><div class="term-title">FIRST TERM PERFORMANCE</div><p>No record found</p></div>'}
+            <div class="terms-container">
+              ${studentResult.firstTerm ? `
+              <div class="term-compact">
+                <h4>FIRST TERM</h4>
+                <table>
+                  <thead>
+                    <tr><th>Subject</th><th>Score</th><th>Grade</th></tr>
+                  </thead>
+                  <tbody>
+                    ${studentResult.firstTerm.subjects.slice(0, 5).map(subject => `
+                      <tr>
+                        <td>${subject.subject}</td>
+                        <td>${subject.score}</td>
+                        <td>${subject.grade}</td>
+                      </tr>
+                    `).join('')}
+                    ${studentResult.firstTerm.subjects.length > 5 ? '<tr><td colspan="3">... and more</td></tr>' : ''}
+                  </tbody>
+                </table>
+                <div class="term-stats">
+                  Avg: ${typeof studentResult.firstTerm.average === 'number' ? studentResult.firstTerm.average.toFixed(1) : 'N/A'}% | 
+                  GPA: ${typeof studentResult.firstTerm.gpa === 'number' ? studentResult.firstTerm.gpa.toFixed(2) : 'N/A'} | 
+                  Pos: ${studentResult.firstTerm.position}/${studentResult.firstTerm.outOf}
+                </div>
+              </div>
+              ` : '<div class="term-compact"><h4>FIRST TERM</h4><div class="no-record">No record found</div></div>'}
 
-            ${studentResult.secondTerm ? `
-            <div class="term-section">
-              <div class="term-title">SECOND TERM PERFORMANCE</div>
-              <table>
-                <thead>
-                  <tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr>
-                </thead>
-                <tbody>
-                  ${studentResult.secondTerm.subjects.map(subject => `
-                    <tr>
-                      <td>${subject.subject}</td>
-                      <td>${subject.score}</td>
-                      <td>${subject.grade}</td>
-                      <td>${subject.remark || 'Good'}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-              <p><strong>Average:</strong> ${typeof studentResult.secondTerm.average === 'number' ? studentResult.secondTerm.average.toFixed(1) : 'N/A'}% | <strong>GPA:</strong> ${typeof studentResult.secondTerm.gpa === 'number' ? studentResult.secondTerm.gpa.toFixed(2) : 'N/A'} | <strong>Position:</strong> ${studentResult.secondTerm.position}/${studentResult.secondTerm.outOf}</p>
-            </div>
-            ` : '<div class="term-section"><div class="term-title">SECOND TERM PERFORMANCE</div><p>No record found</p></div>'}
+              ${studentResult.secondTerm ? `
+              <div class="term-compact">
+                <h4>SECOND TERM</h4>
+                <table>
+                  <thead>
+                    <tr><th>Subject</th><th>Score</th><th>Grade</th></tr>
+                  </thead>
+                  <tbody>
+                    ${studentResult.secondTerm.subjects.slice(0, 5).map(subject => `
+                      <tr>
+                        <td>${subject.subject}</td>
+                        <td>${subject.score}</td>
+                        <td>${subject.grade}</td>
+                      </tr>
+                    `).join('')}
+                    ${studentResult.secondTerm.subjects.length > 5 ? '<tr><td colspan="3">... and more</td></tr>' : ''}
+                  </tbody>
+                </table>
+                <div class="term-stats">
+                  Avg: ${typeof studentResult.secondTerm.average === 'number' ? studentResult.secondTerm.average.toFixed(1) : 'N/A'}% | 
+                  GPA: ${typeof studentResult.secondTerm.gpa === 'number' ? studentResult.secondTerm.gpa.toFixed(2) : 'N/A'} | 
+                  Pos: ${studentResult.secondTerm.position}/${studentResult.secondTerm.outOf}
+                </div>
+              </div>
+              ` : '<div class="term-compact"><h4>SECOND TERM</h4><div class="no-record">No record found</div></div>'}
 
-            ${studentResult.thirdTerm ? `
-            <div class="term-section">
-              <div class="term-title">THIRD TERM PERFORMANCE</div>
-              <table>
-                <thead>
-                  <tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr>
-                </thead>
-                <tbody>
-                  ${studentResult.thirdTerm.subjects.map(subject => `
-                    <tr>
-                      <td>${subject.subject}</td>
-                      <td>${subject.score}</td>
-                      <td>${subject.grade}</td>
-                      <td>${subject.remark || 'Good'}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-              <p><strong>Average:</strong> ${typeof studentResult.thirdTerm.average === 'number' ? studentResult.thirdTerm.average.toFixed(1) : 'N/A'}% | <strong>GPA:</strong> ${typeof studentResult.thirdTerm.gpa === 'number' ? studentResult.thirdTerm.gpa.toFixed(2) : 'N/A'} | <strong>Position:</strong> ${studentResult.thirdTerm.position}/${studentResult.thirdTerm.outOf}</p>
+              ${studentResult.thirdTerm ? `
+              <div class="term-compact">
+                <h4>THIRD TERM</h4>
+                <table>
+                  <thead>
+                    <tr><th>Subject</th><th>Score</th><th>Grade</th></tr>
+                  </thead>
+                  <tbody>
+                    ${studentResult.thirdTerm.subjects.slice(0, 5).map(subject => `
+                      <tr>
+                        <td>${subject.subject}</td>
+                        <td>${subject.score}</td>
+                        <td>${subject.grade}</td>
+                      </tr>
+                    `).join('')}
+                    ${studentResult.thirdTerm.subjects.length > 5 ? '<tr><td colspan="3">... and more</td></tr>' : ''}
+                  </tbody>
+                </table>
+                <div class="term-stats">
+                  Avg: ${typeof studentResult.thirdTerm.average === 'number' ? studentResult.thirdTerm.average.toFixed(1) : 'N/A'}% | 
+                  GPA: ${typeof studentResult.thirdTerm.gpa === 'number' ? studentResult.thirdTerm.gpa.toFixed(2) : 'N/A'} | 
+                  Pos: ${studentResult.thirdTerm.position}/${studentResult.thirdTerm.outOf}
+                </div>
+              </div>
+              ` : '<div class="term-compact"><h4>THIRD TERM</h4><div class="no-record">No record found</div></div>'}
             </div>
-            ` : '<div class="term-section"><div class="term-title">THIRD TERM PERFORMANCE</div><p>No record found</p></div>'}
 
             <div class="summary">
               <h3>CUMULATIVE SUMMARY</h3>
-              <p><strong>Overall Average:</strong> <span class="${studentResult.cumulativeAverage >= 70 ? 'grade-excellent' : studentResult.cumulativeAverage >= 55 ? 'grade-good' : studentResult.cumulativeAverage >= 40 ? 'grade-fair' : 'grade-poor'}">${typeof studentResult.cumulativeAverage === 'number' ? studentResult.cumulativeAverage.toFixed(1) : 'N/A'}%</span></p>
-              <p><strong>Cumulative GPA:</strong> ${typeof studentResult.cumulativeGPA === 'number' ? studentResult.cumulativeGPA.toFixed(2) : 'N/A'}</p>
-              <p><strong>Class Position:</strong> ${studentResult.cumulativePosition} out of ${cumulativeResults.length} students</p>
-              <p><strong>Performance Trend:</strong> 
-                <span class="trend-${studentResult.trend}">
-                  ${studentResult.trend === 'up' ? 'IMPROVING ↑' : studentResult.trend === 'down' ? 'DECLINING ↓' : 'STABLE →'}
-                </span>
-              </p>
-              <p><strong>Overall Grade:</strong> 
-                <span class="${studentResult.cumulativeAverage >= 70 ? 'grade-excellent' : studentResult.cumulativeAverage >= 55 ? 'grade-good' : studentResult.cumulativeAverage >= 40 ? 'grade-fair' : 'grade-poor'}">
-                  ${studentResult.cumulativeAverage >= 70 ? 'DISTINCTION' : studentResult.cumulativeAverage >= 55 ? 'CREDIT' : studentResult.cumulativeAverage >= 40 ? 'PASS' : 'FAIL'}
-                </span>
-              </p>
+              <div class="summary-grid">
+                <div>
+                  <p><strong>Overall Average:</strong> <span class="${studentResult.cumulativeAverage >= 70 ? 'grade-excellent' : studentResult.cumulativeAverage >= 55 ? 'grade-good' : studentResult.cumulativeAverage >= 40 ? 'grade-fair' : 'grade-poor'}">${typeof studentResult.cumulativeAverage === 'number' ? studentResult.cumulativeAverage.toFixed(1) : 'N/A'}%</span></p>
+                  <p><strong>Cumulative GPA:</strong> ${typeof studentResult.cumulativeGPA === 'number' ? studentResult.cumulativeGPA.toFixed(2) : 'N/A'}</p>
+                  <p><strong>Class Position:</strong> ${studentResult.cumulativePosition} out of ${cumulativeResults.length}</p>
+                </div>
+                <div>
+                  <p><strong>Performance Trend:</strong> 
+                    <span class="trend-${studentResult.trend}">
+                      ${studentResult.trend === 'up' ? 'IMPROVING ↑' : studentResult.trend === 'down' ? 'DECLINING ↓' : 'STABLE →'}
+                    </span>
+                  </p>
+                  <p><strong>Overall Grade:</strong> 
+                    <span class="${studentResult.cumulativeAverage >= 70 ? 'grade-excellent' : studentResult.cumulativeAverage >= 55 ? 'grade-good' : studentResult.cumulativeAverage >= 40 ? 'grade-fair' : 'grade-poor'}">
+                      ${studentResult.cumulativeAverage >= 70 ? 'DISTINCTION' : studentResult.cumulativeAverage >= 55 ? 'CREDIT' : studentResult.cumulativeAverage >= 40 ? 'PASS' : 'FAIL'}
+                    </span>
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div class="signatures">
