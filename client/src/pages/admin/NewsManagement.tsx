@@ -364,7 +364,7 @@ export default function NewsManagement() {
                     <TableRow key={item.id}>
                       <TableCell>
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden">
-                          {item.featuredImage ? (
+                          {item.imageUrl ? (
                             <img
                               src={`/api/news-image/${item.id}`}
                               alt={item.title}
@@ -383,7 +383,7 @@ export default function NewsManagement() {
                               }}
                             />
                           ) : null}
-                          <ImageIcon className={`h-4 w-4 sm:h-6 sm:w-6 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
+                          <ImageIcon className={`h-4 w-4 sm:h-6 sm:w-6 text-gray-400 fallback-icon ${item.imageUrl ? 'hidden' : ''}`} />
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">

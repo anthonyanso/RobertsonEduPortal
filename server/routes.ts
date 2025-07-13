@@ -671,14 +671,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Fetching image for news ID:", newsId);
       
       // Use pool.query to avoid Drizzle ORM issues
-      const result = await pool.query('SELECT featured_image FROM news WHERE id = $1', [parseInt(newsId)]);
+      const result = await pool.query('SELECT image_url FROM news WHERE id = $1', [parseInt(newsId)]);
       
-      if (result.rows.length === 0 || !result.rows[0].featured_image) {
+      if (result.rows.length === 0 || !result.rows[0].image_url) {
         console.log("No image found for news:", newsId);
         return res.status(404).json({ message: "Image not found" });
       }
 
-      const featuredImage = result.rows[0].featured_image;
+      const featuredImage = result.rows[0].image_url;
       console.log("Found image, length:", featuredImage.length);
       
       // Extract the base64 data and mime type

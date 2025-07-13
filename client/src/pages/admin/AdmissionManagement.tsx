@@ -56,23 +56,43 @@ export default function AdmissionManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Current admission settings
-  const currentSettings = {
-    isOpen: true,
-    startDate: "2025-01-01",
-    endDate: "2025-03-31",
-    maxApplications: 500,
-    applicationFee: 5000,
-    requirements: "Birth certificate, Previous school report, Passport photograph",
-    availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
-    contactEmail: "info@robertsoneducation.com",
-    contactPhone: "+2348146373297"
-  };
+  // Fetch current admission settings from API
+  const { data: currentSettings, isLoading: isLoadingSettings } = useQuery({
+    queryKey: ['/api/admission-settings'],
+    select: (data) => data || {
+      isOpen: true,
+      startDate: "2025-01-01",
+      endDate: "2025-03-31",
+      maxApplications: 500,
+      applicationFee: 5000,
+      requirements: "Birth certificate, Previous school report, Passport photograph",
+      availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
+      contactEmail: "info@robertsoneducation.com",
+      contactPhone: "+2348146373297"
+    }
+  });
 
   const form = useForm<AdmissionSettings>({
     resolver: zodResolver(admissionSettingsSchema),
-    defaultValues: currentSettings,
+    defaultValues: currentSettings || {
+      isOpen: true,
+      startDate: "2025-01-01",
+      endDate: "2025-03-31",
+      maxApplications: 500,
+      applicationFee: 5000,
+      requirements: "Birth certificate, Previous school report, Passport photograph",
+      availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
+      contactEmail: "info@robertsoneducation.com",
+      contactPhone: "+2348146373297"
+    }
   });
+
+  // Update form when current settings change
+  useEffect(() => {
+    if (currentSettings) {
+      form.reset(currentSettings);
+    }
+  }, [currentSettings, form]);
 
   const onSubmitSettings = async (data: AdmissionSettings) => {
     try {
