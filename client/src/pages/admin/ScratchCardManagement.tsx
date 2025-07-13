@@ -253,13 +253,7 @@ export default function ScratchCardManagement() {
     },
   });
 
-  // Filter and search cards
-  const filteredCards = scratchCards.filter(card => {
-    const matchesSearch = card.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (card.studentId && card.studentId.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = statusFilter === "all" || card.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+
 
   // Check if card is expired
   const isCardExpired = (card: ScratchCard) => {
@@ -336,6 +330,21 @@ export default function ScratchCardManagement() {
     }
     saveSettingsMutation.mutate(settings);
   };
+
+  // Filter scratch cards based on search term and status
+  const filteredScratchCards = scratchCards.filter(card => {
+    const matchesSearch = !searchTerm || 
+      card.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.pin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (card.studentId && card.studentId.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'expired' && (card.status === 'expired' || isCardExpired(card))) ||
+      (statusFilter === 'unused' && card.status === 'unused' && !isCardExpired(card)) ||
+      (statusFilter === card.status);
+    
+    return matchesSearch && matchesStatus;
+  });
 
   // Get card statistics
   const cardStats = {
@@ -600,7 +609,7 @@ export default function ScratchCardManagement() {
       {/* Cards Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Scratch Cards ({filteredCards.length})</CardTitle>
+          <CardTitle>Scratch Cards ({filteredScratchCards.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -623,14 +632,14 @@ export default function ScratchCardManagement() {
                       Loading scratch cards...
                     </TableCell>
                   </TableRow>
-                ) : filteredCards.length === 0 ? (
+                ) : filteredScratchCards.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                       No scratch cards found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredCards.map((card) => {
+                  filteredScratchCards.map((card) => {
                     const expired = isCardExpired(card);
                     return (
                       <TableRow key={card.id}>
