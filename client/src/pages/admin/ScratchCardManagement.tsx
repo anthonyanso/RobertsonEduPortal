@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff } from "lucide-react";
+import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff, Copy } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -275,6 +275,22 @@ export default function ScratchCardManagement() {
   // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
+  };
+
+  // Copy PIN to clipboard
+  const copyPinToClipboard = (pin: string) => {
+    navigator.clipboard.writeText(pin).then(() => {
+      toast({
+        title: "Copied!",
+        description: "PIN copied to clipboard",
+      });
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "Failed to copy PIN",
+        variant: "destructive",
+      });
+    });
   };
 
   // Handle bulk generation
@@ -544,6 +560,15 @@ export default function ScratchCardManagement() {
                               className="h-6 w-6 p-0"
                             >
                               {showPins[card.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyPinToClipboard(card.pin)}
+                              className="h-6 w-6 p-0"
+                              title="Copy PIN"
+                            >
+                              <Copy className="h-3 w-3" />
                             </Button>
                           </div>
                         </TableCell>
