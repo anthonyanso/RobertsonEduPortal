@@ -210,6 +210,16 @@ Changelog:
   - Separated print content from modal display for better user experience
   - Added proper comments section display in modal matching admin interface
   - Optimized table styling with hover effects and proper spacing for better readability
+- July 13, 2025. Major system updates for academic session management, school information, and PDF optimization
+  - Implemented sophisticated dynamic session generation based on academic calendar (September-August)
+  - Updated session system to automatically generate 5 academic years (2 past, current, 2 future)
+  - Fixed PDF layout issues with improved pagination and table header repetition on new pages
+  - Updated school contact information: Tel: +2348146373297, +2347016774165, Email: info@robertsoneducation.com
+  - Updated school address: 1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525
+  - Enhanced PDF generation with proper space allocation and page break handling
+  - Replaced "N/A" values with meaningful default comments for better user experience
+  - Updated both Results checker and Admin result creation to use dynamic session generation
+  - Improved print and PDF templates with updated school information and branding
 - July 12, 2025. Implemented comprehensive cumulative results system for individual student performance tracking
   - Enhanced student database schema with `passportPhoto` field for Base64 image storage
   - Added passport photo upload to Add Student page with file validation (image types, 5MB limit)

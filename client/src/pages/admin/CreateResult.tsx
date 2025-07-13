@@ -66,7 +66,33 @@ const resultSchema = z.object({
 
 type ResultFormData = z.infer<typeof resultSchema>;
 
-const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
+// Generate dynamic sessions based on current calendar and academic year
+const generateDynamicSessions = () => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); // 0-11 (January = 0)
+  
+  const sessions = [];
+  
+  // Academic year runs from September to August
+  let currentAcademicYear: number;
+  if (currentMonth >= 8) { // September (8) to December (11)
+    currentAcademicYear = currentYear;
+  } else { // January (0) to August (7)
+    currentAcademicYear = currentYear - 1;
+  }
+  
+  // Generate sessions for past 2 years, current year, and next 2 years
+  for (let i = -2; i <= 2; i++) {
+    const sessionStartYear = currentAcademicYear + i;
+    const sessionEndYear = sessionStartYear + 1;
+    sessions.push(`${sessionStartYear}/${sessionEndYear}`);
+  }
+  
+  return sessions;
+};
+
+const sessionOptions = generateDynamicSessions();
 const termOptions = ["First Term", "Second Term", "Third Term"];
 const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 

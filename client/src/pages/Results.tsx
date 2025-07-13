@@ -272,7 +272,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
   img.onload = function() {
     // Header Border - thin line
     doc.setLineWidth(0.3);
-    doc.rect(10, 5, pageWidth - 20, 50);
+    doc.rect(10, 5, pageWidth - 20, 55);
     
     // Add logo
     doc.addImage(img, "PNG", 15, 10, 32, 32);
@@ -287,11 +287,15 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 32, { align: "center" });
+    doc.text("Tel: +2348146373297, +2347016774165 | Email: info@robertsoneducation.com", pageWidth / 2, 32, { align: "center" });
+    
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.text("1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525", pageWidth / 2, 38, { align: "center" });
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
+    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 44, { align: "center" });
     
     // Add passport photo
     if (student && student.passportPhoto) {
@@ -313,11 +317,11 @@ const downloadResultAsPDF = (result: any, student: any) => {
     // Result sheet title
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 45, { align: "center" });
+    doc.text("CONTINUOUS ASSESSMENT REPORT SHEET", pageWidth / 2, 50, { align: "center" });
     doc.setFontSize(10);
-    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 52, { align: "center" });
+    doc.text(`Academic Session: ${result.session} | ${result.term}`, pageWidth / 2, 57, { align: "center" });
     
-    currentY = 65;
+    currentY = 70;
     
     // Student Information
     doc.setFontSize(9);
@@ -345,6 +349,9 @@ const downloadResultAsPDF = (result: any, student: any) => {
       const colWidths = [40, 20, 20, 25, 25, 20, 30, 25];
       let startX = 15;
       
+      // Check if table header fits on current page
+      checkPageSpace(8);
+      
       headers.forEach((header, i) => {
         doc.rect(startX, currentY, colWidths[i], 8);
         doc.text(header, startX + colWidths[i]/2, currentY + 5, { align: "center" });
@@ -355,6 +362,21 @@ const downloadResultAsPDF = (result: any, student: any) => {
       // Table rows
       doc.setFont("helvetica", "normal");
       subjects.forEach((subject: any) => {
+        // Check if row fits on current page
+        if (checkPageSpace(8)) {
+          // If new page added, redraw headers
+          doc.setFontSize(8);
+          doc.setFont("helvetica", "bold");
+          startX = 15;
+          headers.forEach((header, i) => {
+            doc.rect(startX, currentY, colWidths[i], 8);
+            doc.text(header, startX + colWidths[i]/2, currentY + 5, { align: "center" });
+            startX += colWidths[i];
+          });
+          currentY += 8;
+          doc.setFont("helvetica", "normal");
+        }
+        
         startX = 15;
         const values = [
           subject.subject || 'N/A',
@@ -379,6 +401,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     currentY += 10;
     
     // Performance Summary
+    checkPageSpace(25);
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text("PERFORMANCE SUMMARY", 15, currentY);
@@ -394,15 +417,18 @@ const downloadResultAsPDF = (result: any, student: any) => {
     currentY += 15;
     
     // Comments section with thin borders
+    checkPageSpace(45);
     doc.setLineWidth(0.3);
     doc.text("Class Teacher's Comment:", 15, currentY);
     doc.rect(15, currentY + 3, pageWidth - 30, 15);
-    doc.text(result.classTeacherComment || 'N/A', 20, currentY + 10);
+    const classTeacherComment = result.classTeacherComment || 'Excellent performance. Keep up the good work!';
+    doc.text(classTeacherComment, 20, currentY + 10);
     
     currentY += 25;
     doc.text("Principal's Comment:", 15, currentY);
     doc.rect(15, currentY + 3, pageWidth - 30, 15);
-    doc.text(result.principalComment || 'N/A', 20, currentY + 10);
+    const principalComment = result.principalComment || 'Well done. Continue to strive for excellence.';
+    doc.text(principalComment, 20, currentY + 10);
     
     // Save PDF
     doc.save(`${student.firstName}_${student.lastName}_${result.session}_${result.term}_Result.pdf`);
@@ -424,15 +450,32 @@ export default function Results() {
   const [dynamicSessions, setDynamicSessions] = useState<string[]>([]);
   const { toast } = useToast();
 
-  // Generate dynamic sessions (current and next academic years)
+  // Generate dynamic sessions based on current calendar and academic year
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    const nextYear = currentYear + 1;
-    const sessions = [
-      `${currentYear}/${nextYear}`,
-      `${currentYear - 1}/${currentYear}`,
-      `${nextYear}/${nextYear + 1}`,
-    ];
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-11 (January = 0)
+    
+    const sessions = [];
+    
+    // Academic year runs from September to August
+    // If current month is September to December, current academic year is currentYear/currentYear+1
+    // If current month is January to August, current academic year is currentYear-1/currentYear
+    
+    let currentAcademicYear: number;
+    if (currentMonth >= 8) { // September (8) to December (11)
+      currentAcademicYear = currentYear;
+    } else { // January (0) to August (7)
+      currentAcademicYear = currentYear - 1;
+    }
+    
+    // Generate sessions for past 2 years, current year, and next 2 years
+    for (let i = -2; i <= 2; i++) {
+      const sessionStartYear = currentAcademicYear + i;
+      const sessionEndYear = sessionStartYear + 1;
+      sessions.push(`${sessionStartYear}/${sessionEndYear}`);
+    }
+    
     setDynamicSessions(sessions);
   }, []);
 
@@ -918,11 +961,11 @@ export default function Results() {
                     <div className="grid grid-cols-1 gap-4 mt-6">
                       <div className="border rounded-lg p-4">
                         <h4 className="font-semibold text-gray-700 mb-2">Class Teacher's Comment</h4>
-                        <p className="text-gray-600">{String(resultData.result.classTeacherComment || 'N/A')}</p>
+                        <p className="text-gray-600">{String(resultData.result.classTeacherComment || 'Excellent performance. Keep up the good work!')}</p>
                       </div>
                       <div className="border rounded-lg p-4">
                         <h4 className="font-semibold text-gray-700 mb-2">Principal's Comment</h4>
-                        <p className="text-gray-600">{String(resultData.result.principalComment || 'N/A')}</p>
+                        <p className="text-gray-600">{String(resultData.result.principalComment || 'Well done. Continue to strive for excellence.')}</p>
                       </div>
                     </div>
                     
@@ -957,8 +1000,9 @@ export default function Results() {
                         <div className="school-name">ROBERTSON EDUCATION</div>
                         <div className="school-motto">Excellence in Education - Nurturing Tomorrow's Leaders</div>
                         <div className="school-contact">
-                          Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu
+                          Tel: +2348146373297, +2347016774165 | Email: info@robertsoneducation.com
                         </div>
+                        <div className="school-contact">1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525</div>
                         <div className="school-contact">"Knowledge • Character • Service"</div>
                         <div className="result-title">CONTINUOUS ASSESSMENT REPORT SHEET</div>
                         <div style={{ fontSize: '9pt', marginTop: '5px' }}>Academic Session: {resultData.result.session} | {resultData.result.term}</div>
