@@ -6,7 +6,7 @@ const transporter = nodemailer.createTransporter({
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.SMTP_USER || 'info@robertsoneducation.com',
+    user: process.env.SMTP_USER || 'robertsonvocational@gmail.com',
     pass: process.env.SMTP_PASS || 'Robertsoneducation123*',
   },
 });
@@ -60,8 +60,8 @@ export async function sendContactFormEmail(formData: {
   `;
 
   return await sendEmail({
-    to: 'info@robertsoneducation.com',
-    from: process.env.SMTP_USER || process.env.EMAIL_USER || 'info@robertsoneducation.com',
+    to: 'robertsonvocational@gmail.com',
+    from: process.env.SMTP_USER || process.env.EMAIL_USER || 'robertsonvocational@gmail.com',
     subject: `Contact Form: ${formData.subject}`,
     html: emailContent,
     text: `

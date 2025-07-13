@@ -37,8 +37,8 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email",
-      details: "info@robertsoneducation.com",
-      subDetails: "Official communication",
+      details: "robertsonvocational@gmail.com",
+      subDetails: "obosirobertson@gmail.com",
       color: "text-green-600"
     },
     {
@@ -148,7 +148,7 @@ export default function Contact() {
               </p>
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm md:text-base"
-                onClick={() => window.open('mailto:info@robertsoneducation.com')}
+                onClick={() => window.open('mailto:robertsonvocational@gmail.com')}
               >
                 Send Email
               </Button>

@@ -135,7 +135,11 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               </p>
               <p className="flex items-center">
                 <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>info@robertsoneducation.com</span>
+                <span>robertsonvocational@gmail.com</span>
+              </p>
+              <p className="flex items-center">
+                <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span>obosirobertson@gmail.com</span>
               </p>
               <p className="flex items-center">
                 <Clock className="h-4 w-4 mr-2 flex-shrink-0" />

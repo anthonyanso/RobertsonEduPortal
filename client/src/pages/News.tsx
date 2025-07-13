@@ -133,13 +133,28 @@ export default function News() {
             ) : (
               filteredNews.map((item: any, index: number) => (
                 <Card key={item.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow" data-aos="fade-up" data-aos-delay={index * 100}>
-                  {item.featuredImage && (
-                    <img 
-                      src={item.featuredImage} 
-                      alt={item.title} 
-                      className="w-full h-40 sm:h-48 lg:h-52 object-cover"
-                    />
-                  )}
+                  <div className="w-full h-40 sm:h-48 lg:h-52 bg-gray-200 flex items-center justify-center relative overflow-hidden">
+                    {item.featuredImage ? (
+                      <img 
+                        src={item.featuredImage} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.classList.add('bg-gray-200');
+                            const icon = parent.querySelector('.fallback-icon');
+                            if (icon) {
+                              icon.classList.remove('hidden');
+                            }
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <Image className={`h-16 w-16 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
+                  </div>
                   <CardContent className="p-3 sm:p-4 md:p-6">
                     <div className="flex items-center justify-between mb-2 sm:mb-3">
                       <Badge className={`text-xs sm:text-sm ${getCategoryColor(item.category)}`}>

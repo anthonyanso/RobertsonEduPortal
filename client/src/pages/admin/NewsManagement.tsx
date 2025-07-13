@@ -360,20 +360,27 @@ export default function NewsManagement() {
                   news.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell>
-                        {item.featuredImage ? (
-                          <img
-                            src={item.featuredImage}
-                            alt={item.title}
-                            className="w-12 h-12 object-cover rounded"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              target.nextElementSibling?.classList.remove('hidden');
-                            }}
-                          />
-                        ) : null}
-                        <div className={`w-12 h-12 bg-gray-200 rounded flex items-center justify-center ${item.featuredImage ? 'hidden' : ''}`}>
-                          <Image className="h-6 w-6 text-gray-400" />
+                        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden">
+                          {item.featuredImage ? (
+                            <img
+                              src={item.featuredImage}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.classList.add('bg-gray-200');
+                                  const icon = parent.querySelector('.fallback-icon');
+                                  if (icon) {
+                                    icon.classList.remove('hidden');
+                                  }
+                                }
+                              }}
+                            />
+                          ) : null}
+                          <Image className={`h-6 w-6 text-gray-400 fallback-icon ${item.featuredImage ? 'hidden' : ''}`} />
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>

@@ -222,6 +222,12 @@ Changelog:
   - Optimized News grid layout with responsive columns (1-4 columns based on screen size)
   - Added responsive padding, margins, and typography throughout the application
   - Enhanced all components with proper mobile-first design principles
+- July 13, 2025. Updated school email addresses and improved news image display
+  - Replaced info@robertsoneducation.com with robertsonvocational@gmail.com and obosirobertson@gmail.com
+  - Updated all email addresses across Footer, Contact page, Admission page, Results page, and email service
+  - Enhanced news image display with better error handling and fallback icons
+  - Fixed image loading issues in both News page and News Management with proper error states
+  - Updated email service to use new primary email address for contact form submissions
 - July 13, 2025. Major system updates for academic session management, school information, and PDF optimization
   - Implemented sophisticated dynamic session generation based on academic calendar (September-August)
   - Updated session system to automatically generate 5 academic years (2 past, current, 2 future)

@@ -201,7 +201,7 @@ export default function Admission() {
                         <strong>Call us:</strong> +2348146373297 or +2347016774165
                       </p>
                       <p className="text-sm text-gray-600">
-                        <strong>Email:</strong> info@robertsoneducation.com
+                        <strong>Email:</strong> robertsonvocational@gmail.com
                       </p>
                       <p className="text-sm text-gray-600">
                         <strong>Visit us:</strong> Monday to Friday, 8:00 AM - 5:00 PM

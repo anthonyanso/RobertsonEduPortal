@@ -287,7 +287,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Tel: +2348146373297, +2347016774165 | Email: info@robertsoneducation.com", pageWidth / 2, 32, { align: "center" });
+    doc.text("Tel: +2348146373297, +2347016774165 | Email: robertsonvocational@gmail.com", pageWidth / 2, 32, { align: "center" });
     
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
@@ -1027,7 +1027,7 @@ export default function Results() {
                         <div className="school-name">ROBERTSON EDUCATION</div>
                         <div className="school-motto">Excellence in Education - Nurturing Tomorrow's Leaders</div>
                         <div className="school-contact">
-                          Tel: +2348146373297, +2347016774165 | Email: info@robertsoneducation.com
+                          Tel: +2348146373297, +2347016774165 | Email: robertsonvocational@gmail.com
                         </div>
                         <div className="school-contact">1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525</div>
                         <div className="school-contact">"Knowledge • Character • Service"</div>
