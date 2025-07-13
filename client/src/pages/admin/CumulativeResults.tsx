@@ -78,16 +78,40 @@ export default function CumulativeResults() {
 
     const studentsInClass = students.filter(s => s.gradeLevel === selectedClass);
     const sessionResults = results.filter(r => r.session === selectedSession && r.class === selectedClass);
+    
+    // Debug logging
+    console.log('Debug - Selected Session:', selectedSession);
+    console.log('Debug - Selected Class:', selectedClass);
+    console.log('Debug - Students in class:', studentsInClass.length);
+    console.log('Debug - Session results:', sessionResults.length);
+    console.log('Debug - All results:', results.length);
+    console.log('Debug - Available sessions:', [...new Set(results.map(r => r.session))]);
+    console.log('Debug - Available classes:', [...new Set(results.map(r => r.class))]);
 
     const cumulative: CumulativeStudentResult[] = studentsInClass.map(student => {
       const firstTerm = sessionResults.find(r => r.studentId === student.studentId && r.term === "First Term") || null;
       const secondTerm = sessionResults.find(r => r.studentId === student.studentId && r.term === "Second Term") || null;
       const thirdTerm = sessionResults.find(r => r.studentId === student.studentId && r.term === "Third Term") || null;
 
+      // Convert string/decimal values to numbers and filter valid results
+      const processResult = (result: any) => {
+        if (!result) return null;
+        return {
+          ...result,
+          average: result.average ? Number(result.average) : 0,
+          gpa: result.gpa ? Number(result.gpa) : 0
+        };
+      };
+
+      const processedFirstTerm = processResult(firstTerm);
+      const processedSecondTerm = processResult(secondTerm);
+      const processedThirdTerm = processResult(thirdTerm);
+
       // Calculate cumulative average and GPA
-      const validResults = [firstTerm, secondTerm, thirdTerm].filter(result => 
-        result && typeof result.average === 'number' && typeof result.gpa === 'number'
+      const validResults = [processedFirstTerm, processedSecondTerm, processedThirdTerm].filter(result => 
+        result && !isNaN(result.average) && !isNaN(result.gpa) && result.average > 0
       );
+      
       const cumulativeAverage = validResults.length > 0 
         ? validResults.reduce((sum, result) => sum + result.average, 0) / validResults.length 
         : 0;
@@ -98,20 +122,20 @@ export default function CumulativeResults() {
 
       // Determine trend
       let trend: "up" | "down" | "stable" = "stable";
-      if (firstTerm && secondTerm && typeof firstTerm.average === 'number' && typeof secondTerm.average === 'number') {
-        if (secondTerm.average > firstTerm.average) trend = "up";
-        else if (secondTerm.average < firstTerm.average) trend = "down";
+      if (processedFirstTerm && processedSecondTerm && processedFirstTerm.average > 0 && processedSecondTerm.average > 0) {
+        if (processedSecondTerm.average > processedFirstTerm.average) trend = "up";
+        else if (processedSecondTerm.average < processedFirstTerm.average) trend = "down";
       }
-      if (secondTerm && thirdTerm && typeof secondTerm.average === 'number' && typeof thirdTerm.average === 'number') {
-        if (thirdTerm.average > secondTerm.average) trend = "up";
-        else if (thirdTerm.average < secondTerm.average) trend = "down";
+      if (processedSecondTerm && processedThirdTerm && processedSecondTerm.average > 0 && processedThirdTerm.average > 0) {
+        if (processedThirdTerm.average > processedSecondTerm.average) trend = "up";
+        else if (processedThirdTerm.average < processedSecondTerm.average) trend = "down";
       }
 
       return {
         student,
-        firstTerm,
-        secondTerm,
-        thirdTerm,
+        firstTerm: processedFirstTerm,
+        secondTerm: processedSecondTerm,
+        thirdTerm: processedThirdTerm,
         cumulativeAverage: Number(cumulativeAverage.toFixed(2)),
         cumulativeGPA: Number(cumulativeGPA.toFixed(2)),
         cumulativePosition: 0, // Will be calculated after sorting
