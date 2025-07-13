@@ -670,7 +670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pinHash,
           status: 'unused',
           expiryDate,
-          usageLimit: 1,
+          usageLimit: 10, // Allow 10 uses per card
           usageCount: 0,
         });
       }
@@ -786,9 +786,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Scratch card has been deactivated" });
       }
       
-      // Check if card is already used
-      if (card.status === 'used' || card.usageCount >= card.usageLimit) {
-        return res.status(400).json({ message: "Scratch card has already been used" });
+      // Allow multiple uses until usage limit is reached
+      // Only block if usage count has reached the limit
+      if (card.usageCount >= card.usageLimit) {
+        return res.status(400).json({ message: "Scratch card usage limit exceeded" });
       }
       
       // Verify PIN hash
@@ -803,13 +804,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Student not found" });
       }
       
-      // Mark card as used
-      await storage.updateScratchCard(card.id, {
-        status: 'used',
-        usageCount: card.usageCount + 1,
+      // Update usage count and last used info (but don't mark as 'used' until limit reached)
+      const newUsageCount = card.usageCount + 1;
+      const updateData: any = {
+        usageCount: newUsageCount,
         usedAt: new Date(),
         usedBy: studentId
-      });
+      };
+      
+      // Only mark as 'used' if we've reached the usage limit
+      if (newUsageCount >= card.usageLimit) {
+        updateData.status = 'used';
+      }
+      
+      await storage.updateScratchCard(card.id, updateData);
       
       // Get student results
       const results = await storage.getResults();
@@ -818,7 +826,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         message: "PIN verified successfully",
         student,
-        results: studentResults
+        results: studentResults,
+        usageCount: newUsageCount,
+        usageLimit: card.usageLimit
       });
     } catch (error) {
       console.error("Error verifying PIN:", error);
