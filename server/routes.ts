@@ -19,6 +19,10 @@ import { generateUniqueStudentId } from "./utils/studentIdGenerator";
 import { db, pool } from "./db";
 import { students } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { nanoid } from "nanoid";
 
 // Function to calculate class positions based on performance
 async function calculateClassPositions(className: string, session: string, term: string) {
@@ -55,9 +59,54 @@ async function calculateClassPositions(className: string, session: string, term:
 
 // Note: Temporarily removing auth middleware to fix corruption
 
+// Configure multer for file uploads
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage_multer = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${nanoid()}-${Date.now()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage: storage_multer,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Serve uploaded files
+  app.use('/uploads', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  }, (req, res, next) => {
+    const filePath = path.join(uploadsDir, req.path);
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ message: 'File not found' });
+    }
+  });
 
   // Admin authentication routes
   app.post('/api/auth/signup', async (req, res) => {
@@ -385,6 +434,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching school info:", error);
       res.status(500).json({ message: "Failed to fetch school info" });
+    }
+  });
+
+  // Admin News Management Routes
+  app.get('/api/admin/news', isAdminAuthenticated, async (req, res) => {
+    try {
+      const news = await storage.getNews();
+      res.json(news);
+    } catch (error) {
+      console.error("Error fetching admin news:", error);
+      res.status(500).json({ message: "Failed to fetch news" });
+    }
+  });
+
+  app.post('/api/admin/news', isAdminAuthenticated, upload.single('image'), async (req, res) => {
+    try {
+      const { title, content, author, category, published } = req.body;
+      
+      if (!title || !content || !author || !category) {
+        return res.status(400).json({ message: "Title, content, author, and category are required" });
+      }
+
+      let featuredImage = null;
+      if (req.file) {
+        featuredImage = `/uploads/${req.file.filename}`;
+      }
+
+      const newsData = {
+        title,
+        content,
+        author,
+        category,
+        published: published === 'true',
+        featuredImage,
+      };
+
+      const validatedData = insertNewsSchema.parse(newsData);
+      const news = await storage.createNews(validatedData);
+      
+      res.json(news);
+    } catch (error) {
+      console.error("Error creating news:", error);
+      res.status(500).json({ message: "Failed to create news article" });
+    }
+  });
+
+  app.put('/api/admin/news/:id', isAdminAuthenticated, upload.single('image'), async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { title, content, author, category, published } = req.body;
+      
+      if (!title || !content || !author || !category) {
+        return res.status(400).json({ message: "Title, content, author, and category are required" });
+      }
+
+      const updateData: any = {
+        title,
+        content,
+        author,
+        category,
+        published: published === 'true',
+      };
+
+      if (req.file) {
+        updateData.featuredImage = `/uploads/${req.file.filename}`;
+      }
+
+      const news = await storage.updateNews(id, updateData);
+      res.json(news);
+    } catch (error) {
+      console.error("Error updating news:", error);
+      res.status(500).json({ message: "Failed to update news article" });
+    }
+  });
+
+  app.delete('/api/admin/news/:id', isAdminAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Get the news item first to remove the image file
+      const newsItem = await storage.getNewsItem(id);
+      if (newsItem && newsItem.featuredImage) {
+        const imagePath = path.join(process.cwd(), newsItem.featuredImage);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      }
+
+      await storage.deleteNews(id);
+      res.json({ message: "News article deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting news:", error);
+      res.status(500).json({ message: "Failed to delete news article" });
     }
   });
 

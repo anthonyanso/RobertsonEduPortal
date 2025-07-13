@@ -17,6 +17,7 @@ import ResultAnalytics from "./ResultAnalytics";
 // @ts-ignore  
 import CumulativeResults from "./CumulativeResults";
 import ScratchCardManagement from "./ScratchCardManagement";
+import NewsManagement from "./NewsManagement";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface AdminLayoutProps {
@@ -63,7 +64,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
     { id: "students", label: "Students", icon: Users, hasDropdown: true },
     { id: "results", label: "Results", icon: GraduationCap, hasDropdown: true },
     { id: "scratch-cards", label: "Scratch Cards", icon: CreditCard },
-    { id: "news", label: "News", icon: Newspaper },
+    { id: "news", label: "News Management", icon: Newspaper },
     { id: "admissions", label: "Admissions", icon: UserPlus },
     { id: "messages", label: "Messages", icon: MessageSquare },
     { id: "settings", label: "Settings", icon: Settings },
@@ -208,16 +209,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
           {activeTab === "cumulative-results" && <CumulativeResults />}
           {activeTab === "result-analytics" && <ResultAnalytics />}
           {activeTab === "scratch-cards" && <ScratchCardManagement />}
-          {activeTab === "news" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>News Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>News management interface will be implemented here.</p>
-              </CardContent>
-            </Card>
-          )}
+          {activeTab === "news" && <NewsManagement />}
           {activeTab === "admissions" && (
             <Card>
               <CardHeader>
