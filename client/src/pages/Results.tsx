@@ -38,11 +38,29 @@ export default function Results() {
 
   const checkResultMutation = useMutation({
     mutationFn: async (data: ResultFormData) => {
-      const response = await apiRequest("POST", "/api/verify-scratch-card", {
-        pin: data.pin,
-        studentId: data.studentId
-      });
-      return response;
+      try {
+        const response = await fetch("/api/verify-scratch-card", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            pin: data.pin,
+            studentId: data.studentId
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to verify scratch card");
+        }
+        
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       console.log("API Response:", data);
