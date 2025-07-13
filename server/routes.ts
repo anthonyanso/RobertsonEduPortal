@@ -1043,50 +1043,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin news routes
-  app.get('/api/admin/news', isAdminAuthenticated, async (req, res) => {
-    try {
-      const news = await storage.getNews();
-      res.json(news);
-    } catch (error) {
-      console.error("Error fetching news:", error);
-      res.status(500).json({ message: "Failed to fetch news" });
-    }
-  });
 
-  app.post('/api/admin/news', async (req, res) => {
-    try {
-      const validatedData = insertNewsSchema.parse(req.body);
-      const news = await storage.createNews(validatedData);
-      res.json(news);
-    } catch (error) {
-      console.error("Error creating news:", error);
-      res.status(500).json({ message: "Failed to create news" });
-    }
-  });
-
-  app.put('/api/admin/news/:id', isAdminAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = insertNewsSchema.partial().parse(req.body);
-      const news = await storage.updateNews(id, validatedData);
-      res.json(news);
-    } catch (error) {
-      console.error("Error updating news:", error);
-      res.status(500).json({ message: "Failed to update news" });
-    }
-  });
-
-  app.delete('/api/admin/news/:id', isAdminAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deleteNews(id);
-      res.json({ message: "News deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting news:", error);
-      res.status(500).json({ message: "Failed to delete news" });
-    }
-  });
 
   // Admin admission applications
   app.get('/api/admin/admissions', isAdminAuthenticated, async (req, res) => {

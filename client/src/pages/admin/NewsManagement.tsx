@@ -239,7 +239,10 @@ export default function NewsManagement() {
     });
     if (newsItem.featuredImage) {
       setImagePreview(newsItem.featuredImage);
+    } else {
+      setImagePreview(null);
     }
+    setImageFile(null);
     setIsDialogOpen(true);
   };
 
@@ -442,7 +445,15 @@ export default function NewsManagement() {
       </Card>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          setEditingNews(null);
+          form.reset();
+          setImagePreview(null);
+          setImageFile(null);
+        }
+        setIsDialogOpen(open);
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
