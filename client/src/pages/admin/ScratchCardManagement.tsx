@@ -175,14 +175,15 @@ export default function ScratchCardManagement() {
               flex-shrink: 0;
             }
             .logo:before {
-              content: '';
-              display: block;
+              content: 'RE';
+              display: flex;
+              align-items: center;
+              justify-content: center;
               width: 100%;
               height: 100%;
-              background-image: url('${logoPath}');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
+              font-weight: bold;
+              font-size: 8px;
+              color: #d32f2f;
             }
             .school-info {
               flex: 1;
@@ -314,15 +315,21 @@ export default function ScratchCardManagement() {
             .logo {
               width: 40px;
               height: 40px;
-              background-image: url('${logoPath}');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-              margin-right: 12px;
+              background: #d32f2f;
               border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: bold;
+              font-size: 16px;
+              margin-right: 12px;
               border: 2px solid #d32f2f;
               padding: 5px;
               box-shadow: 0 3px 10px rgba(211, 47, 47, 0.3);
+            }
+            .logo:before {
+              content: 'RE';
             }
             .school-info {
               flex: 1;
@@ -436,12 +443,19 @@ export default function ScratchCardManagement() {
             .logo {
               width: 20px;
               height: 20px;
-              background-image: url('${logoPath}');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
+              background: #d32f2f;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: bold;
+              font-size: 10px;
               margin-right: 6px;
               flex-shrink: 0;
+            }
+            .logo:before {
+              content: 'RE';
             }
             .school-name {
               font-size: 8px;
@@ -522,11 +536,18 @@ export default function ScratchCardManagement() {
             .logo {
               width: 35px;
               height: 35px;
-              background-image: url('${logoPath}');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
+              background: #d32f2f;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: bold;
+              font-size: 14px;
               margin-right: 12px;
+            }
+            .logo:before {
+              content: 'RE';
             }
             .school-name {
               font-size: 14px;
