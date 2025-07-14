@@ -130,14 +130,14 @@ export default function ScratchCardManagement() {
             .card-grid {
               display: grid;
               grid-template-columns: repeat(2, 1fr);
-              gap: 15px;
+              gap: 20px;
               max-width: 100%;
               margin: 0 auto;
             }
             @media print {
               .card-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
+                gap: 15px;
               }
             }
             .card { 
@@ -145,8 +145,8 @@ export default function ScratchCardManagement() {
               border: 2px solid #d32f2f; 
               border-radius: 10px;
               padding: 15px; 
-              width: 280px; 
-              height: 160px; 
+              width: 320px; 
+              height: 180px; 
               box-shadow: 0 5px 15px rgba(211, 47, 47, 0.2);
               position: relative;
               overflow: hidden;
@@ -189,11 +189,13 @@ export default function ScratchCardManagement() {
               flex: 1;
             }
             .school-name {
-              font-size: 12px;
+              font-size: 11px;
               font-weight: bold;
               color: #d32f2f;
-              line-height: 1.1;
+              line-height: 1.2;
               margin: 0;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
             }
             .card-type {
               font-size: 9px;
@@ -280,8 +282,8 @@ export default function ScratchCardManagement() {
               border: 3px solid #d32f2f; 
               border-radius: 15px;
               padding: 18px; 
-              width: 300px; 
-              height: 180px; 
+              width: 320px; 
+              height: 200px; 
               box-shadow: 0 8px 25px rgba(211, 47, 47, 0.25);
               position: relative;
               overflow: hidden;
@@ -335,11 +337,13 @@ export default function ScratchCardManagement() {
               flex: 1;
             }
             .school-name {
-              font-size: 13px;
+              font-size: 12px;
               font-weight: bold;
               color: #d32f2f;
               line-height: 1.2;
               margin: 0;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
             }
             .card-type {
               font-size: 10px;
@@ -425,9 +429,9 @@ export default function ScratchCardManagement() {
                 margin-bottom: 10px;
               border: 2px solid #d32f2f; 
               border-radius: 8px;
-              padding: 10px; 
-              width: 200px; 
-              height: 130px; 
+              padding: 12px; 
+              width: 220px; 
+              height: 150px; 
               box-shadow: 0 5px 15px rgba(211, 47, 47, 0.15);
               position: relative;
               font-size: 10px;
@@ -458,11 +462,14 @@ export default function ScratchCardManagement() {
               content: 'RE';
             }
             .school-name {
-              font-size: 8px;
+              font-size: 9px;
               font-weight: bold;
               color: #d32f2f;
-              line-height: 1.1;
+              line-height: 1.2;
               word-wrap: break-word;
+              overflow-wrap: break-word;
+              white-space: nowrap;
+              text-overflow: ellipsis;
               overflow: hidden;
             }
             .serial-section {
@@ -521,8 +528,8 @@ export default function ScratchCardManagement() {
               border: 2px dashed #d32f2f; 
               border-radius: 12px;
               padding: 20px; 
-              width: 300px; 
-              height: 180px; 
+              width: 320px; 
+              height: 200px; 
               box-shadow: 0 8px 20px rgba(211, 47, 47, 0.15);
               position: relative;
             }
@@ -550,9 +557,12 @@ export default function ScratchCardManagement() {
               content: 'RE';
             }
             .school-name {
-              font-size: 14px;
+              font-size: 13px;
               font-weight: bold;
               color: #d32f2f;
+              line-height: 1.2;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
             }
             .serial-section {
               margin: 12px 0;

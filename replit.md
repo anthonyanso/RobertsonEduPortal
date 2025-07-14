@@ -339,6 +339,13 @@ Preferred communication style: Simple, everyday language.
   - Fixed news image display issues by correcting field name mismatches from featuredImage to imageUrl
   - All templates now work properly without external logo dependencies
   - Cards display school name in professional typography without requiring image assets
+  - Fixed card text cutoff issues by increasing card dimensions for all templates
+  - Standard Template: increased from 280x160px to 320x180px
+  - Premium Template: increased from 300x180px to 320x200px
+  - Bulk Template: increased from 200x130px to 220x150px
+  - Custom Template: increased from 300x180px to 320x200px
+  - Enhanced text wrapping with overflow-wrap: break-word to prevent text cutoff
+  - Improved font sizing and spacing for better readability across all templates
   - Developed sophisticated template generator function with multiple professional designs
   - Standard Template: Clean design with school logo, gradient borders, and professional styling
   - Premium Template: Enhanced layout with larger logo, advanced styling, and premium appearance
