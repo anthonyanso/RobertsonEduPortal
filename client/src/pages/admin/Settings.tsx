@@ -78,14 +78,45 @@ export default function Settings() {
   const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
     setIsSaving(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save each field as a separate school info entry
+      const schoolInfoEntries = [
+        { key: "school_name", value: data.schoolName },
+        { key: "address", value: data.address },
+        { key: "phone1", value: data.phone1 },
+        { key: "phone2", value: data.phone2 },
+        { key: "email", value: data.email },
+        { key: "website", value: data.website },
+        { key: "registration_number", value: data.registrationNumber },
+        { key: "motto", value: data.motto },
+        { key: "vision", value: data.vision },
+        { key: "mission", value: data.mission },
+      ];
+
+      // Save all entries
+      for (const entry of schoolInfoEntries) {
+        await fetch('/api/admin/school-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry),
+        });
+      }
       
       toast({
         title: "Success",
         description: "School information updated successfully!",
       });
     } catch (error) {
+      if (error instanceof Response && error.status === 401) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Error",
         description: "Failed to update school information",
@@ -99,14 +130,43 @@ export default function Settings() {
   const onSubmitSystemSettings = async (data: SystemSettingsData) => {
     setIsSaving(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save each setting as a separate school info entry
+      const systemSettingsEntries = [
+        { key: "enable_result_checker", value: data.enableResultChecker.toString() },
+        { key: "enable_admissions", value: data.enableAdmissions.toString() },
+        { key: "enable_news_system", value: data.enableNewsSystem.toString() },
+        { key: "max_scratch_card_usage", value: data.maxScratchCardUsage.toString() },
+        { key: "scratch_card_expiry_days", value: data.scratchCardExpiryDays.toString() },
+        { key: "auto_generate_student_id", value: data.autoGenerateStudentId.toString() },
+        { key: "email_notifications", value: data.emailNotifications.toString() },
+        { key: "maintenance_mode", value: data.maintenanceMode.toString() },
+      ];
+
+      // Save all entries
+      for (const entry of systemSettingsEntries) {
+        await fetch('/api/admin/school-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry),
+        });
+      }
       
       toast({
         title: "Success",
         description: "System settings updated successfully!",
       });
     } catch (error) {
+      if (error instanceof Response && error.status === 401) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Error",
         description: "Failed to update system settings",

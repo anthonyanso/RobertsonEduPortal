@@ -678,27 +678,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Image not found" });
       }
 
-      const featuredImage = result.rows[0].image_url;
-      console.log("Found image, length:", featuredImage.length);
+      const imageUrl = result.rows[0].image_url;
+      console.log("Found image, length:", imageUrl.length);
       
-      // Extract the base64 data and mime type
-      const matches = featuredImage.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      if (!matches) {
-        console.log("Invalid image format for news:", newsId);
-        return res.status(400).json({ message: "Invalid image format" });
+      // Check if it's a file path (uploaded file) or base64 data
+      if (imageUrl.startsWith('/uploads/')) {
+        // Handle file path - serve the uploaded file
+        const filePath = path.join(process.cwd(), imageUrl);
+        console.log("Serving file from:", filePath);
+        
+        if (fs.existsSync(filePath)) {
+          return res.sendFile(filePath);
+        } else {
+          console.log("File not found:", filePath);
+          return res.status(404).json({ message: "Image file not found" });
+        }
+      } else {
+        // Handle base64 data
+        const matches = imageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches) {
+          console.log("Invalid image format for news:", newsId);
+          return res.status(400).json({ message: "Invalid image format" });
+        }
+
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        res.set({
+          'Content-Type': mimeType,
+          'Content-Length': buffer.length,
+          'Cache-Control': 'public, max-age=3600'
+        });
+
+        res.send(buffer);
       }
-
-      const mimeType = matches[1];
-      const base64Data = matches[2];
-      const buffer = Buffer.from(base64Data, 'base64');
-
-      res.set({
-        'Content-Type': mimeType,
-        'Content-Length': buffer.length,
-        'Cache-Control': 'public, max-age=3600'
-      });
-
-      res.send(buffer);
     } catch (error) {
       console.error("Error serving news image:", error);
       res.status(500).json({ message: "Failed to serve image" });

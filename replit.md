@@ -352,6 +352,11 @@ Preferred communication style: Simple, everyday language.
   - Added POST route for admin school info to fix admission settings saving issues
   - Updated admission management to use PUT method for updating school info settings
   - Fixed all news image handling to properly display uploaded images in both admin and public views
+  - Fixed news image serving endpoint to handle both file paths and base64 data like student photos
+  - Updated news image endpoint to properly serve uploaded image files from /uploads/ directory
+  - Fixed Settings management to use real API calls instead of simulated ones
+  - Updated school info and system settings to properly save changes to database through school_info table
+  - Added proper error handling for unauthorized access in Settings management
   - Developed sophisticated template generator function with multiple professional designs
   - Standard Template: Clean design with school logo, gradient borders, and professional styling
   - Premium Template: Enhanced layout with larger logo, advanced styling, and premium appearance
