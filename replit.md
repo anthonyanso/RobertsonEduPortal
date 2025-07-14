@@ -331,6 +331,14 @@ Preferred communication style: Simple, everyday language.
   - Removed all message management navigation and components from admin interface
   - Streamlined admin navigation by removing message management option
 - July 13, 2025. Created professional scratch card print templates with Robertson Education logo integration
+- July 14, 2025. Removed logo dependencies from scratch card templates per user request
+  - Fixed critical template error where logoPath was undefined causing print preview failure
+  - Removed all logo-related code from scratch card templates to eliminate dependency issues
+  - Created clean, professional templates without logos using only text-based branding
+  - Enhanced admission settings with immediate refresh mechanisms (refetchOnWindowFocus, staleTime: 0)
+  - Fixed news image display issues by correcting field name mismatches from featuredImage to imageUrl
+  - All templates now work properly without external logo dependencies
+  - Cards display school name in professional typography without requiring image assets
   - Developed sophisticated template generator function with multiple professional designs
   - Standard Template: Clean design with school logo, gradient borders, and professional styling
   - Premium Template: Enhanced layout with larger logo, advanced styling, and premium appearance

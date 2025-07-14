@@ -600,9 +600,7 @@ export default function ScratchCardManagement() {
           ${cards.map(card => `
             <div class="card">
               <div class="card-header">
-                <div class="logo">
-                  <img src="${logoPath}" alt="Robertson Education" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='${logoBase64}'; this.alt='RE';" />
-                </div>
+
                 <div class="school-info">
                   <div class="school-name">ROBERTSON EDUCATION</div>
                   <div class="card-type">Official Result Access Card</div>
