@@ -97,7 +97,7 @@ export default function AdmissionManagement() {
   const onSubmitSettings = async (data: AdmissionSettings) => {
     try {
       const response = await fetch('/api/admin/school-info', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },

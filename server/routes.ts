@@ -470,9 +470,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Title, content, author, and category are required" });
       }
 
-      let featuredImage = null;
+      let imageUrl = null;
       if (req.file) {
-        featuredImage = `/uploads/${req.file.filename}`;
+        imageUrl = `/uploads/${req.file.filename}`;
       }
 
       const newsData = {
@@ -481,7 +481,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         author,
         category,
         published: published === 'true',
-        featuredImage,
+        imageUrl,
       };
 
       const validatedData = insertNewsSchema.parse(newsData);
@@ -512,7 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       if (req.file) {
-        updateData.featuredImage = `/uploads/${req.file.filename}`;
+        updateData.imageUrl = `/uploads/${req.file.filename}`;
       }
 
       const news = await storage.updateNews(id, updateData);
@@ -1259,6 +1259,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating school info:", error);
       res.status(500).json({ message: "Failed to update school info" });
+    }
+  });
+
+  app.post('/api/admin/school-info', isAdminAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertSchoolInfoSchema.parse(req.body);
+      const schoolInfo = await storage.upsertSchoolInfo(validatedData);
+      res.json(schoolInfo);
+    } catch (error) {
+      console.error("Error creating school info:", error);
+      res.status(500).json({ message: "Failed to create school info" });
     }
   });
 

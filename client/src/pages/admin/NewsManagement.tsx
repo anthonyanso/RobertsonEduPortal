@@ -26,7 +26,7 @@ const newsFormSchema = z.object({
   author: z.string().min(1, "Author is required"),
   category: z.string().min(1, "Category is required"),
   published: z.boolean().default(true),
-  featuredImage: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 type NewsFormData = z.infer<typeof newsFormSchema>;
@@ -47,7 +47,7 @@ export default function NewsManagement() {
       author: "",
       category: "",
       published: true,
-      featuredImage: "",
+      imageUrl: "",
     },
   });
 
@@ -235,10 +235,10 @@ export default function NewsManagement() {
       author: newsItem.author,
       category: newsItem.category,
       published: newsItem.published,
-      featuredImage: newsItem.featuredImage || "",
+      imageUrl: newsItem.imageUrl || "",
     });
-    if (newsItem.featuredImage) {
-      setImagePreview(newsItem.featuredImage);
+    if (newsItem.imageUrl) {
+      setImagePreview(newsItem.imageUrl);
     } else {
       setImagePreview(null);
     }

@@ -346,6 +346,12 @@ Preferred communication style: Simple, everyday language.
   - Custom Template: increased from 300x180px to 320x200px
   - Enhanced text wrapping with overflow-wrap: break-word to prevent text cutoff
   - Improved font sizing and spacing for better readability across all templates
+  - Fixed news image display issues by correcting database field name mismatches from featuredImage to imageUrl
+  - Updated NewsManagement.tsx form schema to use imageUrl instead of featuredImage
+  - Fixed server-side news routes to use imageUrl field consistently for image storage
+  - Added POST route for admin school info to fix admission settings saving issues
+  - Updated admission management to use PUT method for updating school info settings
+  - Fixed all news image handling to properly display uploaded images in both admin and public views
   - Developed sophisticated template generator function with multiple professional designs
   - Standard Template: Clean design with school logo, gradient borders, and professional styling
   - Premium Template: Enhanced layout with larger logo, advanced styling, and premium appearance
