@@ -9,6 +9,9 @@ import { useQuery } from "@tanstack/react-query";
 export default function Admission() {
   const { data: admissionSettings, isLoading } = useQuery({
     queryKey: ['/api/admission-settings'],
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   const handleDownloadPDF = () => {

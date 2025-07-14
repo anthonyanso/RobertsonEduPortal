@@ -529,8 +529,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the news item first to remove the image file
       const newsItem = await storage.getNewsItem(id);
-      if (newsItem && newsItem.featuredImage) {
-        const imagePath = path.join(process.cwd(), newsItem.featuredImage);
+      if (newsItem && newsItem.imageUrl) {
+        const imagePath = path.join(process.cwd(), newsItem.imageUrl);
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath);
         }
@@ -719,18 +719,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'News item not found' });
       }
       
-      if (!newsItem.featuredImage) {
-        console.log("No featured image for news ID:", newsId);
+      if (!newsItem.imageUrl) {
+        console.log("No image URL for news ID:", newsId);
         return res.status(404).json({ message: 'No image found' });
       }
       
       // If it's a file path, serve the file
-      if (newsItem.featuredImage.startsWith('/uploads/')) {
-        const filePath = path.join(process.cwd(), newsItem.featuredImage);
+      if (newsItem.imageUrl.startsWith('/uploads/')) {
+        const filePath = path.join(process.cwd(), newsItem.imageUrl);
         console.log("Serving file from path:", filePath);
         
         if (fs.existsSync(filePath)) {
-          const ext = path.extname(newsItem.featuredImage).toLowerCase();
+          const ext = path.extname(newsItem.imageUrl).toLowerCase();
           const contentType = {
             '.png': 'image/png',
             '.jpg': 'image/jpeg',

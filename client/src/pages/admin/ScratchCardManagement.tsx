@@ -14,6 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { ScratchCard } from "@shared/schema";
+import { generateProfessionalScratchCardTemplate } from './ScratchCardTemplates';
 
 interface ScratchCardSettings {
   defaultDuration: number;
@@ -70,9 +71,6 @@ export default function ScratchCardManagement() {
 
   // Professional template generator function
   const generateProfessionalTemplate = (cards: ScratchCard[], templateType: string) => {
-    const logoPath = `${window.location.origin}/attached_assets/logo_1751823007371.png`;
-    // Alternative logo in case URL doesn't work - properly sized for the card
-    const logoBase64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iOSIgZmlsbD0iI2QzMmYyZiIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjEiLz4KPHRleHQgeD0iMTAiIHk9IjEzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSI2IiBmb250LXdlaWdodD0iYm9sZCI+UkU8L3RleHQ+Cjwvc3ZnPgo=";
     
     const getTemplateStyles = (type: string) => {
       const baseStyles = `
@@ -163,19 +161,11 @@ export default function ScratchCardManagement() {
               background: linear-gradient(90deg, #d32f2f, #ff5722, #d32f2f);
             }
             .card-header {
-              display: flex;
-              align-items: center;
+              text-align: center;
               margin-bottom: 12px;
               padding-bottom: 8px;
               border-bottom: 1px solid #e0e0e0;
             }
-            .logo {
-              width: 35px;
-              height: 35px;
-              background-image: url('${logoPath}');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
               margin-right: 10px;
               border-radius: 50%;
               border: 1px solid #d32f2f;
