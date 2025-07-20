@@ -423,6 +423,10 @@ Preferred communication style: Simple, everyday language.
   - Enhanced ViewResults.tsx to show professional seal with "OFFICIALLY SEALED" text and date
   - All result templates now use consistent school seal for authentication instead of signature lines
   - Seal includes Robertson Education branding, official text, and generation date for authenticity
+  - Enhanced seal design to egg/oval shape (140x100) for authentic stamp appearance like passport stamps
+  - Optimized print dimensions across all templates for proper fitting during printing
+  - Updated PDF generation to use ellipse shapes for authentic oval stamp rendering
+  - Improved responsive sizing: NigerianResultTemplate (100x70px), Results (100x70px), ViewResults (110x80px)
 - July 20, 2025. Implemented comprehensive maintenance mode functionality with server-side middleware
   - Created maintenance mode middleware that blocks public API access when enabled in admin settings
   - Built professional maintenance page with clear messaging and contact information
