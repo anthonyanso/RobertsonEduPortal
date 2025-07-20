@@ -107,72 +107,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Quick Actions Section */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12" data-aos="fade-up">
-            <h2 className="font-playfair text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Quick Actions
-            </h2>
-            <p className="text-lg text-gray-600">
-              Choose how you'd like to reach us
-            </p>
-          </div>
 
-          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
-            {/* Call Us */}
-            <div className="text-center" data-aos="fade-up" data-aos-delay="100">
-              <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-full w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center mb-4">
-                <Phone className="h-8 w-8 md:h-10 md:w-10 text-white" />
-              </div>
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Call Us</h3>
-              <p className="text-sm md:text-base text-gray-600 mb-4">
-                Speak directly with our admissions team
-              </p>
-              <Button 
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 text-sm md:text-base"
-                onClick={() => window.open('tel:+2348146373297')}
-              >
-                Call Now
-              </Button>
-            </div>
-
-            {/* Email Us */}
-            <div className="text-center" data-aos="fade-up" data-aos-delay="200">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-full w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center mb-4">
-                <Mail className="h-8 w-8 md:h-10 md:w-10 text-white" />
-              </div>
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Email Us</h3>
-              <p className="text-sm md:text-base text-gray-600 mb-4">
-                Send us your questions and inquiries
-              </p>
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm md:text-base"
-                onClick={() => window.open('mailto:robertsonvocational@gmail.com')}
-              >
-                Send Email
-              </Button>
-            </div>
-
-            {/* Visit Us */}
-            <div className="text-center" data-aos="fade-up" data-aos-delay="300">
-              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-full w-16 h-16 md:w-20 md:h-20 mx-auto flex items-center justify-center mb-4">
-                <MapPin className="h-8 w-8 md:h-10 md:w-10 text-white" />
-              </div>
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Visit Us</h3>
-              <p className="text-sm md:text-base text-gray-600 mb-4">
-                Come to our campus for a personal tour
-              </p>
-              <Button 
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 text-sm md:text-base"
-                onClick={() => window.open('https://maps.google.com/?q=Theo+Okeke+Close+Ozuda+Market+Obosi+Anambra+State')}
-              >
-                Get Directions
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Map and Additional Info */}
       <section className="py-12 md:py-16 bg-gray-50">

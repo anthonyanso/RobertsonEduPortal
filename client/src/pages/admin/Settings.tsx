@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,36 +45,79 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState("school");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch current settings from database
+  const { data: currentSettings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+
+  // Create settings object from array
+  const settingsMap = currentSettings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
 
   const schoolForm = useForm<SchoolInfoData>({
     resolver: zodResolver(schoolInfoSchema),
     defaultValues: {
-      schoolName: "Robertson Education",
-      address: "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
-      phone1: "+2348146373297",
-      phone2: "+2347016774165",
-      email: "info@robertsoneducation.com",
-      website: "",
-      registrationNumber: "7779525",
-      motto: "Excellence in Education",
-      vision: "To be the leading educational institution in Nigeria",
-      mission: "To provide quality education and shape future leaders",
+      schoolName: settingsMap.school_name || "Robertson Education",
+      address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+      phone1: settingsMap.phone1 || "+2348146373297",
+      phone2: settingsMap.phone2 || "+2347016774165",
+      email: settingsMap.email || "info@robertsoneducation.com",
+      website: settingsMap.website || "",
+      registrationNumber: settingsMap.registration_number || "7779525",
+      motto: settingsMap.motto || "Excellence in Education",
+      vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
+      mission: settingsMap.mission || "To provide quality education and shape future leaders",
     },
   });
 
   const systemForm = useForm<SystemSettingsData>({
     resolver: zodResolver(systemSettingsSchema),
     defaultValues: {
-      enableResultChecker: true,
-      enableAdmissions: true,
-      enableNewsSystem: true,
-      maxScratchCardUsage: 30,
-      scratchCardExpiryDays: 90,
-      autoGenerateStudentId: true,
-      emailNotifications: true,
-      maintenanceMode: false,
+      enableResultChecker: settingsMap.enable_result_checker === "true" || true,
+      enableAdmissions: settingsMap.enable_admissions === "true" || true,
+      enableNewsSystem: settingsMap.enable_news_system === "true" || true,
+      maxScratchCardUsage: parseInt(settingsMap.max_scratch_card_usage) || 30,
+      scratchCardExpiryDays: parseInt(settingsMap.scratch_card_expiry_days) || 90,
+      autoGenerateStudentId: settingsMap.auto_generate_student_id === "true" || true,
+      emailNotifications: settingsMap.email_notifications === "true" || true,
+      maintenanceMode: settingsMap.maintenance_mode === "true" || false,
     },
   });
+
+  // Reset form values when settings are loaded
+  useEffect(() => {
+    if (currentSettings.length > 0) {
+      schoolForm.reset({
+        schoolName: settingsMap.school_name || "Robertson Education",
+        address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+        phone1: settingsMap.phone1 || "+2348146373297",
+        phone2: settingsMap.phone2 || "+2347016774165",
+        email: settingsMap.email || "info@robertsoneducation.com",
+        website: settingsMap.website || "",
+        registrationNumber: settingsMap.registration_number || "7779525",
+        motto: settingsMap.motto || "Excellence in Education",
+        vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
+        mission: settingsMap.mission || "To provide quality education and shape future leaders",
+      });
+
+      systemForm.reset({
+        enableResultChecker: settingsMap.enable_result_checker === "true" || true,
+        enableAdmissions: settingsMap.enable_admissions === "true" || true,
+        enableNewsSystem: settingsMap.enable_news_system === "true" || true,
+        maxScratchCardUsage: parseInt(settingsMap.max_scratch_card_usage) || 30,
+        scratchCardExpiryDays: parseInt(settingsMap.scratch_card_expiry_days) || 90,
+        autoGenerateStudentId: settingsMap.auto_generate_student_id === "true" || true,
+        emailNotifications: settingsMap.email_notifications === "true" || true,
+        maintenanceMode: settingsMap.maintenance_mode === "true" || false,
+      });
+    }
+  }, [currentSettings, settingsMap, schoolForm, systemForm]);
 
   const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
     setIsSaving(true);
@@ -100,6 +144,9 @@ export default function Settings() {
           body: JSON.stringify(entry),
         });
       }
+      
+      // Invalidate and refetch the settings
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/school-info"] });
       
       toast({
         title: "Success",
@@ -150,6 +197,9 @@ export default function Settings() {
           body: JSON.stringify(entry),
         });
       }
+      
+      // Invalidate and refetch the settings
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/school-info"] });
       
       toast({
         title: "Success",

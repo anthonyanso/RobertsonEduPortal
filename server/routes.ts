@@ -1287,6 +1287,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all school info settings
+  app.get('/api/admin/school-info', isAdminAuthenticated, async (req, res) => {
+    try {
+      const settings = await storage.getSchoolInfo();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching school info:", error);
+      res.status(500).json({ message: "Failed to fetch school info" });
+    }
+  });
+
   // Contact form submission with email
   app.post('/api/contact', async (req, res) => {
     try {
