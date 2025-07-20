@@ -28,6 +28,12 @@ export default function Admission() {
   }, {});
 
   const isAdmissionsEnabled = settingsMap.enable_admissions === 'true';
+  
+  // Debug logging
+  console.log('Settings data:', settings);
+  console.log('Settings map:', settingsMap);
+  console.log('enable_admissions value:', settingsMap.enable_admissions);
+  console.log('isAdmissionsEnabled:', isAdmissionsEnabled);
 
   const handleDownloadPDF = () => {
     const blankFormData = {
