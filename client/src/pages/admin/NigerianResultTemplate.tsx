@@ -604,8 +604,8 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
               alt="Official School Seal" 
               className="w-20 h-20"
               style={{
-                width: '80px',
-                height: '80px',
+                width: '100px',
+                height: '70px',
                 opacity: 0.9
               }}
             />

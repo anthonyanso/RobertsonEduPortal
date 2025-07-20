@@ -1,13 +1,13 @@
-<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-  <!-- Outer Circle with stamp-like border -->
-  <circle cx="60" cy="60" r="58" fill="none" stroke="#1e40af" stroke-width="3" stroke-dasharray="3,2"/>
+<svg width="140" height="100" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer oval with stamp-like border -->
+  <ellipse cx="70" cy="50" rx="68" ry="48" fill="none" stroke="#1e40af" stroke-width="3" stroke-dasharray="4,2"/>
   
-  <!-- Inner solid circle -->
-  <circle cx="60" cy="60" r="50" fill="#1e40af" opacity="0.1"/>
-  <circle cx="60" cy="60" r="50" fill="none" stroke="#1e40af" stroke-width="2"/>
+  <!-- Inner solid oval -->
+  <ellipse cx="70" cy="50" rx="60" ry="40" fill="#1e40af" opacity="0.1"/>
+  <ellipse cx="70" cy="50" rx="60" ry="40" fill="none" stroke="#1e40af" stroke-width="2"/>
   
   <!-- Top Arc Text -->
-  <path id="topArc" d="M 20,60 A 40,40 0 0,1 100,60" fill="none"/>
+  <path id="topArc" d="M 20,50 A 50,35 0 0,1 120,50" fill="none"/>
   <text font-family="serif" font-size="9" font-weight="bold" fill="#1e40af">
     <textPath href="#topArc" startOffset="50%" text-anchor="middle">
       ROBERTSON EDUCATION
@@ -15,7 +15,7 @@
   </text>
   
   <!-- Bottom Arc Text -->
-  <path id="bottomArc" d="M 100,60 A 40,40 0 0,1 20,60" fill="none"/>
+  <path id="bottomArc" d="M 120,50 A 50,35 0 0,1 20,50" fill="none"/>
   <text font-family="serif" font-size="8" font-weight="bold" fill="#1e40af">
     <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">
       OBOSI • ANAMBRA STATE
@@ -23,20 +23,20 @@
   </text>
   
   <!-- Center Content -->
-  <rect x="35" y="45" width="50" height="30" fill="#dc2626" opacity="0.8" rx="3"/>
-  <text x="60" y="55" font-family="serif" font-size="8" font-weight="bold" fill="white" text-anchor="middle">VERIFIED</text>
-  <text x="60" y="65" font-family="serif" font-size="6" font-weight="bold" fill="white" text-anchor="middle">AUTHENTIC</text>
-  <text x="60" y="72" font-family="serif" font-size="5" font-weight="normal" fill="white" text-anchor="middle">RESULT</text>
+  <rect x="40" y="35" width="60" height="30" fill="#dc2626" opacity="0.8" rx="4"/>
+  <text x="70" y="45" font-family="serif" font-size="9" font-weight="bold" fill="white" text-anchor="middle">VERIFIED</text>
+  <text x="70" y="55" font-family="serif" font-size="7" font-weight="bold" fill="white" text-anchor="middle">AUTHENTIC</text>
+  <text x="70" y="62" font-family="serif" font-size="6" font-weight="normal" fill="white" text-anchor="middle">RESULT</text>
   
   <!-- Date stamp -->
-  <text x="60" y="85" font-family="serif" font-size="7" font-weight="bold" fill="#1e40af" text-anchor="middle">2025</text>
+  <text x="70" y="78" font-family="serif" font-size="8" font-weight="bold" fill="#1e40af" text-anchor="middle">2025</text>
   
   <!-- Corner decorative elements -->
-  <circle cx="25" cy="25" r="2" fill="#dc2626"/>
-  <circle cx="95" cy="25" r="2" fill="#dc2626"/>
-  <circle cx="25" cy="95" r="2" fill="#dc2626"/>
-  <circle cx="95" cy="95" r="2" fill="#dc2626"/>
+  <circle cx="15" cy="20" r="2" fill="#dc2626"/>
+  <circle cx="125" cy="20" r="2" fill="#dc2626"/>
+  <circle cx="15" cy="80" r="2" fill="#dc2626"/>
+  <circle cx="125" cy="80" r="2" fill="#dc2626"/>
   
   <!-- Serial number style -->
-  <text x="60" y="105" font-family="monospace" font-size="6" font-weight="normal" fill="#666" text-anchor="middle">REG: 7779525</text>
+  <text x="70" y="90" font-family="monospace" font-size="6" font-weight="normal" fill="#666" text-anchor="middle">REG: 7779525</text>
 </svg>

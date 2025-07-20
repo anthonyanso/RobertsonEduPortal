@@ -323,30 +323,42 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.setLineWidth(0.3);
     doc.rect((pageWidth - 80) / 2, currentY, 80, 35);
     
-    // Stamp-style seal
+    // Oval stamp-style seal
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     
-    // Draw stamp border
-    const stampX = (pageWidth - 80) / 2;
-    const stampY = currentY;
+    // Draw oval stamp border
+    const stampCenterX = pageWidth / 2;
+    const stampCenterY = currentY + 20;
+    const ovalWidth = 70;
+    const ovalHeight = 40;
+    
     doc.setLineWidth(2);
     doc.setDrawColor(30, 64, 175); // Blue color
-    doc.rect(stampX, stampY, 80, 35);
+    doc.ellipse(stampCenterX, stampCenterY, ovalWidth/2, ovalHeight/2, 'S');
+    
+    // Inner oval
+    doc.setLineWidth(1);
+    doc.ellipse(stampCenterX, stampCenterY, (ovalWidth-10)/2, (ovalHeight-8)/2, 'S');
     
     // Inner content
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setTextColor(30, 64, 175);
-    doc.text(schoolInfo.name, pageWidth / 2, currentY + 10, { align: "center" });
-    doc.text("OBOSI • ANAMBRA STATE", pageWidth / 2, currentY + 15, { align: "center" });
+    doc.text(schoolInfo.name, stampCenterX, stampCenterY - 12, { align: "center" });
+    doc.text("OBOSI • ANAMBRA STATE", stampCenterX, stampCenterY + 12, { align: "center" });
     
-    doc.setFontSize(10);
-    doc.setTextColor(220, 38, 38); // Red color
-    doc.text("VERIFIED", pageWidth / 2, currentY + 22, { align: "center" });
+    // Center verification box
+    doc.setFillColor(220, 38, 38); // Red color
+    doc.rect(stampCenterX - 25, stampCenterY - 8, 50, 16, 'F');
     
-    doc.setFontSize(6);
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255); // White color
+    doc.text("VERIFIED", stampCenterX, stampCenterY - 2, { align: "center" });
+    doc.text("AUTHENTIC", stampCenterX, stampCenterY + 6, { align: "center" });
+    
+    doc.setFontSize(5);
     doc.setTextColor(102, 102, 102); // Gray color
-    doc.text(`${new Date().toLocaleDateString('en-GB')} • REG: ${schoolInfo.regNumber}`, pageWidth / 2, currentY + 30, { align: "center" });
+    doc.text(`${new Date().toLocaleDateString('en-GB')} • REG: ${schoolInfo.regNumber}`, stampCenterX, stampCenterY + 25, { align: "center" });
     
     // Reset text color
     doc.setTextColor(0, 0, 0);
@@ -1409,7 +1421,7 @@ export default function ViewResults() {
                             
                             <div class="seal-section" style="text-align: center; margin-top: 15px; padding: 15px; border: 1px solid #ccc;">
                               <div style="display: inline-block;">
-                                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 90px; height: 90px; opacity: 0.9;" />
+                                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 110px; height: 80px; opacity: 0.9;" />
                                 <div style="font-weight: bold; margin-top: 8px;">OFFICIALLY SEALED</div>
                                 <div style="font-size: 9pt; color: #666;">Date: {new Date().toLocaleDateString('en-GB')}</div>
                               </div>
