@@ -323,14 +323,33 @@ const downloadResultAsPDF = (result: any, student: any) => {
     doc.setLineWidth(0.3);
     doc.rect((pageWidth - 80) / 2, currentY, 80, 35);
     
-    // Seal placeholder
-    doc.setFontSize(8);
+    // Stamp-style seal
+    doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text("OFFICIAL SCHOOL SEAL", pageWidth / 2, currentY + 15, { align: "center" });
-    doc.text(schoolInfo.name, pageWidth / 2, currentY + 20, { align: "center" });
-    doc.setFont("helvetica", "normal");
-    doc.text("OFFICIALLY AUTHENTICATED", pageWidth / 2, currentY + 25, { align: "center" });
-    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, pageWidth / 2, currentY + 30, { align: "center" });
+    
+    // Draw stamp border
+    const stampX = (pageWidth - 80) / 2;
+    const stampY = currentY;
+    doc.setLineWidth(2);
+    doc.setDrawColor(30, 64, 175); // Blue color
+    doc.rect(stampX, stampY, 80, 35);
+    
+    // Inner content
+    doc.setFontSize(8);
+    doc.setTextColor(30, 64, 175);
+    doc.text(schoolInfo.name, pageWidth / 2, currentY + 10, { align: "center" });
+    doc.text("OBOSI • ANAMBRA STATE", pageWidth / 2, currentY + 15, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(220, 38, 38); // Red color
+    doc.text("VERIFIED", pageWidth / 2, currentY + 22, { align: "center" });
+    
+    doc.setFontSize(6);
+    doc.setTextColor(102, 102, 102); // Gray color
+    doc.text(`${new Date().toLocaleDateString('en-GB')} • REG: ${schoolInfo.regNumber}`, pageWidth / 2, currentY + 30, { align: "center" });
+    
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
     
     currentY += 40;
     
@@ -1390,7 +1409,7 @@ export default function ViewResults() {
                             
                             <div class="seal-section" style="text-align: center; margin-top: 15px; padding: 15px; border: 1px solid #ccc;">
                               <div style="display: inline-block;">
-                                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 80px; height: 80px; opacity: 0.8;" />
+                                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 90px; height: 90px; opacity: 0.9;" />
                                 <div style="font-weight: bold; margin-top: 8px;">OFFICIALLY SEALED</div>
                                 <div style="font-size: 9pt; color: #666;">Date: {new Date().toLocaleDateString('en-GB')}</div>
                               </div>

@@ -599,13 +599,16 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
         <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">AUTHENTICATION</h3>
         <div className="border border-gray-400 print-border p-4 text-center">
           <div className="flex justify-center items-center">
-            <div className="w-16 h-16 opacity-80 flex items-center justify-center bg-gray-100 rounded-full border-2 border-blue-600">
-              <div className="text-center">
-                <div className="text-blue-600 font-bold text-xs">OFFICIAL</div>
-                <div className="text-red-600 font-bold text-xs">SEAL</div>
-                <div className="text-blue-600 text-xs">RE</div>
-              </div>
-            </div>
+            <img 
+              src="/src/assets/school-seal.svg" 
+              alt="Official School Seal" 
+              className="w-20 h-20"
+              style={{
+                width: '80px',
+                height: '80px',
+                opacity: 0.9
+              }}
+            />
           </div>
           <p className="text-xs font-semibold mt-2 text-gray-700">OFFICIALLY SEALED</p>
           <p className="text-xs text-gray-600">Generated: {new Date().toLocaleDateString('en-GB')}</p>
