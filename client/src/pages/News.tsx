@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Calendar, User, Tag, X, Image as ImageIcon } from "lucide-react";
+import { Search, Calendar, User, Tag, X, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function News() {
@@ -16,6 +17,20 @@ export default function News() {
   const { data: news = [], isLoading } = useQuery({
     queryKey: ["/api/news"],
   });
+
+  // Check if news system is enabled
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // 30 seconds cache
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
+  const isNewsSystemEnabled = settingsMap.enable_news_system === 'true';
 
   useEffect(() => {
     // Initialize AOS
@@ -92,6 +107,19 @@ export default function News() {
             </p>
           </div>
 
+          {!isNewsSystemEnabled ? (
+            <div className="max-w-2xl mx-auto">
+              <Alert className="border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertTitle className="text-red-800">News System Disabled</AlertTitle>
+                <AlertDescription className="text-red-700">
+                  The news and updates system is currently disabled by the school administrator. 
+                  Please contact the school office for latest information or check back later.
+                </AlertDescription>
+              </Alert>
+            </div>
+          ) : (
+            <>
           {/* Categories Filter */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mb-8 md:mb-12" data-aos="fade-up">
             {categories.map((category) => (
@@ -206,6 +234,8 @@ export default function News() {
                 Load More Articles
               </Button>
             </div>
+          )}
+          </>
           )}
         </div>
       </section>

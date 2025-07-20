@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Search, GraduationCap, CheckCircle, AlertTriangle, Printer, Download } from "lucide-react";
+import { Search, GraduationCap, CheckCircle, AlertTriangle, Printer, Download, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import jsPDF from 'jspdf';
@@ -450,6 +451,22 @@ export default function Results() {
   const [dynamicSessions, setDynamicSessions] = useState<string[]>([]);
   const { toast } = useToast();
 
+  // Check if result checker is enabled
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // 30 seconds cache
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
+  const isResultCheckerEnabled = settingsMap.enable_result_checker === 'true';
+  const isAdmissionsEnabled = settingsMap.enable_admissions === 'true';
+  const isNewsSystemEnabled = settingsMap.enable_news_system === 'true';
+
   // Generate dynamic sessions based on current calendar and academic year
   useEffect(() => {
     const currentDate = new Date();
@@ -737,8 +754,18 @@ export default function Results() {
                 <p className="text-gray-600">Enter your details to access your results</p>
               </CardHeader>
               <CardContent className="p-8">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {!isResultCheckerEnabled ? (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                    <AlertTitle className="text-red-800">Result Checker Disabled</AlertTitle>
+                    <AlertDescription className="text-red-700">
+                      The result checking system is currently disabled by the school administrator. 
+                      Please contact the school office for assistance or check back later.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <FormField
                       control={form.control}
                       name="studentId"
@@ -849,8 +876,9 @@ export default function Results() {
                         </>
                       )}
                     </Button>
-                  </form>
-                </Form>
+                    </form>
+                  </Form>
+                )}
               </CardContent>
             </Card>
 

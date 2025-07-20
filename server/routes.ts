@@ -1056,6 +1056,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public PIN verification endpoint with enhanced security
   app.post('/api/verify-scratch-card', async (req, res) => {
     try {
+      // First check if result checker is enabled in settings
+      const schoolInfo = await storage.getSchoolInfo();
+      const enableResultChecker = schoolInfo.find(s => s.key === 'enable_result_checker')?.value === 'true';
+      
+      if (!enableResultChecker) {
+        return res.status(403).json({ 
+          message: "Result checking system is currently disabled. Please contact the school administrator." 
+        });
+      }
+      
       const { pin, studentId } = req.body;
       
       if (!pin || !studentId) {

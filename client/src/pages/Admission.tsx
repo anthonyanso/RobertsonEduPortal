@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { Download, FileText, Phone, MapPin, Clock, Calendar, Users, DollarSign, CheckCircle, Mail } from "lucide-react";
+import { Download, FileText, Phone, MapPin, Clock, Calendar, Users, DollarSign, CheckCircle, Mail, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateAdmissionPDF } from "@/lib/pdfGenerator";
 import { useQuery } from "@tanstack/react-query";
 
@@ -13,6 +14,20 @@ export default function Admission() {
     refetchOnMount: true,
     staleTime: 0,
   });
+
+  // Check if admissions are enabled
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // 30 seconds cache
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
+  const isAdmissionsEnabled = settingsMap.enable_admissions === 'true';
 
   const handleDownloadPDF = () => {
     const blankFormData = {
@@ -69,6 +84,21 @@ export default function Admission() {
           </div>
 
           <div className="max-w-4xl mx-auto">
+            {!isAdmissionsEnabled ? (
+              <Card className="mb-8" data-aos="fade-up">
+                <CardContent className="p-8">
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                    <AlertTitle className="text-red-800">Admissions Disabled</AlertTitle>
+                    <AlertDescription className="text-red-700">
+                      The admission system is currently disabled by the school administrator. 
+                      Please contact the school office for information about current enrollment or check back later.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
             {/* Application Process */}
             <Card className="mb-8" data-aos="fade-up">
               <CardHeader className="bg-red-600 text-white rounded-t-lg">
@@ -286,6 +316,8 @@ export default function Admission() {
                 </div>
               </CardContent>
             </Card>
+            </>
+            )}
           </div>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Menu, X } from "lucide-react";
 import logoUrl from "@assets/logo_1751823007371.png";
 
@@ -10,20 +11,41 @@ interface NavigationProps {
 export default function Navigation({ currentPage, setCurrentPage }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Fetch settings to control navigation visibility
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // 30 seconds cache
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
+  const isResultCheckerEnabled = settingsMap.enable_result_checker === 'true';
+  const isAdmissionsEnabled = settingsMap.enable_admissions === 'true';
+  const isNewsSystemEnabled = settingsMap.enable_news_system === 'true';
+
   const navigateTo = (page: string) => {
     setCurrentPage(page);
     window.location.hash = page;
     setIsMobileMenuOpen(false);
   };
 
-  const navItems = [
+  // Filter navigation items based on settings
+  const allNavItems = [
     { id: "home", label: "Home" },
     { id: "about", label: "About" },
-    { id: "news", label: "News" },
-    { id: "admission", label: "Admission" },
-    { id: "results", label: "Results" },
+    { id: "news", label: "News", enabled: isNewsSystemEnabled },
+    { id: "admission", label: "Admission", enabled: isAdmissionsEnabled },
+    { id: "results", label: "Results", enabled: isResultCheckerEnabled },
     { id: "contact", label: "Contact" },
   ];
+
+  const navItems = allNavItems.filter(item => 
+    item.enabled === undefined || item.enabled === true
+  );
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg">
