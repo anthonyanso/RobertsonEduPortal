@@ -415,6 +415,14 @@ Preferred communication style: Simple, everyday language.
   - All result templates now reflect immediate changes when contact information is updated in settings
   - Phone numbers, email addresses, school name, motto, and address are now fully dynamic across the system
   - Eliminated all hardcoded contact information from result generation and printing functions
+- July 20, 2025. Replaced signature sections with professional school seal across all result templates
+  - Created professional SVG school seal with Robertson Education branding and official authentication design
+  - Removed all signature sections (Class Teacher, Principal, Parent/Guardian) from result templates
+  - Added "AUTHENTICATION" section with official school seal in NigerianResultTemplate.tsx
+  - Updated Results.tsx to display school seal in both print and PDF formats instead of signatures
+  - Enhanced ViewResults.tsx to show professional seal with "OFFICIALLY SEALED" text and date
+  - All result templates now use consistent school seal for authentication instead of signature lines
+  - Seal includes Robertson Education branding, official text, and generation date for authenticity
 - July 20, 2025. Implemented comprehensive maintenance mode functionality with server-side middleware
   - Created maintenance mode middleware that blocks public API access when enabled in admin settings
   - Built professional maintenance page with clear messaging and contact information

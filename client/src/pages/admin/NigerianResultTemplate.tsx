@@ -594,37 +594,21 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
 
 
 
-      {/* Signatures */}
+      {/* Official School Seal */}
       <div className="mb-2 print-no-break">
-        <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">SIGNATURES</h3>
-        <div className="border border-gray-400 print-border">
-          <table className="w-full print-table">
-            <tbody>
-              <tr>
-                <td className="border border-gray-400 p-2 text-center text-xs">
-                  <div className="mb-4"></div>
-                  <div className="border-t border-gray-400 pt-1">
-                    <p className="font-semibold text-xs">Class Teacher's Signature</p>
-                    <p className="text-xs text-gray-600">Date: _______</p>
-                  </div>
-                </td>
-                <td className="border border-gray-400 p-2 text-center text-xs">
-                  <div className="mb-4"></div>
-                  <div className="border-t border-gray-400 pt-1">
-                    <p className="font-semibold text-xs">Principal's Signature</p>
-                    <p className="text-xs text-gray-600">Date: _______</p>
-                  </div>
-                </td>
-                <td className="border border-gray-400 p-2 text-center text-xs">
-                  <div className="mb-4"></div>
-                  <div className="border-t border-gray-400 pt-1">
-                    <p className="font-semibold text-xs">Parent/Guardian's Signature</p>
-                    <p className="text-xs text-gray-600">Date: _______</p>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">AUTHENTICATION</h3>
+        <div className="border border-gray-400 print-border p-4 text-center">
+          <div className="flex justify-center items-center">
+            <div className="w-16 h-16 opacity-80 flex items-center justify-center bg-gray-100 rounded-full border-2 border-blue-600">
+              <div className="text-center">
+                <div className="text-blue-600 font-bold text-xs">OFFICIAL</div>
+                <div className="text-red-600 font-bold text-xs">SEAL</div>
+                <div className="text-blue-600 text-xs">RE</div>
+              </div>
+            </div>
+          </div>
+          <p className="text-xs font-semibold mt-2 text-gray-700">OFFICIALLY SEALED</p>
+          <p className="text-xs text-gray-600">Generated: {new Date().toLocaleDateString('en-GB')}</p>
         </div>
       </div>
 

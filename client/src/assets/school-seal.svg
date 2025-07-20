@@ -1,0 +1,43 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Circle -->
+  <circle cx="60" cy="60" r="58" fill="#1e40af" stroke="#0f172a" stroke-width="2"/>
+  
+  <!-- Inner Circle -->
+  <circle cx="60" cy="60" r="45" fill="#ffffff" stroke="#1e40af" stroke-width="2"/>
+  
+  <!-- Shield Shape -->
+  <path d="M40 35 L80 35 L80 65 L60 85 L40 65 Z" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Book in Shield -->
+  <rect x="48" y="45" width="24" height="16" fill="#ffffff" rx="1"/>
+  <line x1="50" y1="49" x2="70" y2="49" stroke="#1e40af" stroke-width="1"/>
+  <line x1="50" y1="52" x2="70" y2="52" stroke="#1e40af" stroke-width="1"/>
+  <line x1="50" y1="55" x2="70" y2="55" stroke="#1e40af" stroke-width="1"/>
+  <line x1="60" y1="45" x2="60" y2="61" stroke="#dc2626" stroke-width="1"/>
+  
+  <!-- Quill Pen -->
+  <path d="M52 42 L56 38 L58 40 L54 44 Z" fill="#fbbf24"/>
+  <line x1="52" y1="42" x2="50" y2="44" stroke="#78350f" stroke-width="1"/>
+  
+  <!-- Top Text -->
+  <path id="topCircle" d="M 20,60 A 40,40 0 0,1 100,60" fill="none"/>
+  <text font-family="serif" font-size="8" font-weight="bold" fill="#1e40af">
+    <textPath href="#topCircle" startOffset="50%" text-anchor="middle">
+      ROBERTSON EDUCATION LIMITED
+    </textPath>
+  </text>
+  
+  <!-- Bottom Text -->
+  <path id="bottomCircle" d="M 100,60 A 40,40 0 0,1 20,60" fill="none"/>
+  <text font-family="serif" font-size="7" font-weight="bold" fill="#1e40af">
+    <textPath href="#bottomCircle" startOffset="50%" text-anchor="middle">
+      EXCELLENCE • INTEGRITY • SERVICE
+    </textPath>
+  </text>
+  
+  <!-- Year -->
+  <text x="60" y="100" font-family="serif" font-size="6" font-weight="bold" fill="#1e40af" text-anchor="middle">EST. 2022</text>
+  
+  <!-- Official Seal Text -->
+  <text x="60" y="108" font-family="serif" font-size="5" font-weight="bold" fill="#dc2626" text-anchor="middle">OFFICIAL SEAL</text>
+</svg>

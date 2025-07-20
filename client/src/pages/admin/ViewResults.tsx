@@ -312,33 +312,27 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     currentY += 22;
     
-    // Signature Section
-    checkPageSpace(30); // Check if signature section fits
+    // Official School Seal Section
+    checkPageSpace(40); // Check if seal section fits
     
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("AUTHENTICATION", pageWidth / 2, currentY, { align: "center" });
+    
+    currentY += 8;
+    doc.setLineWidth(0.3);
+    doc.rect((pageWidth - 80) / 2, currentY, 80, 35);
+    
+    // Seal placeholder
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
+    doc.text("OFFICIAL SCHOOL SEAL", pageWidth / 2, currentY + 15, { align: "center" });
+    doc.text(schoolInfo.name, pageWidth / 2, currentY + 20, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text("OFFICIALLY AUTHENTICATED", pageWidth / 2, currentY + 25, { align: "center" });
+    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, pageWidth / 2, currentY + 30, { align: "center" });
     
-    // Signature boxes
-    const sigBoxWidth = 55;
-    const sigBoxHeight = 20;
-    const sigSpacing = 5;
-    const sigStartX = (pageWidth - (3 * sigBoxWidth + 2 * sigSpacing)) / 2;
-    
-    const signatures = [
-      "CLASS TEACHER'S SIGNATURE",
-      "PRINCIPAL'S SIGNATURE", 
-      "PARENT/GUARDIAN'S SIGNATURE"
-    ];
-    
-    signatures.forEach((sig, index) => {
-      const boxX = sigStartX + index * (sigBoxWidth + sigSpacing);
-      doc.rect(boxX, currentY, sigBoxWidth, sigBoxHeight);
-      doc.text(sig, boxX + sigBoxWidth / 2, currentY + 7, { align: "center" });
-      doc.line(boxX + 5, currentY + 15, boxX + sigBoxWidth - 5, currentY + 15);
-      doc.text("Date: __________", boxX + sigBoxWidth / 2, currentY + 18, { align: "center" });
-    });
-    
-    currentY += 25;
+    currentY += 40;
     
     // Footer
     checkPageSpace(15); // Check if footer fits
@@ -1394,35 +1388,12 @@ export default function ViewResults() {
                               </div>
                             </div>
                             
-                            <div class="signatures">
-                              <table class="signature-table">
-                                <tr>
-                                  <td width="33%">
-                                    <div>
-                                      <strong>CLASS TEACHER'S SIGNATURE</strong>
-                                    </div>
-                                    <div class="signature-line">
-                                      Date: _____________
-                                    </div>
-                                  </td>
-                                  <td width="33%">
-                                    <div>
-                                      <strong>PRINCIPAL'S SIGNATURE</strong>
-                                    </div>
-                                    <div class="signature-line">
-                                      Date: _____________
-                                    </div>
-                                  </td>
-                                  <td width="33%">
-                                    <div>
-                                      <strong>PARENT/GUARDIAN'S SIGNATURE</strong>
-                                    </div>
-                                    <div class="signature-line">
-                                      Date: _____________
-                                    </div>
-                                  </td>
-                                </tr>
-                              </table>
+                            <div class="seal-section" style="text-align: center; margin-top: 15px; padding: 15px; border: 1px solid #ccc;">
+                              <div style="display: inline-block;">
+                                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 80px; height: 80px; opacity: 0.8;" />
+                                <div style="font-weight: bold; margin-top: 8px;">OFFICIALLY SEALED</div>
+                                <div style="font-size: 9pt; color: #666;">Date: {new Date().toLocaleDateString('en-GB')}</div>
+                              </div>
                             </div>
                             
                             <div class="footer">

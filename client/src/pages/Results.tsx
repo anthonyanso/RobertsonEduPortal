@@ -431,6 +431,26 @@ const downloadResultAsPDF = (result: any, student: any) => {
     const principalComment = result.principalComment || 'Well done. Continue to strive for excellence.';
     doc.text(principalComment, 20, currentY + 10);
     
+    currentY += 25;
+    
+    // Official School Seal Section
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("AUTHENTICATION", pageWidth / 2, currentY, { align: "center" });
+    
+    currentY += 8;
+    doc.setLineWidth(0.3);
+    doc.rect((pageWidth - 80) / 2, currentY, 80, 35);
+    
+    // Seal placeholder
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text("OFFICIAL SCHOOL SEAL", pageWidth / 2, currentY + 15, { align: "center" });
+    doc.text("ROBERTSON EDUCATION", pageWidth / 2, currentY + 20, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text("OFFICIALLY AUTHENTICATED", pageWidth / 2, currentY + 25, { align: "center" });
+    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, pageWidth / 2, currentY + 30, { align: "center" });
+    
     // Save PDF
     doc.save(`${student.firstName}_${student.lastName}_${result.session}_${result.term}_Result.pdf`);
   };
@@ -1173,14 +1193,11 @@ export default function Results() {
                         </div>
                       </div>
 
-                      <div className="signatures">
-                        <div className="signature">
-                          <div className="signature-line"></div>
-                          <div>Class Teacher's Signature</div>
-                        </div>
-                        <div className="signature">
-                          <div className="signature-line"></div>
-                          <div>Principal's Signature</div>
+                      <div className="seal-section" style="text-align: center; margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+                        <div style="display: inline-block;">
+                          <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 60px; height: 60px; opacity: 0.8;" />
+                          <div style="font-size: 9pt; font-weight: bold; margin-top: 5px;">OFFICIALLY SEALED</div>
+                          <div style="font-size: 8pt; color: #666;">Date: {new Date().toLocaleDateString('en-GB')}</div>
                         </div>
                       </div>
                     </div>
