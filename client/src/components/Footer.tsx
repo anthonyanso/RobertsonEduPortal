@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Instagram, Linkedin, MapPin, Phone, Mail, Clock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import logoUrl from "@assets/logo_1751823007371.png";
 
 interface FooterProps {
@@ -6,6 +7,18 @@ interface FooterProps {
 }
 
 export default function Footer({ setCurrentPage }: FooterProps) {
+  // Fetch dynamic school information
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 0, // Always fresh data
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
   const navigateTo = (page: string) => {
     setCurrentPage(page);
     window.location.hash = page;
@@ -19,8 +32,12 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
               <img src={logoUrl} alt="Robertson Education Logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
               <div>
-                <h3 className="font-playfair text-lg sm:text-xl font-bold">Robertson Education</h3>
-                <p className="text-yellow-400 text-xs sm:text-sm">Excellence in Learning</p>
+                <h3 className="font-playfair text-lg sm:text-xl font-bold">
+                  {settingsMap.school_name || "Robertson Education"}
+                </h3>
+                <p className="text-yellow-400 text-xs sm:text-sm">
+                  {settingsMap.motto || "Excellence in Learning"}
+                </p>
               </div>
             </div>
             <p className="text-gray-300 mb-4 text-sm sm:text-base">
@@ -127,23 +144,31 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <div className="space-y-2 text-gray-300 text-sm sm:text-base">
               <p className="flex items-start">
                 <MapPin className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                <span>1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State</span>
+                <span>{settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State"}</span>
               </p>
               <p className="flex items-center">
                 <Phone className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>+2348146373297</span>
+                <span>{settingsMap.phone1 || "+2348146373297"}</span>
               </p>
+              {settingsMap.phone2 && (
+                <p className="flex items-center">
+                  <Phone className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span>{settingsMap.phone2}</span>
+                </p>
+              )}
               <p className="flex items-center">
                 <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>robertsonvocational@gmail.com</span>
+                <span>{settingsMap.email || "robertsonvocational@gmail.com"}</span>
               </p>
-              <p className="flex items-center">
-                <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>obosirobertson@gmail.com</span>
-              </p>
+              {settingsMap.email2 && (
+                <p className="flex items-center">
+                  <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span>{settingsMap.email2}</span>
+                </p>
+              )}
               <p className="flex items-center">
                 <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>Mon-Fri: 8:00 AM - 5:00 PM</span>
+                <span>{settingsMap.office_hours || "Mon-Fri: 8:00 AM - 5:00 PM"}</span>
               </p>
             </div>
           </div>

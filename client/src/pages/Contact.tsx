@@ -1,9 +1,22 @@
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { MapPin, Phone, Mail, Clock, Facebook, Twitter, Instagram, Linkedin, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function Contact() {
+  // Fetch dynamic school information
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 0, // Always fresh data
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
   useEffect(() => {
     // Initialize AOS
     const initAOS = async () => {
@@ -23,28 +36,28 @@ export default function Contact() {
     {
       icon: MapPin,
       title: "Address",
-      details: "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
-      subDetails: "Reg No: 7779525",
+      details: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+      subDetails: `Reg No: ${settingsMap.registration_number || "7779525"}`,
       color: "text-red-600"
     },
     {
       icon: Phone,
       title: "Phone Numbers",
-      details: "+234 814 637 3297",
-      subDetails: "+234 701 677 4165",
+      details: settingsMap.phone1 || "+234 814 637 3297",
+      subDetails: settingsMap.phone2 || "+234 701 677 4165",
       color: "text-blue-600"
     },
     {
       icon: Mail,
       title: "Email",
-      details: "robertsonvocational@gmail.com",
-      subDetails: "obosirobertson@gmail.com",
+      details: settingsMap.email || "robertsonvocational@gmail.com",
+      subDetails: settingsMap.email2 || "obosirobertson@gmail.com",
       color: "text-green-600"
     },
     {
       icon: Clock,
       title: "Office Hours",
-      details: "Monday - Friday: 8:00 AM - 5:00 PM",
+      details: settingsMap.office_hours || "Monday - Friday: 8:00 AM - 5:00 PM",
       subDetails: "Weekends: Closed",
       color: "text-purple-600"
     }

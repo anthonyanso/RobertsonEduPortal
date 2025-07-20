@@ -54,8 +54,12 @@ export default function Navigation({ currentPage, setCurrentPage }: NavigationPr
           <div className="flex items-center space-x-2 sm:space-x-4">
             <img src={logoUrl} alt="Robertson Education Logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
             <div>
-              <h1 className="font-playfair text-lg sm:text-xl font-bold text-red-600">Robertson Education</h1>
-              <p className="text-xs text-gray-600 font-crimson hidden sm:block">Excellence in Learning</p>
+              <h1 className="font-playfair text-lg sm:text-xl font-bold text-red-600">
+                {settingsMap.school_name || "Robertson Education"}
+              </h1>
+              <p className="text-xs text-gray-600 font-crimson hidden sm:block">
+                {settingsMap.motto || "Excellence in Learning"}
+              </p>
             </div>
           </div>
           

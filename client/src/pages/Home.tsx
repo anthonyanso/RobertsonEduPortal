@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Award, Users, Globe, Star, Heart, HandHeart, Lightbulb, ChevronDown } from "lucide-react";
 import HeroSlider from "../components/HeroSlider";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
+  // Fetch dynamic school information
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 0, // Always fresh data
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
   useEffect(() => {
     // Initialize AOS
     const initAOS = async () => {
@@ -52,7 +65,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16" data-aos="fade-up">
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Why Choose Robertson Education?
+              Why Choose {settingsMap.school_name || "Robertson Education"}?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Discover what makes our institution a beacon of academic excellence and character development.

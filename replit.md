@@ -385,6 +385,18 @@ Preferred communication style: Simple, everyday language.
   - Navigation menu items now dynamically show/hide based on enable_result_checker, enable_admissions, and enable_news_system settings
   - Server routes now validate settings before processing requests, returning 403 errors when features are disabled
   - Complete feature toggle integration ensures admin settings control both UI visibility and functional access
+- July 20, 2025. Implemented comprehensive dynamic school information system
+  - Fixed critical issue where school information changes in admin settings weren't reflecting on the website
+  - Updated all frontend components to use dynamic school information from database instead of hardcoded values
+  - Added useQuery hooks to Contact, Footer, Navigation, About, and Home pages for real-time school data
+  - School name, address, phone numbers, email addresses, office hours, mission, vision, and motto now update immediately
+  - Implemented staleTime: 0 and refetchOnWindowFocus: false for instant updates when settings change
+  - Navigation menu dynamically displays school name and motto from settings
+  - Footer contact information automatically reflects current database values
+  - Contact page displays real-time school address, phone numbers, and contact details
+  - About page shows dynamic school name, mission, and vision statements
+  - Home page features section uses dynamic school name
+  - All changes made in admin Settings page now immediately appear across entire website without refresh
   - Developed sophisticated template generator function with multiple professional designs
   - Standard Template: Clean design with school logo, gradient borders, and professional styling
   - Premium Template: Enhanced layout with larger logo, advanced styling, and premium appearance

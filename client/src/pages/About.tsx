@@ -1,8 +1,21 @@
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Heart, Star, HandHeart, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function About() {
+  // Fetch dynamic school information
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 0, // Always fresh data
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
   useEffect(() => {
     // Initialize AOS
     const initAOS = async () => {
@@ -25,7 +38,7 @@ export default function About() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16" data-aos="fade-up">
             <h1 className="font-playfair text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              About Robertson Education
+              About {settingsMap.school_name || "Robertson Education"}
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               For over 25 years, we have been committed to providing exceptional education that nurtures 
@@ -44,8 +57,7 @@ export default function About() {
             <div data-aos="fade-left">
               <h2 className="font-playfair text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-lg text-gray-600 mb-6">
-                To provide a transformative educational experience that develops critical thinking, creativity, 
-                and character in our students, preparing them to become responsible global citizens and leaders of tomorrow.
+                {settingsMap.mission || "To provide a transformative educational experience that develops critical thinking, creativity, and character in our students, preparing them to become responsible global citizens and leaders of tomorrow."}
               </p>
               <p className="text-lg text-gray-600">
                 We believe that education is more than just academic achievement - it's about developing the whole person, 
@@ -58,8 +70,7 @@ export default function About() {
             <div data-aos="fade-right" className="order-2 lg:order-1">
               <h2 className="font-playfair text-4xl font-bold text-gray-900 mb-6">Our Vision</h2>
               <p className="text-lg text-gray-600 mb-6">
-                To be recognized as a leading educational institution that sets the standard for academic excellence, 
-                innovative teaching, and character development in our community and beyond.
+                {settingsMap.vision || "To be recognized as a leading educational institution that sets the standard for academic excellence, innovative teaching, and character development in our community and beyond."}
               </p>
               <p className="text-lg text-gray-600">
                 We envision a future where our graduates are confident, compassionate, and capable individuals who 
