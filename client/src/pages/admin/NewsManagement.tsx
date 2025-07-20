@@ -332,18 +332,18 @@ export default function NewsManagement() {
           <CardTitle>News Articles</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16 sm:w-20">Image</TableHead>
-                  <TableHead className="min-w-[120px]">Title</TableHead>
-                  <TableHead className="min-w-[100px] hidden md:table-cell">Author</TableHead>
-                  <TableHead className="min-w-[80px] hidden lg:table-cell">Category</TableHead>
-                  <TableHead className="min-w-[150px] hidden xl:table-cell">Content Preview</TableHead>
-                  <TableHead className="min-w-[70px] hidden sm:table-cell">Status</TableHead>
-                  <TableHead className="min-w-[100px] hidden lg:table-cell">Date</TableHead>
-                  <TableHead className="min-w-[100px]">Actions</TableHead>
+                  <TableHead className="w-12 sm:w-16">Image</TableHead>
+                  <TableHead className="min-w-0">Title</TableHead>
+                  <TableHead className="hidden md:table-cell w-20">Author</TableHead>
+                  <TableHead className="hidden lg:table-cell w-16">Category</TableHead>
+                  <TableHead className="hidden xl:table-cell w-32">Content</TableHead>
+                  <TableHead className="hidden sm:table-cell w-16">Status</TableHead>
+                  <TableHead className="hidden lg:table-cell w-20">Date</TableHead>
+                  <TableHead className="w-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -362,8 +362,8 @@ export default function NewsManagement() {
                 ) : (
                   news.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell>
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden">
+                      <TableCell className="p-2">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden flex-shrink-0">
                           {item.imageUrl ? (
                             <img
                               src={`/api/news-image/${item.id}`}
@@ -383,40 +383,46 @@ export default function NewsManagement() {
                               }}
                             />
                           ) : null}
-                          <ImageIcon className={`h-4 w-4 sm:h-6 sm:w-6 text-gray-400 fallback-icon ${item.imageUrl ? 'hidden' : ''}`} />
+                          <ImageIcon className={`h-3 w-3 sm:h-4 sm:w-4 text-gray-400 fallback-icon ${item.imageUrl ? 'hidden' : ''}`} />
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">
-                        <div className="max-w-[150px] sm:max-w-[200px] truncate">{item.title}</div>
-                        <div className="text-xs text-gray-500 sm:hidden">{item.author}</div>
+                      <TableCell className="font-medium p-2">
+                        <div className="truncate max-w-[120px] sm:max-w-none">{item.title}</div>
+                        <div className="text-xs text-gray-500 sm:hidden truncate">{item.author}</div>
+                        <div className="text-xs text-gray-500 lg:hidden">
+                          <Badge variant={item.published ? "default" : "secondary"} className="text-xs px-1 py-0 sm:hidden">
+                            {item.published ? "Pub" : "Draft"}
+                          </Badge>
+                        </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{item.author}</TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <Badge className={getCategoryColor(item.category)}>
+                      <TableCell className="hidden md:table-cell p-2 truncate">{item.author}</TableCell>
+                      <TableCell className="hidden lg:table-cell p-2">
+                        <Badge className={`${getCategoryColor(item.category)} text-xs px-2 py-1`}>
                           {item.category}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell">
-                        <div className="max-w-[200px] truncate">{truncateContent(item.content)}</div>
+                      <TableCell className="hidden xl:table-cell p-2">
+                        <div className="truncate max-w-[150px]">{truncateContent(item.content, 60)}</div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge variant={item.published ? "default" : "secondary"}>
+                      <TableCell className="hidden sm:table-cell p-2">
+                        <Badge variant={item.published ? "default" : "secondary"} className="text-xs">
                           {item.published ? "Published" : "Draft"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">{formatDate(item.createdAt)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
+                      <TableCell className="hidden lg:table-cell p-2 text-xs">{formatDate(item.createdAt)}</TableCell>
+                      <TableCell className="p-2">
+                        <div className="flex items-center space-x-1">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(item)}
+                            className="h-7 w-7 p-0"
                           >
                             <Edit className="h-3 w-3" />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm">
+                              <Button variant="outline" size="sm" className="h-7 w-7 p-0">
                                 <Trash2 className="h-3 w-3" />
                               </Button>
                             </AlertDialogTrigger>
