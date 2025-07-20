@@ -28,12 +28,19 @@ export default function Admission() {
   }, {});
 
   const isAdmissionsEnabled = settingsMap.enable_admissions === 'true';
+  const isAdmissionsOpen = admissionSettings?.isOpen || false;
+  
+  // Check both feature toggle AND admission open status
+  const shouldShowAdmissionForm = isAdmissionsEnabled && isAdmissionsOpen;
   
   // Debug logging
   console.log('Settings data:', settings);
   console.log('Settings map:', settingsMap);
   console.log('enable_admissions value:', settingsMap.enable_admissions);
   console.log('isAdmissionsEnabled:', isAdmissionsEnabled);
+  console.log('admissionSettings:', admissionSettings);
+  console.log('isAdmissionsOpen:', isAdmissionsOpen);
+  console.log('shouldShowAdmissionForm:', shouldShowAdmissionForm);
 
   const handleDownloadPDF = () => {
     const blankFormData = {
@@ -90,15 +97,19 @@ export default function Admission() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            {!isAdmissionsEnabled ? (
+            {!shouldShowAdmissionForm ? (
               <Card className="mb-8" data-aos="fade-up">
                 <CardContent className="p-8">
                   <Alert className="border-red-200 bg-red-50">
                     <AlertCircle className="h-4 w-4 text-red-600" />
-                    <AlertTitle className="text-red-800">Admissions Disabled</AlertTitle>
+                    <AlertTitle className="text-red-800">
+                      {!isAdmissionsEnabled ? "Admissions Disabled" : "Admissions Closed"}
+                    </AlertTitle>
                     <AlertDescription className="text-red-700">
-                      The admission system is currently disabled by the school administrator. 
-                      Please contact the school office for information about current enrollment or check back later.
+                      {!isAdmissionsEnabled 
+                        ? "The admission system is currently disabled by the school administrator. Please contact the school office for information about current enrollment or check back later."
+                        : "Admission applications are currently closed. Please check back during the next admission period or contact the school office for more information."
+                      }
                     </AlertDescription>
                   </Alert>
                 </CardContent>
