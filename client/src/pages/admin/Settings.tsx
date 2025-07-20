@@ -48,10 +48,9 @@ export default function Settings() {
   const queryClient = useQueryClient();
 
   // Fetch current settings from database
-  const { data: currentSettings = [] } = useQuery({
+  const { data: currentSettings = [], isLoading } = useQuery({
     queryKey: ["/api/admin/school-info"],
-    staleTime: 0,
-    refetchOnWindowFocus: true,
+    staleTime: 5000, // Cache for 5 seconds to prevent constant refetching
   });
 
   // Create settings object from array
@@ -60,40 +59,43 @@ export default function Settings() {
     return acc;
   }, {});
 
+  const [formsInitialized, setFormsInitialized] = useState(false);
+
   const schoolForm = useForm<SchoolInfoData>({
     resolver: zodResolver(schoolInfoSchema),
     defaultValues: {
-      schoolName: settingsMap.school_name || "Robertson Education",
-      address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
-      phone1: settingsMap.phone1 || "+2348146373297",
-      phone2: settingsMap.phone2 || "+2347016774165",
-      email: settingsMap.email || "info@robertsoneducation.com",
-      website: settingsMap.website || "",
-      registrationNumber: settingsMap.registration_number || "7779525",
-      motto: settingsMap.motto || "Excellence in Education",
-      vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
-      mission: settingsMap.mission || "To provide quality education and shape future leaders",
+      schoolName: "Robertson Education",
+      address: "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+      phone1: "+2348146373297",
+      phone2: "+2347016774165",
+      email: "info@robertsoneducation.com",
+      website: "",
+      registrationNumber: "7779525",
+      motto: "Excellence in Education",
+      vision: "To be the leading educational institution in Nigeria",
+      mission: "To provide quality education and shape future leaders",
     },
   });
 
   const systemForm = useForm<SystemSettingsData>({
     resolver: zodResolver(systemSettingsSchema),
     defaultValues: {
-      enableResultChecker: settingsMap.enable_result_checker === "true" || true,
-      enableAdmissions: settingsMap.enable_admissions === "true" || true,
-      enableNewsSystem: settingsMap.enable_news_system === "true" || true,
-      maxScratchCardUsage: parseInt(settingsMap.max_scratch_card_usage) || 30,
-      scratchCardExpiryDays: parseInt(settingsMap.scratch_card_expiry_days) || 90,
-      autoGenerateStudentId: settingsMap.auto_generate_student_id === "true" || true,
-      emailNotifications: settingsMap.email_notifications === "true" || true,
-      maintenanceMode: settingsMap.maintenance_mode === "true" || false,
+      enableResultChecker: true,
+      enableAdmissions: true,
+      enableNewsSystem: true,
+      maxScratchCardUsage: 30,
+      scratchCardExpiryDays: 90,
+      autoGenerateStudentId: true,
+      emailNotifications: true,
+      maintenanceMode: false,
     },
   });
 
-  // Reset form values when settings are loaded
+  // Initialize forms with database values only once
   useEffect(() => {
-    if (currentSettings.length > 0) {
-      schoolForm.reset({
+    if (currentSettings.length > 0 && !formsInitialized) {
+      // Set school form values from database
+      const schoolDefaults = {
         schoolName: settingsMap.school_name || "Robertson Education",
         address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
         phone1: settingsMap.phone1 || "+2348146373297",
@@ -104,20 +106,25 @@ export default function Settings() {
         motto: settingsMap.motto || "Excellence in Education",
         vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
         mission: settingsMap.mission || "To provide quality education and shape future leaders",
-      });
+      };
 
-      systemForm.reset({
-        enableResultChecker: settingsMap.enable_result_checker === "true" || true,
-        enableAdmissions: settingsMap.enable_admissions === "true" || true,
-        enableNewsSystem: settingsMap.enable_news_system === "true" || true,
-        maxScratchCardUsage: parseInt(settingsMap.max_scratch_card_usage) || 30,
-        scratchCardExpiryDays: parseInt(settingsMap.scratch_card_expiry_days) || 90,
-        autoGenerateStudentId: settingsMap.auto_generate_student_id === "true" || true,
-        emailNotifications: settingsMap.email_notifications === "true" || true,
-        maintenanceMode: settingsMap.maintenance_mode === "true" || false,
-      });
+      // Set system form values from database
+      const systemDefaults = {
+        enableResultChecker: settingsMap.enable_result_checker ? settingsMap.enable_result_checker === "true" : true,
+        enableAdmissions: settingsMap.enable_admissions ? settingsMap.enable_admissions === "true" : true,
+        enableNewsSystem: settingsMap.enable_news_system ? settingsMap.enable_news_system === "true" : true,
+        maxScratchCardUsage: settingsMap.max_scratch_card_usage ? parseInt(settingsMap.max_scratch_card_usage) : 30,
+        scratchCardExpiryDays: settingsMap.scratch_card_expiry_days ? parseInt(settingsMap.scratch_card_expiry_days) : 90,
+        autoGenerateStudentId: settingsMap.auto_generate_student_id ? settingsMap.auto_generate_student_id === "true" : true,
+        emailNotifications: settingsMap.email_notifications ? settingsMap.email_notifications === "true" : true,
+        maintenanceMode: settingsMap.maintenance_mode ? settingsMap.maintenance_mode === "true" : false,
+      };
+
+      schoolForm.reset(schoolDefaults);
+      systemForm.reset(systemDefaults);
+      setFormsInitialized(true);
     }
-  }, [currentSettings, settingsMap, schoolForm, systemForm]);
+  }, [currentSettings, settingsMap, formsInitialized, schoolForm, systemForm]);
 
   const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
     setIsSaving(true);
@@ -147,6 +154,7 @@ export default function Settings() {
       
       // Invalidate and refetch the settings
       queryClient.invalidateQueries({ queryKey: ["/api/admin/school-info"] });
+      setFormsInitialized(false); // Allow forms to be reinitialized with new data
       
       toast({
         title: "Success",
@@ -200,6 +208,7 @@ export default function Settings() {
       
       // Invalidate and refetch the settings
       queryClient.invalidateQueries({ queryKey: ["/api/admin/school-info"] });
+      setFormsInitialized(false); // Allow forms to be reinitialized with new data
       
       toast({
         title: "Success",
