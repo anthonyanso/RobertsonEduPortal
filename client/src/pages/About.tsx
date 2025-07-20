@@ -42,7 +42,21 @@ export default function About() {
             </h1>
           </div>
 
-
+          {/* About Robertson Education */}
+          <div className="mb-20" data-aos="fade-up">
+            <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 shadow-xl">
+              <CardContent className="p-8 md:p-12">
+                <div className="max-w-4xl mx-auto">
+                  <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6">
+                    Robertson Education Limited is one of the contemporary government approved co-educational institution in Obosi Anambra State, Nigeria. It aims to provide quality and affordable education at the secondary school level as well as adult skills education, addressing the economic needs of the community.
+                  </p>
+                  <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
+                    It has been growing steadily in the past three years and is graduating its first WAEC pupils in July 2025 and has trained a lot of adults in computer awareness and software packages.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
             <div data-aos="fade-right">
