@@ -40,10 +40,6 @@ export default function About() {
             <h1 className="font-playfair text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               About {settingsMap.school_name || "Robertson Education"}
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              For over 25 years, we have been committed to providing exceptional education that nurtures 
-              academic excellence, character development, and global citizenship.
-            </p>
           </div>
 
           {/* About Robertson Education Limited */}
