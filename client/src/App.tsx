@@ -3,6 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "./lib/queryClient";
+import { useMaintenanceCheck } from "./hooks/useMaintenanceCheck";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -20,6 +21,9 @@ type Page = "home" | "about" | "news" | "admission" | "results" | "contact" | "a
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  
+  // Check for maintenance mode
+  useMaintenanceCheck();
 
   // Check authentication status
   useEffect(() => {

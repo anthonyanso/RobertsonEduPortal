@@ -62,6 +62,8 @@ export default function Maintenance() {
               <a href="mailto:info@robertsoneducation.com" className="text-red-600 hover:underline font-medium">
                 info@robertsoneducation.com
               </a>
+              <br />
+              Visit our website: <a href="https://www.robertsoneducation.com" className="text-blue-600 hover:underline font-medium">www.robertsoneducation.com</a>
             </p>
           </div>
         </CardContent>

@@ -59,16 +59,28 @@ async function calculateClassPositions(className: string, session: string, term:
 
 // Maintenance mode middleware
 async function checkMaintenanceMode(req: any, res: any, next: any) {
-  // Skip maintenance mode check for admin routes and auth routes
+  // Skip maintenance mode check for:
+  // - Admin routes and auth routes
+  // - Static assets (CSS, JS, images, etc.)
+  // - Frontend routes (non-API routes)
   if (req.path.startsWith('/api/admin') || 
       req.path.startsWith('/api/auth') || 
       req.path.startsWith('/api/login') ||
-      req.path === '/api/admin/school-info') {
+      req.path === '/api/admin/school-info' ||
+      req.path.startsWith('/assets') ||
+      req.path.startsWith('/uploads') ||
+      req.path.endsWith('.js') ||
+      req.path.endsWith('.css') ||
+      req.path.endsWith('.png') ||
+      req.path.endsWith('.jpg') ||
+      req.path.endsWith('.svg') ||
+      req.path.endsWith('.ico') ||
+      !req.path.startsWith('/api')) {
     return next();
   }
 
   try {
-    // Check maintenance mode setting
+    // Check maintenance mode setting - only for public API routes
     const settings = await storage.getSchoolSettings();
     const maintenanceMode = settings.find((s: any) => s.key === 'maintenance_mode')?.value;
     

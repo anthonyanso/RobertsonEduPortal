@@ -5,10 +5,16 @@ async function throwIfResNotOk(res: Response) {
     const text = (await res.text()) || res.statusText;
     if (res.status === 503) {
       // Maintenance mode - trigger redirect to maintenance page
-      const response = JSON.parse(text);
-      if (response.maintenanceMode) {
+      try {
+        const response = JSON.parse(text);
+        if (response.maintenanceMode) {
+          window.location.hash = 'maintenance';
+          return; // Don't throw error, just redirect
+        }
+      } catch (e) {
+        // If we can't parse JSON, still redirect on 503
         window.location.hash = 'maintenance';
-        throw new Error('MAINTENANCE_MODE');
+        return;
       }
     }
     throw new Error(`${res.status}: ${text}`);
@@ -48,10 +54,16 @@ export const getQueryFn: <T>(options: {
     // Handle maintenance mode
     if (res.status === 503) {
       const responseText = await res.text();
-      const response = JSON.parse(responseText);
-      if (response.maintenanceMode) {
+      try {
+        const response = JSON.parse(responseText);
+        if (response.maintenanceMode) {
+          window.location.hash = 'maintenance';
+          return null; // Return null instead of throwing error
+        }
+      } catch (e) {
+        // If we can't parse JSON, still redirect on 503
         window.location.hash = 'maintenance';
-        throw new Error('MAINTENANCE_MODE');
+        return null;
       }
     }
 
