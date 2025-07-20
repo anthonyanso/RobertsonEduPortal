@@ -406,6 +406,15 @@ Preferred communication style: Simple, everyday language.
   - Positioned content prominently after hero section for maximum visibility
   - Removed generic "25 years" description text from hero section per user request
   - Removed "Robertson Education Limited" heading from information section per user request (kept content)
+- July 20, 2025. Complete integration of dynamic school contact information across all result templates
+  - Updated Results.tsx to use dynamic school settings instead of hardcoded contact information
+  - Enhanced PDF generation functions to pull phone numbers and email from settings dynamically
+  - Updated print functions to display real-time school contact details from admin settings
+  - Modified ViewResults.tsx to use dynamic school information in both PDF and print templates
+  - Enhanced NigerianResultTemplate.tsx to fully utilize dynamic school settings
+  - All result templates now reflect immediate changes when contact information is updated in settings
+  - Phone numbers, email addresses, school name, motto, and address are now fully dynamic across the system
+  - Eliminated all hardcoded contact information from result generation and printing functions
 - July 20, 2025. Implemented comprehensive maintenance mode functionality with server-side middleware
   - Created maintenance mode middleware that blocks public API access when enabled in admin settings
   - Built professional maintenance page with clear messaging and contact information

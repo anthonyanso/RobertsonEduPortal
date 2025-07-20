@@ -288,12 +288,13 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
     };
   }, [printStyles]);
   const defaultSchoolInfo = {
-    name: "ROBERTSON EDUCATION",
+    name: schoolInfo?.school_name || "ROBERTSON EDUCATION",
     address: "Excellence in Education - Nurturing Tomorrow's Leaders",
-    phone: "+234 XXX XXX XXXX",
-    email: "info@robertsoneducation.edu",
-    motto: "Knowledge • Character • Service",
-    ...schoolInfo
+    phone: `${schoolInfo?.phone1 || "+2348146373297"}${schoolInfo?.phone2 ? ', ' + schoolInfo.phone2 : ''}`,
+    email: schoolInfo?.email || "info@robertsoneducation.com",
+    motto: schoolInfo?.motto || "Knowledge • Character • Service",
+    fullAddress: schoolInfo?.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+    regNumber: schoolInfo?.registration_number || "7779525"
   };
 
   const getGradeRemark = (grade: string) => {

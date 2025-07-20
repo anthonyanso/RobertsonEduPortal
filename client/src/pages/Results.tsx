@@ -288,15 +288,15 @@ const downloadResultAsPDF = (result: any, student: any) => {
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Tel: +2348146373297, +2347016774165 | Email: robertsonvocational@gmail.com", pageWidth / 2, 32, { align: "center" });
+    doc.text(`Tel: ${schoolInfo.phone} | Email: ${schoolInfo.email}`, pageWidth / 2, 32, { align: "center" });
     
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525", pageWidth / 2, 38, { align: "center" });
+    doc.text(`${schoolInfo.address}. Reg No:${schoolInfo.regNumber}`, pageWidth / 2, 38, { align: "center" });
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 44, { align: "center" });
+    doc.text(`"${schoolInfo.motto}"`, pageWidth / 2, 44, { align: "center" });
     
     // Add passport photo
     if (student && student.passportPhoto) {
@@ -466,6 +466,16 @@ export default function Results() {
   const isResultCheckerEnabled = settingsMap.enable_result_checker === 'true';
   const isAdmissionsEnabled = settingsMap.enable_admissions === 'true';
   const isNewsSystemEnabled = settingsMap.enable_news_system === 'true';
+
+  // School contact information for templates
+  const schoolInfo = {
+    name: settingsMap.school_name || "ROBERTSON EDUCATION",
+    phone: `${settingsMap.phone1 || "+2348146373297"}${settingsMap.phone2 ? ', ' + settingsMap.phone2 : ''}`,
+    email: settingsMap.email || "info@robertsoneducation.com",
+    address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+    motto: settingsMap.motto || "Knowledge • Character • Service",
+    regNumber: settingsMap.registration_number || "7779525"
+  };
 
   // Generate dynamic sessions based on current calendar and academic year
   useEffect(() => {
@@ -1052,13 +1062,13 @@ export default function Results() {
                             PASSPORT
                           </span>
                         </div>
-                        <div className="school-name">ROBERTSON EDUCATION</div>
+                        <div className="school-name">{schoolInfo.name}</div>
                         <div className="school-motto">Excellence in Education - Nurturing Tomorrow's Leaders</div>
                         <div className="school-contact">
-                          Tel: +2348146373297, +2347016774165 | Email: robertsonvocational@gmail.com
+                          Tel: {schoolInfo.phone} | Email: {schoolInfo.email}
                         </div>
-                        <div className="school-contact">1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State. Reg No:7779525</div>
-                        <div className="school-contact">"Knowledge • Character • Service"</div>
+                        <div className="school-contact">{schoolInfo.address}. Reg No:{schoolInfo.regNumber}</div>
+                        <div className="school-contact">"{schoolInfo.motto}"</div>
                         <div className="result-title">CONTINUOUS ASSESSMENT REPORT SHEET</div>
                         <div style={{ fontSize: '9pt', marginTop: '5px' }}>Academic Session: {resultData.result.session} | {resultData.result.term}</div>
                       </div>

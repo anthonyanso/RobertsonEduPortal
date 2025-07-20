@@ -97,18 +97,18 @@ const downloadResultAsPDF = (result: any, student: any) => {
     // Header section
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
+    doc.text(schoolInfo.name, pageWidth / 2, 18, { align: "center" });
     
     doc.setFontSize(11);
     doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 26, { align: "center" });
     
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text("Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu", pageWidth / 2, 32, { align: "center" });
+    doc.text(`Tel: ${schoolInfo.phone} | Email: ${schoolInfo.email}`, pageWidth / 2, 32, { align: "center" });
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
-    doc.text('"Knowledge • Character • Service"', pageWidth / 2, 38, { align: "center" });
+    doc.text(`"${schoolInfo.motto}"`, pageWidth / 2, 38, { align: "center" });
     
     // Add passport photo (same size as logo)
     if (student && student.passportPhoto) {
@@ -370,6 +370,28 @@ export default function ViewResults() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Get dynamic school information
+  const { data: settings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+  });
+
+  const settingsMap = settings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
+  // School contact information for templates
+  const schoolInfo = {
+    name: settingsMap.school_name || "ROBERTSON EDUCATION",
+    phone: `${settingsMap.phone1 || "+2348146373297"}${settingsMap.phone2 ? ', ' + settingsMap.phone2 : ''}`,
+    email: settingsMap.email || "info@robertsoneducation.com",
+    address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+    motto: settingsMap.motto || "Knowledge • Character • Service",
+    regNumber: settingsMap.registration_number || "7779525"
+  };
 
   const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
   const termOptions = ["First Term", "Second Term", "Third Term"];
@@ -1234,10 +1256,10 @@ export default function ViewResults() {
                                   </div>
                                 </div>
                                 <div class="school-info">
-                                  <div class="school-name">ROBERTSON EDUCATION</div>
+                                  <div class="school-name">${schoolInfo.name}</div>
                                   <div class="school-address">Excellence in Education - Nurturing Tomorrow's Leaders</div>
-                                  <div class="school-contact">Tel: +234 XXX XXX XXXX | Email: info@robertsoneducation.edu</div>
-                                  <div class="school-motto">"Knowledge • Character • Service"</div>
+                                  <div class="school-contact">Tel: ${schoolInfo.phone} | Email: ${schoolInfo.email}</div>
+                                  <div class="school-motto">"${schoolInfo.motto}"</div>
                                 </div>
                                 <div class="passport-section" style="width: 65px !important; height: 65px !important; border: 2px solid #999; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                   ${student && student.passportPhoto ? 
