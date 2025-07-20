@@ -6,7 +6,7 @@ import {
   scratchCards,
   news,
   admissionApplications,
-  contactMessages,
+
   schoolInfo,
   type User,
   type UpsertUser,
@@ -22,8 +22,7 @@ import {
   type InsertNews,
   type AdmissionApplication,
   type InsertAdmissionApplication,
-  type ContactMessage,
-  type InsertContactMessage,
+
   type SchoolInfo,
   type InsertSchoolInfo,
 } from "@shared/schema";
@@ -82,13 +81,8 @@ export interface IStorage {
   createAdmissionApplication(application: InsertAdmissionApplication): Promise<AdmissionApplication>;
   updateAdmissionApplication(id: number, application: Partial<InsertAdmissionApplication>): Promise<AdmissionApplication>;
   deleteAdmissionApplication(id: number): Promise<void>;
-  
-  // Contact messages
-  getContactMessages(): Promise<ContactMessage[]>;
-  getContactMessage(id: number): Promise<ContactMessage | undefined>;
-  createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
-  updateContactMessage(id: number, message: Partial<InsertContactMessage>): Promise<ContactMessage>;
-  deleteContactMessage(id: number): Promise<void>;
+
+
   
   // School info
   getSchoolInfo(): Promise<SchoolInfo[]>;
@@ -359,33 +353,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(admissionApplications).where(eq(admissionApplications.id, id));
   }
 
-  // Contact messages
-  async getContactMessages(): Promise<ContactMessage[]> {
-    return await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
-  }
 
-  async getContactMessage(id: number): Promise<ContactMessage | undefined> {
-    const [message] = await db.select().from(contactMessages).where(eq(contactMessages.id, id));
-    return message;
-  }
-
-  async createContactMessage(message: InsertContactMessage): Promise<ContactMessage> {
-    const [newMessage] = await db.insert(contactMessages).values(message).returning();
-    return newMessage;
-  }
-
-  async updateContactMessage(id: number, message: Partial<InsertContactMessage>): Promise<ContactMessage> {
-    const [updatedMessage] = await db
-      .update(contactMessages)
-      .set({ ...message, updatedAt: new Date() })
-      .where(eq(contactMessages.id, id))
-      .returning();
-    return updatedMessage;
-  }
-
-  async deleteContactMessage(id: number): Promise<void> {
-    await db.delete(contactMessages).where(eq(contactMessages.id, id));
-  }
 
   // School info
   async getSchoolInfo(): Promise<SchoolInfo[]> {

@@ -159,19 +159,7 @@ export const admissionApplications = pgTable("admission_applications", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Contact messages table
-export const contactMessages = pgTable("contact_messages", {
-  id: serial("id").primaryKey(),
-  firstName: varchar("first_name").notNull(),
-  lastName: varchar("last_name").notNull(),
-  email: varchar("email").notNull(),
-  phone: varchar("phone"),
-  subject: varchar("subject").notNull(),
-  message: text("message").notNull(),
-  status: varchar("status").default("unread"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+
 
 // School information table
 export const schoolInfo = pgTable("school_info", {
@@ -190,7 +178,7 @@ export const insertResultSchema = createInsertSchema(results).omit({ id: true, c
 export const insertScratchCardSchema = createInsertSchema(scratchCards).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertNewsSchema = createInsertSchema(news).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAdmissionApplicationSchema = createInsertSchema(admissionApplications).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({ id: true, createdAt: true, updatedAt: true });
+
 export const insertSchoolInfoSchema = createInsertSchema(schoolInfo).omit({ id: true, updatedAt: true });
 export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({ id: true, createdAt: true, updatedAt: true });
 
@@ -219,7 +207,6 @@ export type News = typeof news.$inferSelect;
 export type InsertNews = z.infer<typeof insertNewsSchema>;
 export type AdmissionApplication = typeof admissionApplications.$inferSelect;
 export type InsertAdmissionApplication = z.infer<typeof insertAdmissionApplicationSchema>;
-export type ContactMessage = typeof contactMessages.$inferSelect;
-export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
+
 export type SchoolInfo = typeof schoolInfo.$inferSelect;
 export type InsertSchoolInfo = z.infer<typeof insertSchoolInfoSchema>;

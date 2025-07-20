@@ -6,7 +6,7 @@ import {
   GraduationCap, 
   CreditCard, 
   Newspaper, 
-  MessageSquare, 
+ 
   Settings,
   Plus,
   Edit,
@@ -75,10 +75,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
     retry: false,
   });
 
-  const { data: messages = [], isLoading: messagesLoading } = useQuery({
-    queryKey: ["/api/admin/contact-messages"],
-    retry: false,
-  });
+
 
   // Delete student mutation
   const deleteStudentMutation = useMutation({
@@ -140,8 +137,6 @@ export default function Admin({ onNavigate }: DashboardProps) {
         queryClient.invalidateQueries({ queryKey: ["/api/admin/news"] });
       } else if (endpoint.includes("admissions")) {
         queryClient.invalidateQueries({ queryKey: ["/api/admin/admissions"] });
-      } else if (endpoint.includes("contact-messages")) {
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/contact-messages"] });
       }
     },
     onError: (error) => {
@@ -277,12 +272,10 @@ export default function Admin({ onNavigate }: DashboardProps) {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending Messages</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {messages.filter((m: any) => m.status === 'unread').length}
-                  </p>
+                  <p className="text-sm text-gray-600">News Articles</p>
+                  <p className="text-3xl font-bold text-gray-900">{news.length}</p>
                 </div>
-                <MessageSquare className="h-8 w-8 text-red-600" />
+                <Newspaper className="h-8 w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
@@ -290,13 +283,12 @@ export default function Admin({ onNavigate }: DashboardProps) {
 
         {/* Main Content */}
         <Tabs defaultValue="students" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="scratch-cards">Scratch Cards</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
             <TabsTrigger value="admissions">Admissions</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
 
           {/* Students Tab */}
@@ -694,69 +686,7 @@ export default function Admin({ onNavigate }: DashboardProps) {
             </Card>
           </TabsContent>
 
-          {/* Messages Tab */}
-          <TabsContent value="messages">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Messages</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-4">Name</th>
-                        <th className="text-left p-4">Email</th>
-                        <th className="text-left p-4">Subject</th>
-                        <th className="text-left p-4">Status</th>
-                        <th className="text-left p-4">Date</th>
-                        <th className="text-left p-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {messagesLoading ? (
-                        <tr>
-                          <td colSpan={6} className="text-center p-8">Loading messages...</td>
-                        </tr>
-                      ) : messages.length === 0 ? (
-                        <tr>
-                          <td colSpan={6} className="text-center p-8 text-gray-500">No contact messages found</td>
-                        </tr>
-                      ) : (
-                        messages.map((message: any) => (
-                          <tr key={message.id} className="border-b hover:bg-gray-50">
-                            <td className="p-4">{message.firstName} {message.lastName}</td>
-                            <td className="p-4">{message.email}</td>
-                            <td className="p-4">{message.subject}</td>
-                            <td className="p-4">
-                              <Badge className={getStatusBadgeColor(message.status)}>
-                                {message.status || 'Unread'}
-                              </Badge>
-                            </td>
-                            <td className="p-4">{formatDate(message.createdAt)}</td>
-                            <td className="p-4">
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => handleDelete("/api/admin/contact-messages", message.id, "contact message")}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
         </Tabs>
       </div>
     </div>

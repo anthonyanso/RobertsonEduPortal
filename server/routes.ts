@@ -8,7 +8,7 @@ import {
   insertScratchCardSchema,
   insertNewsSchema,
   insertAdmissionApplicationSchema,
-  insertContactMessageSchema,
+
   insertSchoolInfoSchema,
   insertAdminUserSchema,
   signUpSchema,
@@ -456,33 +456,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating admission application:", error);
       res.status(500).json({ message: "Failed to create admission application" });
-    }
-  });
-
-  // Contact form submission with email
-  app.post('/api/contact', async (req, res) => {
-    try {
-      const validatedData = insertContactMessageSchema.parse(req.body);
-      
-      // Save to database
-      const message = await storage.createContactMessage(validatedData);
-      
-      // Send email notification
-      const { sendContactFormEmail } = await import('./emailService');
-      const emailSent = await sendContactFormEmail(validatedData);
-      
-      if (!emailSent) {
-        console.warn("Email notification failed for contact form submission");
-      }
-      
-      res.json({ 
-        message: "Contact form submitted successfully", 
-        id: message.id,
-        emailSent
-      });
-    } catch (error) {
-      console.error("Error processing contact form:", error);
-      res.status(500).json({ message: "Failed to process contact form" });
     }
   });
 
@@ -1286,39 +1259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin contact messages
-  app.get('/api/admin/contact-messages', isAdminAuthenticated, async (req, res) => {
-    try {
-      const messages = await storage.getContactMessages();
-      res.json(messages);
-    } catch (error) {
-      console.error("Error fetching contact messages:", error);
-      res.status(500).json({ message: "Failed to fetch contact messages" });
-    }
-  });
 
-  app.put('/api/admin/contact-messages/:id', isAdminAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = insertContactMessageSchema.partial().parse(req.body);
-      const message = await storage.updateContactMessage(id, validatedData);
-      res.json(message);
-    } catch (error) {
-      console.error("Error updating contact message:", error);
-      res.status(500).json({ message: "Failed to update contact message" });
-    }
-  });
-
-  app.delete('/api/admin/contact-messages/:id', isAdminAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deleteContactMessage(id);
-      res.json({ message: "Contact message deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting contact message:", error);
-      res.status(500).json({ message: "Failed to delete contact message" });
-    }
-  });
 
   // Admin school info
   app.put('/api/admin/school-info', isAdminAuthenticated, async (req, res) => {
@@ -1354,32 +1295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Contact form submission with email
-  app.post('/api/contact', async (req, res) => {
-    try {
-      const validatedData = insertContactMessageSchema.parse(req.body);
-      
-      // Save to database
-      const message = await storage.createContactMessage(validatedData);
-      
-      // Send email notification
-      const { sendContactFormEmail } = await import('./emailService');
-      const emailSent = await sendContactFormEmail(validatedData);
-      
-      if (!emailSent) {
-        console.warn("Email notification failed for contact form submission");
-      }
-      
-      res.json({ 
-        message: "Contact form submitted successfully", 
-        id: message.id,
-        emailSent
-      });
-    } catch (error) {
-      console.error("Error processing contact form:", error);
-      res.status(500).json({ message: "Failed to process contact form" });
-    }
-  });
+
 
   // Regenerate PIN for student
   app.post('/api/admin/scratch-cards/regenerate/:studentId', isAdminAuthenticated, async (req, res) => {
