@@ -405,6 +405,7 @@ Preferred communication style: Simple, everyday language.
   - Created prominent card layout with red theme matching school branding
   - Positioned content prominently after hero section for maximum visibility
   - Removed generic "25 years" description text from hero section per user request
+  - Removed Robertson Education Limited information section per user request
 - July 20, 2025. Implemented comprehensive maintenance mode functionality with server-side middleware
   - Created maintenance mode middleware that blocks public API access when enabled in admin settings
   - Built professional maintenance page with clear messaging and contact information
