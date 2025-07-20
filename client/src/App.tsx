@@ -10,11 +10,12 @@ import News from "./pages/News";
 import Admission from "./pages/Admission";
 import Results from "./pages/Results";
 import Contact from "./pages/Contact";
+import Maintenance from "./pages/Maintenance";
 import AuthLayout from "./pages/auth/AuthLayout";
 import AdminLayout from "./pages/admin/AdminLayout";
 import NotFound from "./pages/not-found";
 
-type Page = "home" | "about" | "news" | "admission" | "results" | "contact" | "admin" | "auth";
+type Page = "home" | "about" | "news" | "admission" | "results" | "contact" | "admin" | "auth" | "maintenance";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -32,7 +33,7 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1) as Page;
-      if (["home", "about", "news", "admission", "results", "contact", "admin", "auth"].includes(hash)) {
+      if (["home", "about", "news", "admission", "results", "contact", "admin", "auth", "maintenance"].includes(hash)) {
         setCurrentPage(hash);
       } else {
         setCurrentPage("home");
@@ -76,6 +77,8 @@ function App() {
         return <Results />;
       case "contact":
         return <Contact />;
+      case "maintenance":
+        return <Maintenance />;
       case "admin":
         if (isAdminAuthenticated) {
           return <AdminLayout onLogout={handleAdminLogout} />;
@@ -89,8 +92,8 @@ function App() {
     }
   };
 
-  // Admin and auth pages don't need the main layout
-  if (currentPage === "admin" || currentPage === "auth") {
+  // Admin, auth, and maintenance pages don't need the main layout
+  if (currentPage === "admin" || currentPage === "auth" || currentPage === "maintenance") {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>

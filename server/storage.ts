@@ -92,6 +92,7 @@ export interface IStorage {
   
   // School info
   getSchoolInfo(): Promise<SchoolInfo[]>;
+  getSchoolSettings(): Promise<SchoolInfo[]>;
   getSchoolInfoByKey(key: string): Promise<SchoolInfo | undefined>;
   upsertSchoolInfo(info: InsertSchoolInfo): Promise<SchoolInfo>;
   deleteSchoolInfo(id: number): Promise<void>;
@@ -388,6 +389,10 @@ export class DatabaseStorage implements IStorage {
 
   // School info
   async getSchoolInfo(): Promise<SchoolInfo[]> {
+    return await db.select().from(schoolInfo);
+  }
+
+  async getSchoolSettings(): Promise<SchoolInfo[]> {
     return await db.select().from(schoolInfo);
   }
 

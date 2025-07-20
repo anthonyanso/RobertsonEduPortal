@@ -57,6 +57,37 @@ async function calculateClassPositions(className: string, session: string, term:
   }
 }
 
+// Maintenance mode middleware
+async function checkMaintenanceMode(req: any, res: any, next: any) {
+  // Skip maintenance mode check for admin routes and auth routes
+  if (req.path.startsWith('/api/admin') || 
+      req.path.startsWith('/api/auth') || 
+      req.path.startsWith('/api/login') ||
+      req.path === '/api/admin/school-info') {
+    return next();
+  }
+
+  try {
+    // Check maintenance mode setting
+    const settings = await storage.getSchoolSettings();
+    const maintenanceMode = settings.find((s: any) => s.key === 'maintenance_mode')?.value;
+    
+    if (maintenanceMode === 'true') {
+      return res.status(503).json({ 
+        error: 'Service Temporarily Unavailable', 
+        message: 'The website is currently under maintenance. Please try again later.',
+        maintenanceMode: true
+      });
+    }
+    
+    next();
+  } catch (error) {
+    // If we can't check settings, allow access to prevent breaking the site
+    console.error('Error checking maintenance mode:', error);
+    next();
+  }
+}
+
 // Note: Temporarily removing auth middleware to fix corruption
 
 // Configure multer for file uploads
@@ -93,6 +124,9 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+  
+  // Apply maintenance mode middleware to all public routes
+  app.use(checkMaintenanceMode);
 
   // Serve uploaded files
   app.use('/uploads', (req, res, next) => {
