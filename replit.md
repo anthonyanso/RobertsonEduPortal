@@ -368,6 +368,14 @@ Preferred communication style: Simple, everyday language.
   - Implemented proper form initialization and reset logic matching admission management functionality
   - Added loading state integration and improved button labels for better user experience
   - Settings now work perfectly like admission management with proper form updates and database synchronization
+- July 20, 2025. Fixed scratch card system to use dynamic settings instead of hardcoded values
+  - Updated ScratchCardManagement.tsx to fetch settings from school-info table using same pattern as Settings page
+  - Added dynamic maxUsage variable from settings instead of hardcoded 30
+  - Updated both table display and print template usage limits to use dynamic settings
+  - Modified server-side generation endpoint to accept and use maxUsage parameter from frontend
+  - Fixed server routes to create new cards with current maxUsage setting instead of hardcoded 30
+  - Scratch card usage limits now reflect immediately when changed in Settings system configuration
+  - Both existing card display and new card generation now use dynamic settings values
   - Developed sophisticated template generator function with multiple professional designs
   - Standard Template: Clean design with school logo, gradient borders, and professional styling
   - Premium Template: Enhanced layout with larger logo, advanced styling, and premium appearance

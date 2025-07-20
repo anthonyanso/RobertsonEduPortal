@@ -946,7 +946,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/scratch-cards/generate', isAdminAuthenticated, async (req, res) => {
     try {
-      const { count = 1, durationMonths = 3 } = req.body;
+      const { count = 1, durationMonths = 3, maxUsage = 30 } = req.body;
       const scratchCards = [];
       
       for (let i = 0; i < count; i++) {
@@ -962,7 +962,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pinHash,
           status: 'unused',
           expiryDate,
-          usageLimit: 30, // Updated to 30 uses per card
+          usageLimit: maxUsage, // Use dynamic maxUsage from settings
           usageCount: 0,
         });
       }

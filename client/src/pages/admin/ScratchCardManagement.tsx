@@ -647,7 +647,7 @@ export default function ScratchCardManagement() {
               </div>
               <div class="card-footer">
                 <div class="validity">Valid until: ${new Date(card.expiryDate).toLocaleDateString()}</div>
-                <div>Uses: ${card.usageCount || 0}/${card.usageLimit || 30}</div>
+                <div>Uses: ${card.usageCount || 0}/${maxUsage}</div>
               </div>
               ${templateType === 'custom' ? `
                 <div class="instructions">
@@ -696,7 +696,21 @@ export default function ScratchCardManagement() {
     queryKey: ['/api/admin/scratch-cards'],
   });
 
-  // Fetch settings
+  // Fetch settings from school info (same as Settings page)
+  const { data: currentSettings = [] } = useQuery({
+    queryKey: ["/api/admin/school-info"],
+  });
+
+  // Create settings object from array
+  const settingsMap = currentSettings.reduce((acc: any, setting: any) => {
+    acc[setting.key] = setting.value;
+    return acc;
+  }, {});
+
+  // Get dynamic max usage from settings
+  const maxUsage = parseInt(settingsMap.max_scratch_card_usage) || 30;
+  
+  // Fetch settings for backwards compatibility
   const { data: settingsData } = useQuery({
     queryKey: ['/api/admin/scratch-card-settings'],
     select: (data: any) => {
@@ -721,7 +735,11 @@ export default function ScratchCardManagement() {
   // Generate cards mutation
   const generateCardsMutation = useMutation({
     mutationFn: async ({ count, durationMonths }: { count: number; durationMonths: number }) => {
-      return await apiRequest("POST", "/api/admin/scratch-cards/generate", { count, durationMonths });
+      return await apiRequest("POST", "/api/admin/scratch-cards/generate", { 
+        count, 
+        durationMonths, 
+        maxUsage 
+      });
     },
     onSuccess: () => {
       toast({
@@ -1311,7 +1329,7 @@ export default function ScratchCardManagement() {
                             {getStatusText(card.status, expired)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-sm">{card.usageCount}/{card.usageLimit}</TableCell>
+                        <TableCell className="hidden md:table-cell text-sm">{card.usageCount}/{maxUsage}</TableCell>
                         <TableCell className="hidden lg:table-cell text-sm">{formatDate(card.expiryDate)}</TableCell>
                         <TableCell className="hidden xl:table-cell font-mono text-sm">{card.studentId || "—"}</TableCell>
                         <TableCell>
