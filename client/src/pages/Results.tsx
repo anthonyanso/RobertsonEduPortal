@@ -1224,11 +1224,11 @@ export default function Results() {
                         </div>
                       </div>
 
-                      <div className="seal-section" style="text-align: center; margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
-                        <div style="display: inline-block;">
-                          <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 100px; height: 70px; opacity: 0.9;" />
-                          <div style="font-size: 9pt; font-weight: bold; margin-top: 5px;">OFFICIALLY SEALED</div>
-                          <div style="font-size: 8pt; color: #666;">Date: {new Date().toLocaleDateString('en-GB')}</div>
+                      <div className="seal-section" style="text-align: center; margin: 20px auto; padding: 15px; border: 1px solid #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; width: fit-content; max-width: 200px;">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                          <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 100px; height: 70px; opacity: 0.9; display: block; margin: 0 auto 10px auto;" />
+                          <div style="font-size: 9pt; font-weight: bold; text-align: center; margin: 5px 0;">OFFICIALLY SEALED</div>
+                          <div style="font-size: 8pt; color: #666; text-align: center; margin: 0;">Date: {new Date().toLocaleDateString('en-GB')}</div>
                         </div>
                       </div>
                     </div>

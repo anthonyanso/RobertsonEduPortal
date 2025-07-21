@@ -597,21 +597,22 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       {/* Official School Seal */}
       <div className="mb-2 print-no-break">
         <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">AUTHENTICATION</h3>
-        <div className="border border-gray-400 print-border p-4 text-center">
-          <div className="flex justify-center items-center">
+        <div className="border border-gray-400 print-border p-4 text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
             <img 
               src="/src/assets/school-seal.svg" 
               alt="Official School Seal" 
-              className="w-20 h-20"
               style={{
                 width: '100px',
                 height: '70px',
-                opacity: 0.9
+                opacity: 0.9,
+                display: 'block',
+                margin: '0 auto'
               }}
             />
           </div>
-          <p className="text-xs font-semibold mt-2 text-gray-700">OFFICIALLY SEALED</p>
-          <p className="text-xs text-gray-600">Generated: {new Date().toLocaleDateString('en-GB')}</p>
+          <p className="text-xs font-semibold mt-2 text-gray-700" style={{ textAlign: 'center', margin: '8px auto 4px auto' }}>OFFICIALLY SEALED</p>
+          <p className="text-xs text-gray-600" style={{ textAlign: 'center', margin: '0 auto' }}>Generated: {new Date().toLocaleDateString('en-GB')}</p>
         </div>
       </div>
 
