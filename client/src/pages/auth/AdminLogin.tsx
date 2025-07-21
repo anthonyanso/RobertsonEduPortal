@@ -43,13 +43,23 @@ export default function AdminLogin({ onAuthSuccess }: AdminLoginProps) {
 
     try {
       const endpoint = mode === 'login' ? '/api/admin/login' : '/api/admin/register';
-      const response = await apiRequest(endpoint, {
+      const response = await fetch(endpoint, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Authentication failed');
+      }
+
+      const result = await response.json();
+
       if (mode === 'login') {
-        localStorage.setItem('adminToken', response.token);
+        localStorage.setItem('adminToken', result.token);
         if (onAuthSuccess) {
           onAuthSuccess();
         } else {
@@ -74,10 +84,19 @@ export default function AdminLogin({ onAuthSuccess }: AdminLoginProps) {
 
     setIsLoading(true);
     try {
-      await apiRequest('/api/admin/forgot-password', {
+      const response = await fetch('/api/admin/forgot-password', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email: form.getValues('email') }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send reset email');
+      }
+
       setError("Password reset link sent to your email!");
       setMode('login');
     } catch (err: any) {

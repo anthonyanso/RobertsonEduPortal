@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { admins, type Admin, type InsertAdmin } from "@shared/schema";
+import { adminUsers, type AdminUser, type InsertAdminUser } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -23,26 +23,24 @@ export function registerAdminRoutes(app: Express) {
       }
 
       // Check if admin already exists
-      const [existingAdmin] = await db.select().from(admins).where(eq(admins.email, email));
+      const [existingAdmin] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
       if (existingAdmin) {
         return res.status(400).json({ message: "Admin with this email already exists" });
       }
 
       // Hash password and create admin
       const hashedPassword = await hashPassword(password);
-      const adminId = nanoid();
 
-      const newAdmin: InsertAdmin = {
-        id: adminId,
+      const newAdmin: InsertAdminUser = {
         email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         firstName,
         lastName,
         role: "admin",
         isActive: true,
       };
 
-      const [admin] = await db.insert(admins).values(newAdmin).returning();
+      const [admin] = await db.insert(adminUsers).values(newAdmin).returning();
       
       res.status(201).json({ 
         message: "Admin registered successfully",
@@ -70,13 +68,13 @@ export function registerAdminRoutes(app: Express) {
       }
 
       // Find admin by email
-      const [admin] = await db.select().from(admins).where(eq(admins.email, email));
+      const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
       if (!admin || !admin.isActive) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       // Verify password
-      const isValidPassword = await verifyPassword(password, admin.password);
+      const isValidPassword = await verifyPassword(password, admin.passwordHash);
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -107,7 +105,7 @@ export function registerAdminRoutes(app: Express) {
   // Get current admin profile
   app.get('/api/admin/profile', adminAuthMiddleware, async (req, res) => {
     try {
-      const admin = (req as any).admin as Admin;
+      const admin = (req as any).admin as AdminUser;
       res.json({
         id: admin.id,
         email: admin.email,
@@ -131,7 +129,7 @@ export function registerAdminRoutes(app: Express) {
       }
 
       // Find admin by email
-      const [admin] = await db.select().from(admins).where(eq(admins.email, email));
+      const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
       if (!admin || !admin.isActive) {
         // Don't reveal if email exists for security
         return res.json({ message: "If the email exists, a reset link has been sent" });

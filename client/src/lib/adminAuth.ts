@@ -22,27 +22,54 @@ export interface AdminProfile {
 
 export const adminAuth = {
   async login(data: AdminLoginData) {
-    const response = await apiRequest('/api/admin/login', {
+    const response = await fetch('/api/admin/login', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(data),
     });
-    return response;
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Login failed');
+    }
+
+    return await response.json();
   },
 
   async register(data: AdminRegisterData) {
-    const response = await apiRequest('/api/admin/register', {
+    const response = await fetch('/api/admin/register', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(data),
     });
-    return response;
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Registration failed');
+    }
+
+    return await response.json();
   },
 
   async forgotPassword(email: string) {
-    const response = await apiRequest('/api/admin/forgot-password', {
+    const response = await fetch('/api/admin/forgot-password', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ email }),
     });
-    return response;
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Password reset failed');
+    }
+
+    return await response.json();
   },
 
   async getProfile(): Promise<AdminProfile> {

@@ -2,8 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdminAuthenticated } from "./replitAuth";
-import { registerAdminRoutes } from "./adminRoutes";
-import { adminAuthMiddleware } from "./adminAuth";
+import { setupSimpleAdminAuth } from "./simpleAdminRoutes";
+import { requireAdminAuth } from "./adminAuth";
 import { 
   insertStudentSchema,
   insertResultSchema,
@@ -139,11 +139,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
   
-  // Admin authentication routes
-  registerAdminRoutes(app);
-  
-  // Register admin authentication routes
-  registerAdminRoutes(app);
+  // Simple admin authentication setup
+  const requireAdminAuth = setupSimpleAdminAuth(app);
   
   // Apply maintenance mode middleware to all public routes
   app.use(checkMaintenanceMode);
@@ -479,7 +476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin News Management Routes
-  app.get('/api/admin/news', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/news', requireAdminAuth, async (req, res) => {
     try {
       const news = await storage.getNews();
       res.json(news);
@@ -489,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/news', adminAuthMiddleware, upload.single('image'), async (req, res) => {
+  app.post('/api/admin/news', requireAdminAuth, upload.single('image'), async (req, res) => {
     try {
       const { title, content, author, category, published } = req.body;
       
@@ -521,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/news/:id', adminAuthMiddleware, upload.single('image'), async (req, res) => {
+  app.put('/api/admin/news/:id', requireAdminAuth, upload.single('image'), async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { title, content, author, category, published } = req.body;
@@ -550,7 +547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/news/:id', adminAuthMiddleware, async (req, res) => {
+  app.delete('/api/admin/news/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -607,7 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes
-  app.get('/api/admin/students', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/students', requireAdminAuth, async (req, res) => {
     try {
       const result = await db.execute('SELECT * FROM students ORDER BY created_at DESC');
       
@@ -812,7 +809,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/students', adminAuthMiddleware, async (req, res) => {
+  app.post('/api/admin/students', requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertStudentSchema.parse(req.body);
       
@@ -833,7 +830,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/students/:id', adminAuthMiddleware, async (req, res) => {
+  app.put('/api/admin/students/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       console.log("Updating student with ID:", id);
@@ -872,7 +869,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/students/:id', adminAuthMiddleware, async (req, res) => {
+  app.delete('/api/admin/students/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteStudent(id);
@@ -884,7 +881,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin results routes
-  app.get('/api/admin/results', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/results', requireAdminAuth, async (req, res) => {
     try {
       const results = await storage.getResults();
       res.json(results);
@@ -894,7 +891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/results', adminAuthMiddleware, async (req, res) => {
+  app.post('/api/admin/results', requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertResultSchema.parse(req.body);
       
@@ -911,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/results/:id', adminAuthMiddleware, async (req, res) => {
+  app.put('/api/admin/results/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertResultSchema.partial().parse(req.body);
@@ -961,7 +958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin scratch cards routes
-  app.get('/api/admin/scratch-cards', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/scratch-cards', requireAdminAuth, async (req, res) => {
     try {
       const scratchCards = await storage.getScratchCards();
       res.json(scratchCards);
@@ -971,7 +968,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/scratch-cards/generate', adminAuthMiddleware, async (req, res) => {
+  app.post('/api/admin/scratch-cards/generate', requireAdminAuth, async (req, res) => {
     try {
       const { count = 1, durationMonths = 3, maxUsage = 30 } = req.body;
       const scratchCards = [];
@@ -1002,7 +999,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/scratch-cards/:id', adminAuthMiddleware, async (req, res) => {
+  app.delete('/api/admin/scratch-cards/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteScratchCard(id);
@@ -1048,7 +1045,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get scratch card settings
-  app.get('/api/admin/scratch-card-settings', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/scratch-card-settings', requireAdminAuth, async (req, res) => {
     try {
       const settings = await storage.getSchoolInfo();
       res.json(settings);
@@ -1059,7 +1056,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save scratch card settings
-  app.post('/api/admin/scratch-card-settings', adminAuthMiddleware, async (req, res) => {
+  app.post('/api/admin/scratch-card-settings', requireAdminAuth, async (req, res) => {
     try {
       const { defaultDuration, cardsPerBatch } = req.body;
       
@@ -1204,7 +1201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Admin admission applications
-  app.get('/api/admin/admissions', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/admissions', requireAdminAuth, async (req, res) => {
     try {
       const applications = await storage.getAdmissionApplications();
       res.json(applications);
@@ -1244,7 +1241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/admissions/:id', adminAuthMiddleware, async (req, res) => {
+  app.put('/api/admin/admissions/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertAdmissionApplicationSchema.partial().parse(req.body);
@@ -1256,7 +1253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/admissions/:id', adminAuthMiddleware, async (req, res) => {
+  app.delete('/api/admin/admissions/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteAdmissionApplication(id);
@@ -1270,7 +1267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Admin school info
-  app.put('/api/admin/school-info', adminAuthMiddleware, async (req, res) => {
+  app.put('/api/admin/school-info', requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertSchoolInfoSchema.parse(req.body);
       const schoolInfo = await storage.upsertSchoolInfo(validatedData);
@@ -1281,7 +1278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/admin/school-info', adminAuthMiddleware, async (req, res) => {
+  app.post('/api/admin/school-info', requireAdminAuth, async (req, res) => {
     try {
       const validatedData = insertSchoolInfoSchema.parse(req.body);
       const schoolInfo = await storage.upsertSchoolInfo(validatedData);
@@ -1293,7 +1290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all school info settings
-  app.get('/api/admin/school-info', adminAuthMiddleware, async (req, res) => {
+  app.get('/api/admin/school-info', requireAdminAuth, async (req, res) => {
     try {
       const settings = await storage.getSchoolInfo();
       res.json(settings);

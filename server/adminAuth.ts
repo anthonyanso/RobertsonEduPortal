@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { admins } from "@shared/schema";
+import { adminUsers } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import type { RequestHandler } from "express";
@@ -48,7 +48,7 @@ export const adminAuthMiddleware: RequestHandler = async (req, res, next) => {
     }
 
     // Verify admin still exists and is active
-    const [admin] = await db.select().from(admins).where(eq(admins.id, payload.adminId));
+    const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.id, payload.adminId));
     if (!admin || !admin.isActive) {
       return res.status(401).json({ message: "Admin account not found or inactive" });
     }
