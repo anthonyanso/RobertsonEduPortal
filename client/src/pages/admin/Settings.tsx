@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Settings as SettingsIcon, School, Mail, Phone, MapPin, Clock, Save, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 const schoolInfoSchema = z.object({
   schoolName: z.string().min(1, "School name is required"),
@@ -48,15 +49,15 @@ export default function Settings() {
   const queryClient = useQueryClient();
 
   // Fetch current settings from database
-  const { data: currentSettings = [], isLoading } = useQuery({
+  const { data: currentSettings = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/school-info"],
   });
 
   // Create settings object from array
-  const settingsMap = currentSettings.reduce((acc: any, setting: any) => {
+  const settingsMap = Array.isArray(currentSettings) ? currentSettings.reduce((acc: any, setting: any) => {
     acc[setting.key] = setting.value;
     return acc;
-  }, {});
+  }, {}) : {};
 
   // Create default values from database or fallbacks
   const schoolDefaults = {
@@ -95,11 +96,11 @@ export default function Settings() {
 
   // Update form when current settings change (same pattern as AdmissionManagement)
   useEffect(() => {
-    if (currentSettings.length > 0) {
+    if (Array.isArray(currentSettings) && currentSettings.length > 0) {
       schoolForm.reset(schoolDefaults);
       systemForm.reset(systemDefaults);
     }
-  }, [currentSettings, schoolForm, systemForm]);
+  }, [currentSettings, schoolForm, systemForm, schoolDefaults, systemDefaults]);
 
   const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
     setIsSaving(true);
@@ -120,11 +121,7 @@ export default function Settings() {
 
       // Save all entries
       for (const entry of schoolInfoEntries) {
-        await fetch('/api/admin/school-info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(entry),
-        });
+        await apiRequest('POST', '/api/admin/school-info', entry);
       }
       
       // Invalidate and refetch the settings
@@ -173,11 +170,7 @@ export default function Settings() {
 
       // Save all entries
       for (const entry of systemSettingsEntries) {
-        await fetch('/api/admin/school-info', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(entry),
-        });
+        await apiRequest('POST', '/api/admin/school-info', entry);
       }
       
       // Invalidate and refetch the settings
