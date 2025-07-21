@@ -77,7 +77,7 @@ export default function AdmissionManagement() {
 
   const form = useForm<AdmissionSettings>({
     resolver: zodResolver(admissionSettingsSchema),
-    defaultValues: currentSettings || {
+    defaultValues: {
       isOpen: true,
       startDate: "2025-01-01",
       endDate: "2025-03-31",
@@ -90,16 +90,16 @@ export default function AdmissionManagement() {
     }
   });
 
-  // Update form when current settings change
+  // Update form when current settings change (only once)
   useEffect(() => {
-    if (currentSettings) {
+    if (currentSettings && !isLoadingSettings) {
       form.reset(currentSettings);
     }
-  }, [currentSettings, form]);
+  }, [currentSettings, isLoadingSettings]);
 
   const onSubmitSettings = async (data: AdmissionSettings) => {
     try {
-      await apiRequest('POST', '/api/admin/school-info', {
+      await apiRequest('PUT', '/api/admin/school-info', {
         key: 'admission_settings',
         value: JSON.stringify(data)
       });
@@ -116,7 +116,7 @@ export default function AdmissionManagement() {
       console.error("Error updating admission settings:", error);
       toast({
         title: "Error",
-        description: "Failed to update settings",
+        description: "Failed to update settings. Please try again.",
         variant: "destructive",
       });
     }
