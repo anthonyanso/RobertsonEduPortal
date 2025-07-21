@@ -69,7 +69,13 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
       
       @page {
         size: A4;
-        margin: 0.3in;
+        margin: 0.4in 0.3in 0.5in 0.3in;
+      }
+      
+      .print-authentication {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 0.2in !important;
       }
       
       .print-header {
@@ -595,24 +601,35 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
 
 
       {/* Official School Seal */}
-      <div className="mb-2 print-no-break print-page-break-before">
+      <div className="mb-2 print-no-break" style={{ marginTop: '15px', marginBottom: '20px' }}>
         <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">AUTHENTICATION</h3>
-        <div className="border border-gray-400 print-border p-3 text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', maxWidth: '180px', margin: '0 auto' }}>
+        <div className="border border-gray-400 print-border p-2 text-center" style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          maxWidth: '160px', 
+          margin: '0 auto',
+          minHeight: '100px',
+          pageBreakInside: 'avoid'
+        }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
             <img 
               src="/src/assets/school-seal.svg" 
               alt="Official School Seal" 
               style={{
-                width: '80px',
-                height: '60px',
+                width: '70px',
+                height: '50px',
                 opacity: 0.9,
                 display: 'block',
-                margin: '0 auto'
+                margin: '0 auto',
+                printColorAdjust: 'exact',
+                WebkitPrintColorAdjust: 'exact'
               }}
             />
           </div>
-          <p className="text-xs font-semibold mt-2 text-gray-700" style={{ textAlign: 'center', margin: '8px auto 4px auto' }}>OFFICIALLY SEALED</p>
-          <p className="text-xs text-gray-600" style={{ textAlign: 'center', margin: '0 auto' }}>Generated: {new Date().toLocaleDateString('en-GB')}</p>
+          <p className="text-xs font-semibold mt-1 text-gray-700" style={{ textAlign: 'center', margin: '6px auto 2px auto', fontSize: '8pt' }}>OFFICIALLY SEALED</p>
+          <p className="text-xs text-gray-600" style={{ textAlign: 'center', margin: '0 auto', fontSize: '7pt' }}>Generated: {new Date().toLocaleDateString('en-GB')}</p>
         </div>
       </div>
 
