@@ -59,8 +59,12 @@ export default function NewsManagement() {
   // Create news mutation
   const createNewsMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      const token = localStorage.getItem('adminToken');
       return await fetch("/api/admin/news", {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: data,
       });
     },
@@ -99,8 +103,12 @@ export default function NewsManagement() {
   // Update news mutation
   const updateNewsMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: FormData }) => {
+      const token = localStorage.getItem('adminToken');
       return await fetch(`/api/admin/news/${id}`, {
         method: "PUT",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: data,
       });
     },
@@ -234,7 +242,7 @@ export default function NewsManagement() {
       content: newsItem.content,
       author: newsItem.author,
       category: newsItem.category,
-      published: newsItem.published,
+      published: newsItem.published || false,
       imageUrl: newsItem.imageUrl || "",
     });
     if (newsItem.imageUrl) {
@@ -409,7 +417,7 @@ export default function NewsManagement() {
                           {item.published ? "Published" : "Draft"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell p-2 text-xs">{formatDate(item.createdAt)}</TableCell>
+                      <TableCell className="hidden lg:table-cell p-2 text-xs">{formatDate(item.createdAt || new Date().toISOString())}</TableCell>
                       <TableCell className="p-2">
                         <div className="flex items-center space-x-1">
                           <Button
