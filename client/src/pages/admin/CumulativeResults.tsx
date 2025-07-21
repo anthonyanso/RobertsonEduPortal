@@ -458,11 +458,9 @@ export default function CumulativeResults() {
               </div>
             </div>
 
-            <div class="seal-section" style="text-align: center; margin: 10px auto 20px auto; padding: 10px; border: 1px solid #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; width: fit-content; max-width: 180px; page-break-inside: avoid; break-inside: avoid;">
+            <div class="seal-section" style="text-align: center; margin: 10px auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: fit-content; max-width: 180px; page-break-inside: avoid; break-inside: avoid;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 70px; height: 50px; opacity: 0.9; display: block; margin: 0 auto 8px auto;" />
-                <div style="font-size: 8pt; font-weight: bold; text-align: center; margin: 4px 0 2px 0;">OFFICIALLY SEALED</div>
-                <div style="font-size: 7pt; color: #666; text-align: center; margin: 0;">Generated: ${new Date().toLocaleDateString('en-GB')}</div>
+                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 70px; height: 50px; opacity: 0.9; display: block; margin: 0 auto;" />
               </div>
             </div>
             

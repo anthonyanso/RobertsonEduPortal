@@ -474,3 +474,4 @@ Preferred communication style: Simple, everyday language.
   - Applied consistent seal positioning to NigerianResultTemplate.tsx, Results.tsx, ViewResults.tsx, and CumulativeResults.tsx
   - Replaced signature sections with professional school seal authentication across all result templates
   - Optimized seal container dimensions and text sizing for print compatibility
+  - Removed "OFFICIALLY SEALED" text and border styling from all seal implementations per user request

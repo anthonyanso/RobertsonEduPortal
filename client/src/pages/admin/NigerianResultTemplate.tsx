@@ -602,15 +602,13 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
 
       {/* Official School Seal */}
       <div className="mb-2 print-no-break" style={{ marginTop: '15px', marginBottom: '20px' }}>
-        <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">AUTHENTICATION</h3>
-        <div className="border border-gray-400 print-border p-2 text-center" style={{ 
+        <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center', 
           justifyContent: 'center', 
           maxWidth: '160px', 
           margin: '0 auto',
-          minHeight: '100px',
           pageBreakInside: 'avoid'
         }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
@@ -628,8 +626,6 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
               }}
             />
           </div>
-          <p className="text-xs font-semibold mt-1 text-gray-700" style={{ textAlign: 'center', margin: '6px auto 2px auto', fontSize: '8pt' }}>OFFICIALLY SEALED</p>
-          <p className="text-xs text-gray-600" style={{ textAlign: 'center', margin: '0 auto', fontSize: '7pt' }}>Generated: {new Date().toLocaleDateString('en-GB')}</p>
         </div>
       </div>
 
