@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { GraduationCap, Users, Settings, Eye, Edit, Trash2, Plus, Download, Search, Filter, CheckCircle, XCircle, Clock, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 const admissionSettingsSchema = z.object({
   isOpen: z.boolean(),
@@ -98,20 +99,10 @@ export default function AdmissionManagement() {
 
   const onSubmitSettings = async (data: AdmissionSettings) => {
     try {
-      const response = await fetch('/api/admin/school-info', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          key: 'admission_settings',
-          value: JSON.stringify(data)
-        })
+      await apiRequest('POST', '/api/admin/school-info', {
+        key: 'admission_settings',
+        value: JSON.stringify(data)
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update admission settings');
-      }
 
       // Invalidate the query cache to refresh the data
       queryClient.invalidateQueries({ queryKey: ['/api/admission-settings'] });
@@ -122,6 +113,7 @@ export default function AdmissionManagement() {
       });
       setIsSettingsDialogOpen(false);
     } catch (error) {
+      console.error("Error updating admission settings:", error);
       toast({
         title: "Error",
         description: "Failed to update settings",
