@@ -168,9 +168,13 @@ export default function ViewStudents() {
     mutationFn: async (data: StudentEditData) => {
       if (!editingStudent) throw new Error("No student selected for editing");
       
+      const token = localStorage.getItem('adminToken');
       const response = await fetch(`/api/admin/students/${editingStudent.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify(data),
       });
       
@@ -205,8 +209,12 @@ export default function ViewStudents() {
   // Delete student mutation
   const deleteStudentMutation = useMutation({
     mutationFn: async (studentId: number) => {
+      const token = localStorage.getItem('adminToken');
       const response = await fetch(`/api/admin/students/${studentId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
       
       if (!response.ok) {

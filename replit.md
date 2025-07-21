@@ -462,5 +462,8 @@ Preferred communication style: Simple, everyday language.
   - Completely rebuilt Settings page with simplified form handling to eliminate form reset loops
   - Fixed AdmissionManagement authentication by updating from plain fetch to authenticated apiRequest
   - Resolved TypeScript typing issues in AdmissionManagement by properly typing useQuery with AdmissionSettings
+  - Fixed NewsManagement authentication by adding JWT headers to POST and PUT requests for article creation/updates
+  - Fixed StudentRegistration authentication by adding JWT headers to student creation and deletion operations
+  - Updated all admin components to use proper JWT authentication with Bearer tokens
   - Both Settings and AdmissionManagement now work seamlessly with JWT authentication system
   - All admin functionality restored with proper error handling and user feedback

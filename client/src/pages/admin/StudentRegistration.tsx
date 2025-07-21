@@ -103,9 +103,13 @@ export default function StudentRegistration() {
         (({ studentId, ...rest }) => rest)(data) : 
         data;
       
+      const token = localStorage.getItem('adminToken');
       const response = await fetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify(submitData),
       });
       
@@ -139,8 +143,12 @@ export default function StudentRegistration() {
   // Delete student mutation
   const deleteStudentMutation = useMutation({
     mutationFn: async (studentId: number) => {
+      const token = localStorage.getItem('adminToken');
       const response = await fetch(`/api/admin/students/${studentId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
       
       if (!response.ok) {
