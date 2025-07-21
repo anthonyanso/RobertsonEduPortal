@@ -53,7 +53,8 @@ export default function HeroSlider({ onApplyClick, onLearnMoreClick }: HeroSlide
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden"
+      style={{ minHeight: 'calc(100vh - 80px)' }}>
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
@@ -67,8 +68,8 @@ export default function HeroSlider({ onApplyClick, onLearnMoreClick }: HeroSlide
       
       {/* Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center text-white max-w-4xl mx-auto">
-          <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in">
+        <div className="text-center text-white max-w-4xl mx-auto py-8 sm:py-12">
+          <h1 className="font-playfair text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 sm:mb-4 md:mb-6 animate-fade-in leading-tight">
             {slides[currentSlide].title.split(' ').map((word, index) => (
               <span key={index}>
                 {word === 'Education' || word === 'Learning' || word === 'Development' || word === 'Perspective' ? (
@@ -81,20 +82,20 @@ export default function HeroSlider({ onApplyClick, onLearnMoreClick }: HeroSlide
             ))}
           </h1>
           
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto font-crimson animate-fade-in-delay">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto font-crimson animate-fade-in-delay leading-relaxed px-2">
             {slides[currentSlide].subtitle}
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-delay-2">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-delay-2 px-4 sm:px-0">
             <button
               onClick={onApplyClick}
-              className="bg-yellow-500 hover:bg-yellow-400 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full text-base sm:text-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg"
+              className="bg-yellow-500 hover:bg-yellow-400 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base lg:text-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg w-full sm:w-auto min-h-[44px] sm:min-h-[48px]"
             >
               Apply Now
             </button>
             <button
               onClick={onLearnMoreClick}
-              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-red-600 px-6 py-3 sm:px-8 sm:py-4 rounded-full text-base sm:text-lg font-semibold transition-all hover:shadow-lg"
+              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-red-600 px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base lg:text-lg font-semibold transition-all hover:shadow-lg w-full sm:w-auto min-h-[44px] sm:min-h-[48px]"
             >
               Learn More
             </button>
@@ -105,27 +106,32 @@ export default function HeroSlider({ onApplyClick, onLearnMoreClick }: HeroSlide
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 text-white/80 hover:text-white transition-colors z-10"
+        className="absolute left-2 sm:left-4 md:left-6 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors z-10 bg-black/20 hover:bg-black/40 rounded-full p-2 sm:p-3"
+        aria-label="Previous slide"
       >
-        <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
+        <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8" />
       </button>
       
       <button
         onClick={nextSlide}
-        className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 text-white/80 hover:text-white transition-colors z-10"
+        className="absolute right-2 sm:right-4 md:right-6 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors z-10 bg-black/20 hover:bg-black/40 rounded-full p-2 sm:p-3"
+        aria-label="Next slide"
       >
-        <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
+        <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8" />
       </button>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+      <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-10">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${
-              index === currentSlide ? 'bg-white' : 'bg-white/50 hover:bg-white/80'
+            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full transition-all duration-300 ${
+              index === currentSlide 
+                ? 'bg-white scale-125' 
+                : 'bg-white/50 hover:bg-white/80 hover:scale-110'
             }`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
