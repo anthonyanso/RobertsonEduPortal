@@ -5,13 +5,12 @@ import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Settings as SettingsIcon, School, Mail, Phone, MapPin, Clock, Save, RefreshCw } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Settings as SettingsIcon, School, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -42,9 +41,10 @@ const systemSettingsSchema = z.object({
 type SchoolInfoData = z.infer<typeof schoolInfoSchema>;
 type SystemSettingsData = z.infer<typeof systemSettingsSchema>;
 
-export default function Settings() {
+export default function SettingsNew() {
   const [activeTab, setActiveTab] = useState("school");
   const [isSaving, setIsSaving] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -59,100 +59,100 @@ export default function Settings() {
     return acc;
   }, {}) : {};
 
-  // Create default values from database or fallbacks
-  const schoolDefaults = {
-    schoolName: settingsMap.school_name || "Robertson Education",
-    address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
-    phone1: settingsMap.phone1 || "+2348146373297",
-    phone2: settingsMap.phone2 || "+2347016774165",
-    email: settingsMap.email || "info@robertsoneducation.com",
-    website: settingsMap.website || "",
-    registrationNumber: settingsMap.registration_number || "7779525",
-    motto: settingsMap.motto || "Excellence in Education",
-    vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
-    mission: settingsMap.mission || "To provide quality education and shape future leaders",
-  };
-
-  const systemDefaults = {
-    enableResultChecker: settingsMap.enable_result_checker ? settingsMap.enable_result_checker === "true" : true,
-    enableAdmissions: settingsMap.enable_admissions ? settingsMap.enable_admissions === "true" : true,
-    enableNewsSystem: settingsMap.enable_news_system ? settingsMap.enable_news_system === "true" : true,
-    maxScratchCardUsage: settingsMap.max_scratch_card_usage ? parseInt(settingsMap.max_scratch_card_usage) : 30,
-    scratchCardExpiryDays: settingsMap.scratch_card_expiry_days ? parseInt(settingsMap.scratch_card_expiry_days) : 90,
-    autoGenerateStudentId: settingsMap.auto_generate_student_id ? settingsMap.auto_generate_student_id === "true" : true,
-    emailNotifications: settingsMap.email_notifications ? settingsMap.email_notifications === "true" : true,
-    maintenanceMode: settingsMap.maintenance_mode ? settingsMap.maintenance_mode === "true" : false,
-  };
-
   const schoolForm = useForm<SchoolInfoData>({
     resolver: zodResolver(schoolInfoSchema),
-    defaultValues: schoolDefaults,
+    defaultValues: {
+      schoolName: "",
+      address: "",
+      phone1: "",
+      phone2: "",
+      email: "",
+      website: "",
+      registrationNumber: "",
+      motto: "",
+      vision: "",
+      mission: "",
+    },
   });
 
   const systemForm = useForm<SystemSettingsData>({
     resolver: zodResolver(systemSettingsSchema),
-    defaultValues: systemDefaults,
+    defaultValues: {
+      enableResultChecker: true,
+      enableAdmissions: true,
+      enableNewsSystem: true,
+      maxScratchCardUsage: 30,
+      scratchCardExpiryDays: 90,
+      autoGenerateStudentId: true,
+      emailNotifications: true,
+      maintenanceMode: false,
+    },
   });
 
-  // Update form when current settings change - but only once after data loads
+  // Initialize forms only once when data loads
   useEffect(() => {
-    if (Array.isArray(currentSettings) && currentSettings.length > 0 && !isLoading) {
-      // Only reset once when data first loads
-      schoolForm.reset(schoolDefaults);
-      systemForm.reset(systemDefaults);
+    if (Array.isArray(currentSettings) && currentSettings.length > 0 && !hasInitialized) {
+      const schoolData = {
+        schoolName: settingsMap.school_name || "Robertson Education",
+        address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+        phone1: settingsMap.phone1 || "+2348146373297",
+        phone2: settingsMap.phone2 || "+2347016774165",
+        email: settingsMap.email || "info@robertsoneducation.com",
+        website: settingsMap.website || "",
+        registrationNumber: settingsMap.registration_number || "7779525",
+        motto: settingsMap.motto || "Excellence in Education",
+        vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
+        mission: settingsMap.mission || "To provide quality education and shape future leaders",
+      };
+
+      const systemData = {
+        enableResultChecker: settingsMap.enable_result_checker === "true",
+        enableAdmissions: settingsMap.enable_admissions === "true",
+        enableNewsSystem: settingsMap.enable_news_system === "true",
+        maxScratchCardUsage: parseInt(settingsMap.max_scratch_card_usage) || 30,
+        scratchCardExpiryDays: parseInt(settingsMap.scratch_card_expiry_days) || 90,
+        autoGenerateStudentId: settingsMap.auto_generate_student_id === "true",
+        emailNotifications: settingsMap.email_notifications === "true",
+        maintenanceMode: settingsMap.maintenance_mode === "true",
+      };
+
+      schoolForm.reset(schoolData);
+      systemForm.reset(systemData);
+      setHasInitialized(true);
     }
-  }, [isLoading]); // Only depend on loading state, not the data itself
+  }, [currentSettings, hasInitialized, settingsMap, schoolForm, systemForm]);
 
   const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
     setIsSaving(true);
     try {
-      // Save each field as a separate school info entry
       const schoolInfoEntries = [
         { key: "school_name", value: data.schoolName },
         { key: "address", value: data.address },
         { key: "phone1", value: data.phone1 },
-        { key: "phone2", value: data.phone2 },
+        { key: "phone2", value: data.phone2 || "" },
         { key: "email", value: data.email },
-        { key: "website", value: data.website },
+        { key: "website", value: data.website || "" },
         { key: "registration_number", value: data.registrationNumber },
-        { key: "motto", value: data.motto },
-        { key: "vision", value: data.vision },
-        { key: "mission", value: data.mission },
+        { key: "motto", value: data.motto || "" },
+        { key: "vision", value: data.vision || "" },
+        { key: "mission", value: data.mission || "" },
       ];
 
-      // Save all entries
       for (const entry of schoolInfoEntries) {
         await apiRequest('POST', '/api/admin/school-info', entry);
       }
       
-      // Invalidate and refetch the settings
       queryClient.invalidateQueries({ queryKey: ["/api/admin/school-info"] });
       
       toast({
         title: "Success",
         description: "School information updated successfully!",
       });
-      
-      // Don't reset form after successful save to allow further edits
     } catch (error) {
       console.error("Error updating school info:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      
-      if (errorMessage.includes("401")) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/admin-login";
-        }, 500);
-        return;
-      }
-      
       toast({
         title: "Error",
-        description: `Failed to update school information: ${errorMessage}`,
+        description: "Failed to update school information",
         variant: "destructive",
       });
     } finally {
@@ -163,7 +163,6 @@ export default function Settings() {
   const onSubmitSystemSettings = async (data: SystemSettingsData) => {
     setIsSaving(true);
     try {
-      // Save each setting as a separate school info entry
       const systemSettingsEntries = [
         { key: "enable_result_checker", value: data.enableResultChecker.toString() },
         { key: "enable_admissions", value: data.enableAdmissions.toString() },
@@ -175,39 +174,21 @@ export default function Settings() {
         { key: "maintenance_mode", value: data.maintenanceMode.toString() },
       ];
 
-      // Save all entries
       for (const entry of systemSettingsEntries) {
         await apiRequest('POST', '/api/admin/school-info', entry);
       }
       
-      // Invalidate and refetch the settings
       queryClient.invalidateQueries({ queryKey: ["/api/admin/school-info"] });
       
       toast({
         title: "Success",
         description: "System settings updated successfully!",
       });
-      
-      // Don't reset form after successful save to allow further edits
     } catch (error) {
       console.error("Error updating system settings:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      
-      if (errorMessage.includes("401")) {
-        toast({
-          title: "Unauthorized", 
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/admin-login";
-        }, 500);
-        return;
-      }
-      
       toast({
         title: "Error",
-        description: `Failed to update system settings: ${errorMessage}`,
+        description: "Failed to update system settings",
         variant: "destructive",
       });
     } finally {
@@ -215,41 +196,20 @@ export default function Settings() {
     }
   };
 
-  const resetToDefaults = () => {
-    if (activeTab === "school") {
-      schoolForm.reset();
-    } else {
-      systemForm.reset();
-    }
-    toast({
-      title: "Reset Complete",
-      description: "Settings have been reset to default values",
-    });
-  };
+  if (isLoading) {
+    return <div className="p-6">Loading settings...</div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center space-x-3">
-          <SettingsIcon className="h-8 w-8 text-red-600" />
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Settings Management</h1>
-            <p className="text-sm sm:text-base text-gray-600">Configure school information and system settings</p>
-          </div>
+      <div className="flex items-center space-x-3">
+        <SettingsIcon className="h-8 w-8 text-red-600" />
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Settings Management</h1>
+          <p className="text-gray-600">Configure school information and system settings</p>
         </div>
-        <Button 
-          onClick={resetToDefaults}
-          variant="outline"
-          className="w-full sm:w-auto"
-          disabled={isSaving}
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Reset to Defaults
-        </Button>
       </div>
 
-      {/* Settings Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="school" className="flex items-center space-x-2">
@@ -262,14 +222,10 @@ export default function Settings() {
           </TabsTrigger>
         </TabsList>
 
-        {/* School Information Tab */}
         <TabsContent value="school" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <School className="h-5 w-5" />
-                <span>School Information</span>
-              </CardTitle>
+              <CardTitle>School Information</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...schoolForm}>
@@ -288,7 +244,6 @@ export default function Settings() {
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={schoolForm.control}
                       name="registrationNumber"
@@ -332,7 +287,6 @@ export default function Settings() {
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={schoolForm.control}
                       name="phone2"
@@ -356,13 +310,12 @@ export default function Settings() {
                         <FormItem>
                           <FormLabel>Email *</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="Enter email address" {...field} />
+                            <Input placeholder="Enter email address" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={schoolForm.control}
                       name="website"
@@ -420,18 +373,9 @@ export default function Settings() {
                     )}
                   />
 
-                  <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
-                    {isSaving ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save School Information
-                      </>
-                    )}
+                  <Button type="submit" disabled={isSaving} className="w-full">
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save School Information"}
                   </Button>
                 </form>
               </Form>
@@ -439,30 +383,23 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* System Settings Tab */}
         <TabsContent value="system" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <SettingsIcon className="h-5 w-5" />
-                <span>System Configuration</span>
-              </CardTitle>
+              <CardTitle>System Settings</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...systemForm}>
                 <form onSubmit={systemForm.handleSubmit(onSubmitSystemSettings)} className="space-y-6">
-                  {/* Feature Controls */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Feature Controls</h3>
-                    
                     <FormField
                       control={systemForm.control}
                       name="enableResultChecker"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
-                            <FormLabel className="text-base">Result Checker</FormLabel>
-                            <FormDescription>Enable student result checking system</FormDescription>
+                            <FormLabel className="text-base">Enable Result Checker</FormLabel>
+                            <div className="text-sm text-gray-600">Allow students to check their results</div>
                           </div>
                           <FormControl>
                             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -475,10 +412,10 @@ export default function Settings() {
                       control={systemForm.control}
                       name="enableAdmissions"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
-                            <FormLabel className="text-base">Admissions</FormLabel>
-                            <FormDescription>Enable online admission applications</FormDescription>
+                            <FormLabel className="text-base">Enable Admissions</FormLabel>
+                            <div className="text-sm text-gray-600">Show admission information on website</div>
                           </div>
                           <FormControl>
                             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -491,96 +428,10 @@ export default function Settings() {
                       control={systemForm.control}
                       name="enableNewsSystem"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
-                            <FormLabel className="text-base">News System</FormLabel>
-                            <FormDescription>Enable news and announcements</FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Scratch Card Settings */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Scratch Card Settings</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={systemForm.control}
-                        name="maxScratchCardUsage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Max Usage per Card</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="1" 
-                                max="100" 
-                                {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormDescription>Maximum number of times a card can be used</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={systemForm.control}
-                        name="scratchCardExpiryDays"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Expiry Days</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="1" 
-                                max="365" 
-                                {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormDescription>Number of days before card expires</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Other Settings */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Other Settings</h3>
-                    
-                    <FormField
-                      control={systemForm.control}
-                      name="autoGenerateStudentId"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Auto-Generate Student ID</FormLabel>
-                            <FormDescription>Automatically generate student IDs</FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch checked={field.value} onCheckedChange={field.onChange} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={systemForm.control}
-                      name="emailNotifications"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Email Notifications</FormLabel>
-                            <FormDescription>Send email notifications to administrators</FormDescription>
+                            <FormLabel className="text-base">Enable News System</FormLabel>
+                            <div className="text-sm text-gray-600">Show news and updates on website</div>
                           </div>
                           <FormControl>
                             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -593,10 +444,10 @@ export default function Settings() {
                       control={systemForm.control}
                       name="maintenanceMode"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                           <div className="space-y-0.5">
                             <FormLabel className="text-base">Maintenance Mode</FormLabel>
-                            <FormDescription>Enable maintenance mode (disables public access)</FormDescription>
+                            <div className="text-sm text-gray-600">Temporarily disable public access</div>
                           </div>
                           <FormControl>
                             <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -606,18 +457,50 @@ export default function Settings() {
                     />
                   </div>
 
-                  <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
-                    {isSaving ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save System Settings
-                      </>
-                    )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={systemForm.control}
+                      name="maxScratchCardUsage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max Scratch Card Usage</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="1" 
+                              max="100" 
+                              {...field} 
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={systemForm.control}
+                      name="scratchCardExpiryDays"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Scratch Card Expiry (Days)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="1" 
+                              max="365" 
+                              {...field} 
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Button type="submit" disabled={isSaving} className="w-full">
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save System Settings"}
                   </Button>
                 </form>
               </Form>

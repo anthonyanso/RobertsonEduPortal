@@ -18,8 +18,7 @@ import ResultAnalytics from "./ResultAnalytics";
 import CumulativeResults from "./CumulativeResults";
 import ScratchCardManagement from "./ScratchCardManagement";
 import NewsManagement from "./NewsManagement";
-// @ts-ignore
-import SettingsPage from "./Settings";
+import SettingsPage from "./SettingsNew";
 // @ts-ignore
 import AdmissionManagement from "./AdmissionManagement";
 import logoUrl from "@assets/logo_1751823007371.png";
