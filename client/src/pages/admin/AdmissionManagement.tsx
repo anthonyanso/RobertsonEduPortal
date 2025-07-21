@@ -58,11 +58,11 @@ export default function AdmissionManagement() {
   const queryClient = useQueryClient();
 
   // Fetch current admission settings from API
-  const { data: currentSettings, isLoading: isLoadingSettings } = useQuery({
+  const { data: currentSettings, isLoading: isLoadingSettings } = useQuery<AdmissionSettings>({
     queryKey: ['/api/admission-settings'],
     refetchOnWindowFocus: true,
     staleTime: 0,
-    select: (data) => data || {
+    select: (data: any) => data || {
       isOpen: false,
       startDate: "2025-01-01",
       endDate: "2025-03-31",
