@@ -1229,7 +1229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           maxApplications: 500,
           applicationFee: 5000,
           requirements: "Birth certificate, Previous school report, Passport photograph",
-          availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2"],
+          availableClasses: ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"],
           contactEmail: "info@robertsoneducation.com",
           contactPhone: "+2348146373297"
         };
