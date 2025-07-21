@@ -97,10 +97,35 @@ export default function Settings() {
   // Update form when current settings change (same pattern as AdmissionManagement)
   useEffect(() => {
     if (Array.isArray(currentSettings) && currentSettings.length > 0) {
-      schoolForm.reset(schoolDefaults);
-      systemForm.reset(systemDefaults);
+      // Recreate the defaults from fresh data
+      const freshSchoolDefaults = {
+        schoolName: settingsMap.school_name || "Robertson Education",
+        address: settingsMap.address || "1. Theo Okeke's Close, Ozuda Market Area, Obosi Anambra State",
+        phone1: settingsMap.phone1 || "+2348146373297",
+        phone2: settingsMap.phone2 || "+2347016774165",
+        email: settingsMap.email || "info@robertsoneducation.com",
+        website: settingsMap.website || "",
+        registrationNumber: settingsMap.registration_number || "7779525",
+        motto: settingsMap.motto || "Excellence in Education",
+        vision: settingsMap.vision || "To be the leading educational institution in Nigeria",
+        mission: settingsMap.mission || "To provide quality education and shape future leaders",
+      };
+
+      const freshSystemDefaults = {
+        enableResultChecker: settingsMap.enable_result_checker ? settingsMap.enable_result_checker === "true" : true,
+        enableAdmissions: settingsMap.enable_admissions ? settingsMap.enable_admissions === "true" : true,
+        enableNewsSystem: settingsMap.enable_news_system ? settingsMap.enable_news_system === "true" : true,
+        maxScratchCardUsage: settingsMap.max_scratch_card_usage ? parseInt(settingsMap.max_scratch_card_usage) : 30,
+        scratchCardExpiryDays: settingsMap.scratch_card_expiry_days ? parseInt(settingsMap.scratch_card_expiry_days) : 90,
+        autoGenerateStudentId: settingsMap.auto_generate_student_id ? settingsMap.auto_generate_student_id === "true" : true,
+        emailNotifications: settingsMap.email_notifications ? settingsMap.email_notifications === "true" : true,
+        maintenanceMode: settingsMap.maintenance_mode ? settingsMap.maintenance_mode === "true" : false,
+      };
+
+      schoolForm.reset(freshSchoolDefaults);
+      systemForm.reset(freshSystemDefaults);
     }
-  }, [currentSettings, schoolForm, systemForm, schoolDefaults, systemDefaults]);
+  }, [currentSettings, settingsMap, schoolForm, systemForm]);
 
   const onSubmitSchoolInfo = async (data: SchoolInfoData) => {
     setIsSaving(true);
@@ -132,20 +157,24 @@ export default function Settings() {
         description: "School information updated successfully!",
       });
     } catch (error) {
-      if (error instanceof Response && error.status === 401) {
+      console.error("Error updating school info:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      
+      if (errorMessage.includes("401")) {
         toast({
           title: "Unauthorized",
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/admin-login";
         }, 500);
         return;
       }
+      
       toast({
         title: "Error",
-        description: "Failed to update school information",
+        description: `Failed to update school information: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -181,20 +210,24 @@ export default function Settings() {
         description: "System settings updated successfully!",
       });
     } catch (error) {
-      if (error instanceof Response && error.status === 401) {
+      console.error("Error updating system settings:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      
+      if (errorMessage.includes("401")) {
         toast({
-          title: "Unauthorized",
+          title: "Unauthorized", 
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/admin-login";
         }, 500);
         return;
       }
+      
       toast({
         title: "Error",
-        description: "Failed to update system settings",
+        description: `Failed to update system settings: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
