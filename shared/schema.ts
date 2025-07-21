@@ -195,6 +195,24 @@ export const signUpSchema = insertAdminUserSchema.omit({ passwordHash: true }).e
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// Admin authentication table
+export const admins = pgTable("admins", {
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  role: varchar("role").default("admin").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  resetToken: varchar("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Admin = typeof admins.$inferSelect;
+export type InsertAdmin = typeof admins.$inferInsert;
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type Student = typeof students.$inferSelect;

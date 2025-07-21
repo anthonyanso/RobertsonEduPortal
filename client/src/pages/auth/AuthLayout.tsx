@@ -1,36 +1,9 @@
-import { useState } from "react";
-import SimpleAuth from "./SimpleAuth";
-import SignUp from "./SignUp";
+import AdminLogin from "./AdminLogin";
 
 interface AuthLayoutProps {
   onAuthSuccess: () => void;
 }
 
 export default function AuthLayout({ onAuthSuccess }: AuthLayoutProps) {
-  const [currentView, setCurrentView] = useState<"signin" | "signup">("signin");
-
-  const handleAuthSuccess = () => {
-    // Store authentication state
-    localStorage.setItem("isAdminAuthenticated", "true");
-    onAuthSuccess();
-  };
-
-  const switchToSignUp = () => setCurrentView("signup");
-  const switchToSignIn = () => setCurrentView("signin");
-
-  if (currentView === "signin") {
-    return (
-      <SimpleAuth
-        onSuccess={handleAuthSuccess}
-        onSwitchToSignUp={switchToSignUp}
-      />
-    );
-  }
-
-  return (
-    <SignUp
-      onSuccess={handleAuthSuccess}
-      onSwitchToSignIn={switchToSignIn}
-    />
-  );
+  return <AdminLogin onAuthSuccess={onAuthSuccess} />;
 }

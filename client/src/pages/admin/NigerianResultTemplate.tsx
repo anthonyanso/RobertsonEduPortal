@@ -595,16 +595,16 @@ export default function NigerianResultTemplate({ result, student, schoolInfo }: 
 
 
       {/* Official School Seal */}
-      <div className="mb-2 print-no-break">
+      <div className="mb-2 print-no-break print-page-break-before">
         <h3 className="text-xs font-bold mb-1 bg-gray-100 p-1 text-center print-subtitle">AUTHENTICATION</h3>
-        <div className="border border-gray-400 print-border p-4 text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="border border-gray-400 print-border p-3 text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', maxWidth: '180px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
             <img 
               src="/src/assets/school-seal.svg" 
               alt="Official School Seal" 
               style={{
-                width: '100px',
-                height: '70px',
+                width: '80px',
+                height: '60px',
                 opacity: 0.9,
                 display: 'block',
                 margin: '0 auto'

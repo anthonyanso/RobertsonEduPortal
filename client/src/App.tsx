@@ -27,8 +27,8 @@ function App() {
 
   // Check authentication status
   useEffect(() => {
-    const authStatus = localStorage.getItem("isAdminAuthenticated");
-    if (authStatus === "true") {
+    const token = localStorage.getItem("adminToken");
+    if (token) {
       setIsAdminAuthenticated(true);
     }
   }, []);
@@ -63,6 +63,7 @@ function App() {
 
   const handleAdminLogout = () => {
     setIsAdminAuthenticated(false);
+    localStorage.removeItem("adminToken");
     setCurrentPage("home");
     window.location.hash = "home";
   };
