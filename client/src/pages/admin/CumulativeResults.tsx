@@ -321,20 +321,10 @@ export default function CumulativeResults() {
               .trend-up { color: #2e7d32; font-weight: bold; }
               .trend-down { color: #d32f2f; font-weight: bold; }
               .trend-stable { color: #757575; font-weight: bold; }
-              .signatures { 
-                display: flex; 
-                justify-content: space-between; 
-                margin-top: 15px; 
-              }
-              .signature { 
-                text-align: center; 
-                width: 30%; 
-                font-size: 8px; 
-              }
-              .signature-line { 
-                border-bottom: 1px solid #000; 
-                margin-bottom: 3px; 
-                height: 25px; 
+              .seal-section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin-bottom: 15px;
               }
               @media print {
                 body { 
@@ -468,18 +458,11 @@ export default function CumulativeResults() {
               </div>
             </div>
 
-            <div class="signatures">
-              <div class="signature">
-                <div class="signature-line"></div>
-                <p>Class Teacher</p>
-              </div>
-              <div class="signature">
-                <div class="signature-line"></div>
-                <p>Principal</p>
-              </div>
-              <div class="signature">
-                <div class="signature-line"></div>
-                <p>Parent/Guardian</p>
+            <div class="seal-section" style="text-align: center; margin: 10px auto 20px auto; padding: 10px; border: 1px solid #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; width: fit-content; max-width: 180px; page-break-inside: avoid; break-inside: avoid;">
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 70px; height: 50px; opacity: 0.9; display: block; margin: 0 auto 8px auto;" />
+                <div style="font-size: 8pt; font-weight: bold; text-align: center; margin: 4px 0 2px 0;">OFFICIALLY SEALED</div>
+                <div style="font-size: 7pt; color: #666; text-align: center; margin: 0;">Generated: ${new Date().toLocaleDateString('en-GB')}</div>
               </div>
             </div>
             

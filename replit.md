@@ -467,3 +467,10 @@ Preferred communication style: Simple, everyday language.
   - Updated all admin components to use proper JWT authentication with Bearer tokens
   - Both Settings and AdmissionManagement now work seamlessly with JWT authentication system
   - All admin functionality restored with proper error handling and user feedback
+- July 21, 2025. Fixed school seal cutting issue in result printing across all templates
+  - Reduced seal size from 80x60px to 70x50px for better print fitting
+  - Added page-break-inside: avoid and break-inside: avoid CSS to prevent seal cutting
+  - Updated page margins to 0.4in top/sides, 0.6in bottom for seal space
+  - Applied consistent seal positioning to NigerianResultTemplate.tsx, Results.tsx, ViewResults.tsx, and CumulativeResults.tsx
+  - Replaced signature sections with professional school seal authentication across all result templates
+  - Optimized seal container dimensions and text sizing for print compatibility
