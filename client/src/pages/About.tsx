@@ -160,29 +160,35 @@ export default function About() {
               {
                 name: "Dr. Emily Robertson",
                 role: "Principal & Founder",
-                image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
+                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400&q=80",
                 bio: "With over 30 years in education, Dr. Robertson founded our school with a vision of transformative learning that prepares students for global success."
               },
               {
                 name: "Mr. James Thompson",
-                role: "Vice Principal",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
+                role: "Vice Principal", 
+                image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400&q=80",
                 bio: "Mr. Thompson brings 20 years of educational leadership experience and specializes in curriculum development and teacher training."
               },
               {
                 name: "Ms. Sarah Williams",
                 role: "Academic Director",
-                image: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
+                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400&q=80",
                 bio: "Ms. Williams oversees our academic programs and ensures alignment with international standards and best practices in education."
               }
             ].map((leader, index) => (
               <Card key={index} className="text-center shadow-lg" data-aos="fade-up" data-aos-delay={index * 100}>
                 <CardContent className="p-8">
-                  <img 
-                    src={leader.image} 
-                    alt={leader.name} 
-                    className="w-32 h-32 rounded-full object-cover mx-auto mb-6"
-                  />
+                  <div className="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-6 overflow-hidden">
+                    <img 
+                      src={leader.image} 
+                      alt={leader.name} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&size=400&background=dc2626&color=ffffff&bold=true`;
+                      }}
+                    />
+                  </div>
                   <h3 className="font-playfair text-2xl font-bold text-gray-900 mb-2">{leader.name}</h3>
                   <p className="text-red-600 font-semibold mb-4">{leader.role}</p>
                   <p className="text-gray-600">{leader.bio}</p>
