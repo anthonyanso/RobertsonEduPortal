@@ -1224,9 +1224,35 @@ export default function Results() {
                         </div>
                       </div>
 
-                      <div className="seal-section" style="text-align: center; margin: 15px auto 25px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: fit-content; max-width: 180px; page-break-inside: avoid; break-inside: avoid;">
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                          <img src="/src/assets/school-seal.svg" alt="Official School Seal" style="width: 70px; height: 50px; opacity: 0.9; display: block; margin: 0 auto;" />
+                      <div className="seal-section" style={{
+                        textAlign: 'center',
+                        margin: '15px auto 25px auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 'fit-content',
+                        maxWidth: '180px',
+                        pageBreakInside: 'avoid',
+                        breakInside: 'avoid'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          <img 
+                            src="/src/assets/school-seal.svg" 
+                            alt="Official School Seal" 
+                            style={{
+                              width: '70px',
+                              height: '50px',
+                              opacity: 0.9,
+                              display: 'block',
+                              margin: '0 auto'
+                            }} 
+                          />
                         </div>
                       </div>
                     </div>
