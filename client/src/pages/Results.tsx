@@ -724,9 +724,37 @@ export default function Results() {
       });
       setResultData(null);
       setShowError(true);
+      
+      // Provide specific user-friendly messages based on error type
+      let title = "Error";
+      let description = error.message || "Please check your Student ID and Scratch Card PIN and try again.";
+      
+      if (error.message.includes("usage limit exceeded")) {
+        title = "PIN Usage Limit Exceeded";
+        description = "This scratch card PIN has been used up and can no longer be used to check results. Please contact your school administrator to get a new scratch card.";
+      } else if (error.message.includes("expired")) {
+        title = "Scratch Card Expired";
+        description = "This scratch card has expired and can no longer be used. Please contact your school administrator to get a new scratch card.";
+      } else if (error.message.includes("bound to another student")) {
+        title = "PIN Already Assigned";
+        description = "This PIN has been assigned to another student and cannot be used by you. Please use your own scratch card PIN.";
+      } else if (error.message.includes("Student not found")) {
+        title = "Student Not Found";
+        description = "No student was found with this ID. Please check your Student ID and try again.";
+      } else if (error.message.includes("Invalid PIN")) {
+        title = "Invalid PIN";
+        description = "The scratch card PIN you entered is not valid. Please check the PIN and try again.";
+      } else if (error.message.includes("deactivated")) {
+        title = "Scratch Card Deactivated";
+        description = "This scratch card has been deactivated by the school administrator. Please contact the school office for assistance.";
+      } else if (error.message.includes("disabled")) {
+        title = "Result Checker Disabled";
+        description = "The result checking system is currently disabled. Please contact the school administrator for assistance.";
+      }
+      
       toast({
-        title: "Error",
-        description: error.message || "Please check your Student ID and Scratch Card PIN and try again.",
+        title,
+        description,
         variant: "destructive",
       });
     },
