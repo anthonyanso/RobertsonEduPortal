@@ -16,7 +16,15 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+const registerSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 type LoginForm = z.infer<typeof loginSchema>;
+type RegisterForm = z.infer<typeof registerSchema>;
 
 interface AdminLoginProps {
   onAuthSuccess?: () => void;
@@ -29,15 +37,17 @@ export default function AdminLogin({ onAuthSuccess }: AdminLoginProps) {
   const [error, setError] = useState("");
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
 
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<any>({
+    resolver: zodResolver(mode === 'register' ? registerSchema : loginSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
     },
   });
 
-  const handleSubmit = async (data: LoginForm) => {
+  const handleSubmit = async (data: any) => {
     setIsLoading(true);
     setError("");
 
@@ -131,6 +141,45 @@ export default function AdminLogin({ onAuthSuccess }: AdminLoginProps) {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              {mode === 'register' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="First name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="Last name"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+              
               <FormField
                 control={form.control}
                 name="email"

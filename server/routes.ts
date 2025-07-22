@@ -142,6 +142,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Simple admin authentication setup
   const requireAdminAuth = setupSimpleAdminAuth(app);
   
+  // Admin registration route (before maintenance mode check)
+  app.post('/api/admin/register', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+
+      if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Check if admin already exists
+      const existingUser = await storage.getAdminUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Admin with this email already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create admin user
+      const adminUser = await storage.createAdminUser({
+        email,
+        firstName,
+        lastName,
+        passwordHash: hashedPassword,
+        role: "admin",
+        isActive: true,
+      });
+
+      res.status(201).json({ 
+        message: "Admin registered successfully",
+        admin: {
+          id: adminUser.id,
+          email: adminUser.email,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          role: adminUser.role
+        }
+      });
+    } catch (error) {
+      console.error("Admin registration error:", error);
+      res.status(500).json({ message: "Failed to register admin" });
+    }
+  });
+
+  // Admin login route (before maintenance mode check)
+  app.post('/api/admin/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+
+      // Find admin user
+      const adminUser = await storage.getAdminUserByEmail(email);
+      if (!adminUser) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Check password
+      const isValidPassword = await bcrypt.compare(password, adminUser.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Store in session
+      (req.session as any).adminUser = {
+        id: adminUser.id,
+        email: adminUser.email,
+        firstName: adminUser.firstName,
+        lastName: adminUser.lastName,
+        role: adminUser.role,
+        isActive: adminUser.isActive,
+      };
+
+      res.json({ 
+        message: "Login successful",
+        admin: {
+          id: adminUser.id,
+          email: adminUser.email,
+          firstName: adminUser.firstName,
+          lastName: adminUser.lastName,
+          role: adminUser.role,
+        }
+      });
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ message: "Failed to login" });
+    }
+  });
+
   // Apply maintenance mode middleware to all public routes
   app.use(checkMaintenanceMode);
 
@@ -172,6 +263,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(404).json({ message: 'File not found' });
     }
   });
+
+
 
   // Admin authentication routes
   app.post('/api/auth/signup', async (req, res) => {
