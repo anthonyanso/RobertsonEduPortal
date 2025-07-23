@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdminAuthenticated } from "./replitAuth";
 import { setupSimpleAdminAuth } from "./simpleAdminRoutes";
-import { requireAdminAuth } from "./adminAuth";
+import { requireAdminAuth, JWT_SECRET } from "./adminAuth";
 import { 
   insertStudentSchema,
   insertResultSchema,
@@ -17,6 +17,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { generateUniqueStudentId } from "./utils/studentIdGenerator";
 import { db, pool } from "./db";
 import { students } from "@shared/schema";
@@ -217,8 +218,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: adminUser.isActive,
       };
 
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          adminId: adminUser.id, 
+          email: adminUser.email,
+          role: adminUser.role 
+        }, 
+        JWT_SECRET, 
+        { expiresIn: '7d' }
+      );
+
       res.json({ 
         message: "Login successful",
+        token,
         admin: {
           id: adminUser.id,
           email: adminUser.email,
@@ -230,6 +243,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Admin login error:", error);
       res.status(500).json({ message: "Failed to login" });
+    }
+  });
+
+  // Admin logout route
+  app.post('/api/admin/logout', async (req, res) => {
+    try {
+      // Clear admin session
+      if (req.session) {
+        (req.session as any).adminUser = null;
+      }
+      
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Admin logout error:", error);
+      res.status(500).json({ message: "Failed to logout" });
     }
   });
 
@@ -878,7 +906,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } else {
         // If it's base64 data, handle it
-        const matches = newsItem.featuredImage.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        const matches = newsItem.imageUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         if (matches && matches.length === 3) {
           const mimeType = matches[1];
           const base64Data = matches[2];
@@ -1212,7 +1240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check usage limit
-      if (card.usageCount >= card.usageLimit) {
+      if ((card.usageCount || 0) >= (card.usageLimit || 30)) {
         return res.status(400).json({ message: "Scratch card usage limit exceeded" });
       }
       
@@ -1230,7 +1258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update usage count and bind student if first use
-      const newUsageCount = card.usageCount + 1;
+      const newUsageCount = (card.usageCount || 0) + 1;
       const updateData: any = {
         usageCount: newUsageCount,
         usedAt: new Date(),
@@ -1243,7 +1271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Mark as 'used' if we've reached the usage limit
-      if (newUsageCount >= card.usageLimit) {
+      if (newUsageCount >= (card.usageLimit || 30)) {
         updateData.status = 'used';
       }
       
@@ -1258,7 +1286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         student,
         results: studentResults,
         usageCount: newUsageCount,
-        usageLimit: card.usageLimit
+        usageLimit: card.usageLimit || 30
       });
     } catch (error) {
       console.error("Error verifying PIN:", error);
@@ -1282,7 +1310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pin: card.pin,
           status: card.status,
           usageCount: card.usageCount,
-          usageLimit: card.usageLimit
+          usageLimit: card.usageLimit || 30
         }))
       });
     } catch (error) {

@@ -53,14 +53,43 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
     }
   }, [activeTab]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call admin logout endpoint to clear server session
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error("Error during admin logout:", error);
+    }
+    
+    // Clear client-side storage
     localStorage.removeItem("isAdminAuthenticated");
     localStorage.removeItem("adminUser");
+    localStorage.removeItem("adminToken");
+    
+    // Also logout from Replit Auth if user is logged in
+    try {
+      await fetch('/api/logout', {
+        method: 'GET',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error("Error during Replit logout:", error);
+    }
+    
     toast({
       title: "Logged Out",
       description: "You have been logged out successfully",
     });
-    onLogout();
+    
+    // Redirect to home page
+    window.location.href = '/';
   };
 
   const menuItems = [

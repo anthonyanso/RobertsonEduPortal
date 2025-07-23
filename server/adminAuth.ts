@@ -5,7 +5,7 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import type { RequestHandler } from "express";
 
-const JWT_SECRET = process.env.SESSION_SECRET || "admin-secret-key";
+export const JWT_SECRET = process.env.SESSION_SECRET || "admin-secret-key";
 
 export interface AdminJWTPayload {
   adminId: string;
