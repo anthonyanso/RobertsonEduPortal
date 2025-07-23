@@ -8,16 +8,25 @@ export const generateProfessionalScratchCardTemplate = (cards: ScratchCard[], te
         size: A4;
       }
       @media print {
+        * {
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         body { 
           margin: 0 !important; 
           padding: 0 !important; 
           background: white !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
         .card { 
           page-break-inside: avoid !important;
           break-inside: avoid !important;
           margin: 5px !important;
-          box-shadow: none !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
         }
         .card-grid {
           page-break-inside: auto !important;
@@ -63,7 +72,7 @@ export const generateProfessionalScratchCardTemplate = (cards: ScratchCard[], te
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         border: 3px solid #d32f2f; 
         border-radius: 15px;
-        padding: 20px; 
+        padding: 18px; 
         width: 320px; 
         height: 200px; 
         box-shadow: 0 8px 20px rgba(211, 47, 47, 0.2);
@@ -72,6 +81,9 @@ export const generateProfessionalScratchCardTemplate = (cards: ScratchCard[], te
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+        print-color-adjust: exact;
       }
       .card::before {
         content: '';
@@ -79,8 +91,11 @@ export const generateProfessionalScratchCardTemplate = (cards: ScratchCard[], te
         top: 0;
         left: 0;
         right: 0;
-        height: 10px;
+        height: 12px;
         background: linear-gradient(90deg, #d32f2f, #ff5722, #d32f2f);
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+        print-color-adjust: exact;
       }
       .card-header {
         text-align: center;
@@ -133,6 +148,9 @@ export const generateProfessionalScratchCardTemplate = (cards: ScratchCard[], te
         border: 1px solid #ddd;
         text-align: center;
         letter-spacing: 1px;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+        print-color-adjust: exact;
       }
       .pin-section {
         background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
@@ -143,6 +161,9 @@ export const generateProfessionalScratchCardTemplate = (cards: ScratchCard[], te
         margin-top: 10px;
         border: 2px solid #b71c1c;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+        print-color-adjust: exact;
       }
       .pin-label {
         font-size: 11px;

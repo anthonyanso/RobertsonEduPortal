@@ -79,16 +79,25 @@ export default function ScratchCardManagement() {
           size: A4;
         }
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body { 
             margin: 0 !important; 
             padding: 0 !important; 
             background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
           .card { 
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             margin: 5px !important;
-            box-shadow: none !important;
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
           }
           .card-grid {
             page-break-inside: auto !important;
@@ -142,7 +151,10 @@ export default function ScratchCardManagement() {
             }
             .card { 
               background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
-              border: 2px solid #d32f2f; 
+              border: 2px solid #d32f2f;
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact; 
               border-radius: 10px;
               padding: 15px; 
               width: 320px; 
@@ -228,6 +240,10 @@ export default function ScratchCardManagement() {
               text-align: center;
               margin: 8px 0;
               box-shadow: 0 3px 10px rgba(211, 47, 47, 0.3);
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
+              border: 2px solid #b71c1c;
             }
             .pin-label {
               font-size: 9px;
@@ -281,12 +297,15 @@ export default function ScratchCardManagement() {
               background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
               border: 3px solid #d32f2f; 
               border-radius: 15px;
-              padding: 18px; 
+              padding: 16px; 
               width: 320px; 
               height: 200px; 
               box-shadow: 0 8px 25px rgba(211, 47, 47, 0.25);
               position: relative;
               overflow: hidden;
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
             }
             .card::before {
               content: '';
@@ -294,8 +313,11 @@ export default function ScratchCardManagement() {
               top: 0;
               left: 0;
               right: 0;
-              height: 10px;
+              height: 12px;
               background: linear-gradient(90deg, #d32f2f, #ff5722, #ffc107, #ff5722, #d32f2f);
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
             }
             .card::after {
               content: '';
@@ -378,6 +400,10 @@ export default function ScratchCardManagement() {
               text-align: center;
               margin: 12px 0;
               box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
+              border: 2px solid #b71c1c;
             }
             .pin-label {
               font-size: 10px;
@@ -423,19 +449,22 @@ export default function ScratchCardManagement() {
                 margin: 0 auto;
               }
               .card { 
-                background: #ffffff;
+                background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
                 page-break-inside: avoid;
                 break-inside: avoid;
                 margin-bottom: 10px;
               border: 2px solid #d32f2f; 
               border-radius: 8px;
-              padding: 12px; 
+              padding: 10px; 
               width: 220px; 
               height: 150px; 
               box-shadow: 0 5px 15px rgba(211, 47, 47, 0.15);
               position: relative;
               font-size: 10px;
               overflow: hidden;
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
             }
             .card-header {
               display: flex;
@@ -488,12 +517,16 @@ export default function ScratchCardManagement() {
               font-family: 'Courier New', monospace;
             }
             .pin-section {
-              background: #d32f2f;
+              background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
               color: white;
               padding: 6px;
               border-radius: 4px;
               text-align: center;
               margin: 6px 0;
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
+              border: 1px solid #b71c1c;
             }
             .pin-label {
               font-size: 6px;
@@ -524,14 +557,17 @@ export default function ScratchCardManagement() {
               margin: 0 auto;
             }
             .card { 
-              background: #ffffff;
+              background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
               border: 2px dashed #d32f2f; 
               border-radius: 12px;
-              padding: 20px; 
+              padding: 18px; 
               width: 320px; 
               height: 200px; 
               box-shadow: 0 8px 20px rgba(211, 47, 47, 0.15);
               position: relative;
+              -webkit-print-color-adjust: exact;
+              color-adjust: exact;
+              print-color-adjust: exact;
             }
             .card-header {
               display: flex;
