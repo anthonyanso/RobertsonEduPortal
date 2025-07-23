@@ -26,7 +26,7 @@ const resultFormSchema = z.object({
 type ResultFormData = z.infer<typeof resultFormSchema>;
 
 // Print function that only prints the result content
-const printResult = (result: any, student: any) => {
+const printResult = (result: any, student: any, schoolInfo: any) => {
   const printContent = document.getElementById('result-print-content');
   if (!printContent) return;
   
@@ -73,6 +73,9 @@ const printResult = (result: any, student: any) => {
           position: absolute;
           left: 10px;
           top: 10px;
+          width: 65px;
+          height: 65px;
+          object-fit: contain;
           width: 60px;
           height: 60px;
         }
@@ -252,7 +255,7 @@ const printResult = (result: any, student: any) => {
 };
 
 // PDF Download Function
-const downloadResultAsPDF = (result: any, student: any) => {
+const downloadResultAsPDF = (result: any, student: any, schoolInfo: any) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -281,7 +284,7 @@ const downloadResultAsPDF = (result: any, student: any) => {
     // Header section
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
+    doc.text(schoolInfo.name || "ROBERTSON EDUCATION", pageWidth / 2, 18, { align: "center" });
     
     doc.setFontSize(11);
     doc.text("Excellence in Education - Nurturing Tomorrow's Leaders", pageWidth / 2, 26, { align: "center" });
@@ -988,14 +991,14 @@ export default function Results() {
                     {/* Action Buttons */}
                     <div className="flex justify-center gap-4 mb-6">
                       <Button
-                        onClick={() => printResult(resultData.result, resultData.student)}
+                        onClick={() => printResult(resultData.result, resultData.student, schoolInfo)}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
                       >
                         <Printer size={20} />
                         Print Result
                       </Button>
                       <Button
-                        onClick={() => downloadResultAsPDF(resultData.result, resultData.student)}
+                        onClick={() => downloadResultAsPDF(resultData.result, resultData.student, schoolInfo)}
                         className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
                       >
                         <Download size={20} />
