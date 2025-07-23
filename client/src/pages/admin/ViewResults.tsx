@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -382,6 +382,26 @@ const downloadResultAsPDF = (result: any, student: any) => {
   img.src = logoUrl;
 };
 
+// Function to generate dynamic sessions based on academic year (September-August)
+const generateDynamicSessions = () => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); // 0-based (January = 0, September = 8)
+  
+  // Determine the current academic year based on whether we're before or after September
+  const currentAcademicYear = currentMonth >= 8 ? currentYear : currentYear - 1; // September = month 8
+  
+  // Generate 5 sessions: 2 past, current, 2 future
+  const sessions = [];
+  for (let i = -2; i <= 2; i++) {
+    const startYear = currentAcademicYear + i;
+    const endYear = startYear + 1;
+    sessions.push(`${startYear}/${endYear}`);
+  }
+  
+  return sessions;
+};
+
 export default function ViewResults() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSession, setFilterSession] = useState("all");
@@ -393,8 +413,15 @@ export default function ViewResults() {
   const [editingResult, setEditingResult] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [dynamicSessions, setDynamicSessions] = useState<string[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Generate dynamic sessions on component mount
+  useEffect(() => {
+    const sessions = generateDynamicSessions();
+    setDynamicSessions(sessions);
+  }, []);
 
   // Get dynamic school information
   const { data: settings = [] } = useQuery({
@@ -418,7 +445,7 @@ export default function ViewResults() {
     regNumber: settingsMap.registration_number || "7779525"
   };
 
-  const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
+  const sessionOptions = dynamicSessions;
   const termOptions = ["First Term", "Second Term", "Third Term"];
   const classOptions = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 
@@ -1469,6 +1496,7 @@ export default function ViewResults() {
             <EditResultForm
               result={editingResult}
               students={students}
+              sessionOptions={sessionOptions}
               onSubmit={(data) => {
                 editResultMutation.mutate({ id: editingResult.id, data });
               }}
@@ -1486,12 +1514,13 @@ export default function ViewResults() {
 }
 
 // Edit Result Form Component
-function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
+function EditResultForm({ result, students, onSubmit, onCancel, isLoading, sessionOptions }: {
   result: any;
   students: any[];
   onSubmit: (data: any) => void;
   onCancel: () => void;
   isLoading: boolean;
+  sessionOptions: string[];
 }) {
   const form = useForm<any>({
     resolver: zodResolver(editResultSchema),
@@ -1556,9 +1585,9 @@ function EditResultForm({ result, students, onSubmit, onCancel, isLoading }: {
                       <SelectValue placeholder="Select session" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2023/2024">2023/2024</SelectItem>
-                      <SelectItem value="2024/2025">2024/2025</SelectItem>
-                      <SelectItem value="2025/2026">2025/2026</SelectItem>
+                      {sessionOptions.map((session) => (
+                        <SelectItem key={session} value={session}>{session}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>
