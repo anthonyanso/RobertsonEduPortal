@@ -467,6 +467,14 @@ Preferred communication style: Simple, everyday language.
   - Updated all admin components to use proper JWT authentication with Bearer tokens
   - Both Settings and AdmissionManagement now work seamlessly with JWT authentication system
   - All admin functionality restored with proper error handling and user feedback
+- July 23, 2025. Fixed admin registration and added school favicon
+  - Fixed admin registration JSON parsing error by adding missing /api/admin/register route to main routes.ts
+  - Updated AdminLogin component to include firstName and lastName fields for registration mode
+  - Added proper form validation schemas for both login and registration modes  
+  - Server now returns proper JSON responses instead of HTML for admin authentication endpoints
+  - Added Robertson Education logo as website favicon (favicon.ico and favicon.png)
+  - Updated index.html with proper favicon links including Apple touch icon support
+  - Enhanced website branding with professional school logo appearing in browser tabs
 - July 21, 2025. Fixed school seal cutting issue in result printing across all templates
   - Reduced seal size from 80x60px to 70x50px for better print fitting
   - Added page-break-inside: avoid and break-inside: avoid CSS to prevent seal cutting
