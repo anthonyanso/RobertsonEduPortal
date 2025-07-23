@@ -27,6 +27,79 @@ import path from "path";
 import fs from "fs";
 import { nanoid } from "nanoid";
 
+// Function to calculate subject positions for each subject across all students
+async function calculateSubjectPositions(className: string, session: string, term: string) {
+  try {
+    // Get all results for the same class, session, and term
+    const allResults = await storage.getResults();
+    const classResults = allResults.filter((result: any) => 
+      result.class === className && 
+      result.session === session && 
+      result.term === term
+    );
+
+    if (classResults.length === 0) return;
+
+    // Get all unique subjects from all students
+    const allSubjects = new Set<string>();
+    classResults.forEach((result: any) => {
+      if (result.subjects && Array.isArray(result.subjects)) {
+        result.subjects.forEach((subject: any) => {
+          if (subject.subject) {
+            allSubjects.add(subject.subject);
+          }
+        });
+      }
+    });
+
+    // Calculate positions for each subject
+    for (const subjectName of allSubjects) {
+      // Get all students' scores for this subject
+      const subjectScores: { studentId: string, resultId: number, total: number, subjectIndex: number }[] = [];
+      
+      classResults.forEach((result: any) => {
+        if (result.subjects && Array.isArray(result.subjects)) {
+          result.subjects.forEach((subject: any, index: number) => {
+            if (subject.subject === subjectName && subject.total !== undefined) {
+              subjectScores.push({
+                studentId: result.studentId,
+                resultId: result.id,
+                total: parseInt(subject.total) || 0,
+                subjectIndex: index
+              });
+            }
+          });
+        }
+      });
+
+      // Sort by total score (descending) for position calculation
+      subjectScores.sort((a, b) => b.total - a.total);
+
+      // Update each student's position for this subject
+      for (let i = 0; i < subjectScores.length; i++) {
+        const { resultId, subjectIndex } = subjectScores[i];
+        const position = i + 1;
+        
+        // Get the current result to update
+        const currentResult = classResults.find(r => r.id === resultId);
+        if (currentResult && currentResult.subjects && currentResult.subjects[subjectIndex]) {
+          // Update the position for this specific subject
+          currentResult.subjects[subjectIndex].position = position;
+          
+          // Save the updated result back to database
+          await storage.updateResult(resultId, {
+            subjects: currentResult.subjects
+          });
+        }
+      }
+    }
+    
+    console.log(`Updated subject positions for ${classResults.length} students in ${className} - ${session} ${term}`);
+  } catch (error) {
+    console.error("Error calculating subject positions:", error);
+  }
+}
+
 // Function to calculate class positions based on performance
 async function calculateClassPositions(className: string, session: string, term: string) {
   try {
@@ -1019,6 +1092,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create the result first
       const result = await storage.createResult(validatedData);
       
+      // Calculate subject positions for individual subjects
+      await calculateSubjectPositions(validatedData.class, validatedData.session, validatedData.term);
+      
       // Calculate class position based on average performance
       await calculateClassPositions(validatedData.class, validatedData.session, validatedData.term);
       
@@ -1035,10 +1111,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertResultSchema.partial().parse(req.body);
       const result = await storage.updateResult(id, validatedData);
       
-      // Recalculate positions if class, session, or term is updated
-      if (validatedData.class || validatedData.session || validatedData.term) {
+      // Recalculate positions if class, session, term, or subjects are updated
+      if (validatedData.class || validatedData.session || validatedData.term || validatedData.subjects) {
         const fullResult = await storage.getResult(id);
         if (fullResult) {
+          await calculateSubjectPositions(fullResult.class, fullResult.session, fullResult.term);
           await calculateClassPositions(fullResult.class, fullResult.session, fullResult.term);
         }
       }
@@ -1059,6 +1136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Class, session, and term are required" });
       }
       
+      await calculateSubjectPositions(className, session, term);
       await calculateClassPositions(className, session, term);
       res.json({ message: "Positions recalculated successfully" });
     } catch (error) {
@@ -1066,6 +1144,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to recalculate positions" });
     }
   });
+
+  // Add endpoint to recalculate all positions for all results
+  app.post('/api/admin/results/recalculate-all-positions', requireAdminAuth, async (req, res) => {
+    try {
+      const allResults = await storage.getResults();
+      
+      // Group results by class, session, and term
+      const resultGroups = new Map<string, any[]>();
+      allResults.forEach((result: any) => {
+        const key = `${result.class}-${result.session}-${result.term}`;
+        if (!resultGroups.has(key)) {
+          resultGroups.set(key, []);
+        }
+        resultGroups.get(key)!.push(result);
+      });
+      
+      // Recalculate positions for each group
+      for (const [key, group] of resultGroups) {
+        if (group.length > 0) {
+          const { class: className, session, term } = group[0];
+          await calculateSubjectPositions(className, session, term);
+          await calculateClassPositions(className, session, term);
+        }
+      }
+      
+      res.json({ 
+        message: "All positions recalculated successfully",
+        groupsProcessed: resultGroups.size
+      });
+    } catch (error) {
+      console.error("Error recalculating all positions:", error);
+      res.status(500).json({ message: "Failed to recalculate all positions" });
+    }
+  });
+
+
 
   app.delete('/api/admin/results/:id', isAdminAuthenticated, async (req, res) => {
     try {
