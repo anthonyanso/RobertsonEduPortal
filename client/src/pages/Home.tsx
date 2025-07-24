@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 export default function Home() {
   // Fetch dynamic school information
   const { data: settings = [] } = useQuery({
-    queryKey: ["/api/admin/school-info"],
+    queryKey: ["/api/school-info"],
     refetchOnWindowFocus: false,
     staleTime: 0, // Always fresh data
   });

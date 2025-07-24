@@ -20,7 +20,7 @@ export default function News() {
 
   // Check if news system is enabled
   const { data: settings = [] } = useQuery({
-    queryKey: ["/api/admin/school-info"],
+    queryKey: ["/api/school-info"],
     refetchOnWindowFocus: false,
     staleTime: 30000, // 30 seconds cache
   });

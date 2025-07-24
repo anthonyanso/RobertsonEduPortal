@@ -529,3 +529,15 @@ Preferred communication style: Simple, everyday language.
     * Delete Card - Permanently removes the scratch card
   - Enhanced admin logout process with React Query cache clearing to ensure fresh data on next login
   - Fixed issue where navigation bars would disappear after admin logout by using proper public API endpoints
+- July 24, 2025. Comprehensive fix for feature toggle system across all public pages
+  - Fixed News page showing "News System Disabled" error after admin logout
+  - Updated all public pages to use public `/api/school-info` endpoint instead of admin-only endpoint:
+    * News.tsx - Fixed feature toggle checking for news system
+    * Results.tsx - Fixed feature toggle checking for result checker
+    * Admission.tsx - Fixed feature toggle checking for admissions system
+    * About.tsx - Fixed dynamic school information loading
+    * Home.tsx - Fixed dynamic school information loading
+    * Contact.tsx - Fixed dynamic school information loading
+    * Footer.tsx - Fixed dynamic school information loading
+  - All feature toggles now work correctly after admin logout, respecting admin settings
+  - System properly separates public and admin data access for complete functionality

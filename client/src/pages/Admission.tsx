@@ -17,7 +17,7 @@ export default function Admission() {
 
   // Check if admissions are enabled
   const { data: settings = [] } = useQuery({
-    queryKey: ["/api/admin/school-info"],
+    queryKey: ["/api/school-info"],
     refetchOnWindowFocus: true,
     staleTime: 0, // Always fetch fresh data for feature toggles
   });

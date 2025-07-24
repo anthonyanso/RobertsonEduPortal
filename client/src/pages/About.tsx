@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function About() {
   // Fetch dynamic school information
   const { data: settings = [] } = useQuery({
-    queryKey: ["/api/admin/school-info"],
+    queryKey: ["/api/school-info"],
     refetchOnWindowFocus: false,
     staleTime: 0, // Always fresh data
   });
