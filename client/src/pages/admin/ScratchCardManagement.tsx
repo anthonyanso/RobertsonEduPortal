@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, Search, Settings, Trash2, RefreshCw, Ban, Eye, EyeOff, Copy, Printer } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -1371,44 +1372,79 @@ export default function ScratchCardManagement() {
                         <TableCell>
                           <div className="flex items-center space-x-1 sm:space-x-2">
                             {card.status === "unused" && !expired && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateStatusMutation.mutate({ id: card.id, status: "deactivated" })}
-                                disabled={updateStatusMutation.isPending}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Ban className="h-3 w-3" />
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => updateStatusMutation.mutate({ id: card.id, status: "deactivated" })}
+                                      disabled={updateStatusMutation.isPending}
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <Ban className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Deactivate Card</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             )}
                             {card.status === "deactivated" && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => updateStatusMutation.mutate({ id: card.id, status: "unused" })}
-                                disabled={updateStatusMutation.isPending}
-                                className="h-8 w-8 p-0"
-                              >
-                                <RefreshCw className="h-3 w-3" />
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => updateStatusMutation.mutate({ id: card.id, status: "unused" })}
+                                      disabled={updateStatusMutation.isPending}
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <RefreshCw className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Reactivate Card</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             )}
                             {(card.status === "unused" || card.status === "deactivated") && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => regeneratePinMutation.mutate(card.id)}
-                                disabled={regeneratePinMutation.isPending}
-                                className="h-8 w-8 p-0"
-                                title="Regenerate PIN"
-                              >
-                                <RefreshCw className="h-3 w-3" />
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => regeneratePinMutation.mutate(card.id)}
+                                      disabled={regeneratePinMutation.isPending}
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <RefreshCw className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Regenerate PIN</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Delete Card</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
