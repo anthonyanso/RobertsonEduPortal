@@ -519,3 +519,13 @@ Preferred communication style: Simple, everyday language.
     * Results checker (public page)
     * Cumulative Results filters
   - System automatically adjusts session options based on current date without manual updates needed
+- July 24, 2025. Fixed navigation bars disappearing after admin logout
+  - Created public `/api/school-info` endpoint for non-authenticated access to school settings
+  - Updated Navigation component to use public endpoint instead of admin-only `/api/admin/school-info`
+  - Added comprehensive hover tooltips to scratch card management action buttons:
+    * Deactivate Card - Disables unused scratch cards
+    * Reactivate Card - Re-enables deactivated cards  
+    * Regenerate PIN - Creates new PIN for unused/deactivated cards
+    * Delete Card - Permanently removes the scratch card
+  - Enhanced admin logout process with React Query cache clearing to ensure fresh data on next login
+  - Fixed issue where navigation bars would disappear after admin logout by using proper public API endpoints

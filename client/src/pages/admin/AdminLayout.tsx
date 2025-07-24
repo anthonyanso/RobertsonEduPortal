@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogOut, Home, Users, GraduationCap, CreditCard, Newspaper, MessageSquare, Settings, ChevronDown, ChevronRight, UserPlus, UserCheck, Plus, FileText, BarChart3, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import Dashboard from "./Dashboard";
 // @ts-ignore
 import AddStudent from "./AddStudent";
@@ -34,6 +35,7 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
   const [resultsDropdownOpen, setResultsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Get admin user info from localStorage (in real app, this would be from API)
@@ -73,6 +75,9 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
     localStorage.removeItem("adminUser");
     localStorage.removeItem("adminToken");
     
+    // Clear all React Query cache to ensure fresh data on next login
+    queryClient.clear();
+    
     // Also logout from Replit Auth if user is logged in
     try {
       await fetch('/api/logout', {
@@ -88,8 +93,8 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
       description: "You have been logged out successfully",
     });
     
-    // Redirect to home page
-    window.location.href = '/';
+    // Call parent logout handler to update app state
+    onLogout();
   };
 
   const menuItems = [

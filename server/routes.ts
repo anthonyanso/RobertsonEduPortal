@@ -1476,6 +1476,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get public school settings for navigation and public pages
+  app.get('/api/school-info', async (req, res) => {
+    try {
+      const settings = await storage.getSchoolInfo();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching public school info:", error);
+      res.status(500).json({ message: "Failed to fetch school info" });
+    }
+  });
+
   app.put('/api/admin/admissions/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
