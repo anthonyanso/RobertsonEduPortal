@@ -19,12 +19,33 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { BarChart3, TrendingUp, Users, Award, PieChart, Edit } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Function to generate dynamic sessions based on academic year (September-August)
+const generateDynamicSessions = () => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); // 0-based (January = 0, September = 8)
+  
+  // Determine the current academic year based on whether we're before or after September
+  const currentAcademicYear = currentMonth >= 8 ? currentYear : currentYear - 1; // September = month 8
+  
+  // Generate 5 sessions: 2 past, current, 2 future
+  const sessions = [];
+  for (let i = -2; i <= 2; i++) {
+    const startYear = currentAcademicYear + i;
+    const endYear = startYear + 1;
+    sessions.push(`${startYear}/${endYear}`);
+  }
+  
+  return sessions;
+};
 
 export default function ResultAnalytics() {
   const [selectedSession, setSelectedSession] = useState("all");
   const [selectedTerm, setSelectedTerm] = useState("all");
   const [isGradeSettingsOpen, setIsGradeSettingsOpen] = useState(false);
+  const [dynamicSessions, setDynamicSessions] = useState<string[]>([]);
   const [gradeSettings, setGradeSettings] = useState({
     A: { min: 75, max: 100, name: "Excellent" },
     B: { min: 65, max: 74, name: "Very Good" },
@@ -33,7 +54,13 @@ export default function ResultAnalytics() {
     F: { min: 0, max: 44, name: "Poor" },
   });
 
-  const sessionOptions = ["2023/2024", "2024/2025", "2025/2026"];
+  // Generate dynamic sessions on component mount
+  useEffect(() => {
+    const sessions = generateDynamicSessions();
+    setDynamicSessions(sessions);
+  }, []);
+
+  const sessionOptions = dynamicSessions;
   const termOptions = ["First Term", "Second Term", "Third Term"];
 
   // Fetch results
