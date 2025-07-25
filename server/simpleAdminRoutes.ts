@@ -5,11 +5,12 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
 
 const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret-for-dev";
 
 export function setupSimpleAdminAuth(app: Express) {
-  // Setup session middleware for admin authentication
+  // Use memory store for sessions (simpler approach)
   app.use(session({
     secret: JWT_SECRET,
     resave: false,

@@ -32,8 +32,8 @@ export async function apiRequest(
     headers["Content-Type"] = "application/json";
   }
   
-  // Add admin token for admin routes
-  if (url.startsWith('/api/admin/')) {
+  // Add admin token for admin routes and auth endpoints
+  if (url.startsWith('/api/admin/') || url === '/api/auth/user') {
     const adminToken = localStorage.getItem('adminToken');
     if (adminToken) {
       headers["Authorization"] = `Bearer ${adminToken}`;
@@ -60,8 +60,8 @@ export const getQueryFn: <T>(options: {
     const url = queryKey[0] as string;
     const headers: Record<string, string> = {};
     
-    // Add admin token for admin routes
-    if (url.startsWith('/api/admin/')) {
+    // Add admin token for admin routes and auth endpoints
+    if (url.startsWith('/api/admin/') || url === '/api/auth/user') {
       const adminToken = localStorage.getItem('adminToken');
       if (adminToken) {
         headers["Authorization"] = `Bearer ${adminToken}`;
