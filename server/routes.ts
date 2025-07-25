@@ -208,7 +208,7 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup simple admin authentication system (JWT-based)
+  // Setup enhanced admin authentication system (Session + JWT)
   const requireAdminAuth = setupSimpleAdminAuth(app);
   
   // Admin registration route (before maintenance mode check)

@@ -541,3 +541,15 @@ Preferred communication style: Simple, everyday language.
     * Footer.tsx - Fixed dynamic school information loading
   - All feature toggles now work correctly after admin logout, respecting admin settings
   - System properly separates public and admin data access for complete functionality
+- July 25, 2025. Complete removal of Replit Auth integration and enhanced session management
+  - Completely removed Replit Auth integration from admin dashboard per user request
+  - Transitioned to pure JWT-based credential authentication system with session support
+  - Enhanced admin authentication with dual session + JWT token system for persistent login
+  - Removed all Replit Auth references, files (replitAuth.ts), and database tables (sessions, users)
+  - Updated all admin routes to use enhanced simpleAdminAuth with session persistence
+  - Added proper session middleware with 7-day expiration and secure cookie configuration
+  - Fixed authentication middleware to check sessions first, then fallback to JWT tokens
+  - Added `/api/auth/user` endpoint for checking admin authentication status
+  - Updated schema to remove Replit Auth dependencies and streamlined to adminUsers table only
+  - Enhanced admin logout with proper session destruction and cleanup
+  - Fixed auto-logout issues by implementing persistent session management alongside JWT tokens
