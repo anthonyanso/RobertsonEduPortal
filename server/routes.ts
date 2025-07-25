@@ -1,24 +1,22 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, isAdminAuthenticated } from "./replitAuth";
 import { setupSimpleAdminAuth } from "./simpleAdminRoutes";
-import { requireAdminAuth, JWT_SECRET } from "./adminAuth";
 import { 
   insertStudentSchema,
   insertResultSchema,
   insertScratchCardSchema,
   insertNewsSchema,
   insertAdmissionApplicationSchema,
-
   insertSchoolInfoSchema,
   insertAdminUserSchema,
-  signUpSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { generateUniqueStudentId } from "./utils/studentIdGenerator";
+
+const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret-for-dev";
 import { db, pool } from "./db";
 import { students } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -210,10 +208,7 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-  
-  // Simple admin authentication setup
+  // Setup simple admin authentication system (JWT-based)
   const requireAdminAuth = setupSimpleAdminAuth(app);
   
   // Admin registration route (before maintenance mode check)
@@ -260,79 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin login route (before maintenance mode check)
-  app.post('/api/admin/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-
-      // Find admin user
-      const adminUser = await storage.getAdminUserByEmail(email);
-      if (!adminUser) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      // Check password
-      const isValidPassword = await bcrypt.compare(password, adminUser.passwordHash);
-      if (!isValidPassword) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      // Store in session
-      (req.session as any).adminUser = {
-        id: adminUser.id,
-        email: adminUser.email,
-        firstName: adminUser.firstName,
-        lastName: adminUser.lastName,
-        role: adminUser.role,
-        isActive: adminUser.isActive,
-      };
-
-      // Generate JWT token
-      const token = jwt.sign(
-        { 
-          adminId: adminUser.id, 
-          email: adminUser.email,
-          role: adminUser.role 
-        }, 
-        JWT_SECRET, 
-        { expiresIn: '7d' }
-      );
-
-      res.json({ 
-        message: "Login successful",
-        token,
-        admin: {
-          id: adminUser.id,
-          email: adminUser.email,
-          firstName: adminUser.firstName,
-          lastName: adminUser.lastName,
-          role: adminUser.role,
-        }
-      });
-    } catch (error) {
-      console.error("Admin login error:", error);
-      res.status(500).json({ message: "Failed to login" });
-    }
-  });
-
-  // Admin logout route
-  app.post('/api/admin/logout', async (req, res) => {
-    try {
-      // Clear admin session
-      if (req.session) {
-        (req.session as any).adminUser = null;
-      }
-      
-      res.json({ message: "Logged out successfully" });
-    } catch (error) {
-      console.error("Admin logout error:", error);
-      res.status(500).json({ message: "Failed to logout" });
-    }
-  });
+  // Note: Admin login is now handled by simpleAdminRoutes system
 
   // Apply maintenance mode middleware to all public routes
   app.use(checkMaintenanceMode);
@@ -497,17 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Public endpoint to check if anyone is logged in (removed - not needed for pure admin system)
 
   // Test route for student creation (no auth required)
   app.post('/api/test/students', async (req, res) => {
@@ -1128,7 +1041,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add endpoint to recalculate class positions
-  app.post('/api/admin/results/recalculate-positions', isAdminAuthenticated, async (req, res) => {
+  app.post('/api/admin/results/recalculate-positions', requireAdminAuth, async (req, res) => {
     try {
       const { class: className, session, term } = req.body;
       
@@ -1181,7 +1094,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  app.delete('/api/admin/results/:id', isAdminAuthenticated, async (req, res) => {
+  app.delete('/api/admin/results/:id', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteResult(id);
@@ -1246,7 +1159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update scratch card status
-  app.patch('/api/admin/scratch-cards/:id/status', isAdminAuthenticated, async (req, res) => {
+  app.patch('/api/admin/scratch-cards/:id/status', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { status } = req.body;
@@ -1264,7 +1177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Regenerate PIN
-  app.post('/api/admin/scratch-cards/:id/regenerate-pin', isAdminAuthenticated, async (req, res) => {
+  app.post('/api/admin/scratch-cards/:id/regenerate-pin', requireAdminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -1549,7 +1462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Regenerate PIN for student
-  app.post('/api/admin/scratch-cards/regenerate/:studentId', isAdminAuthenticated, async (req, res) => {
+  app.post('/api/admin/scratch-cards/regenerate/:studentId', requireAdminAuth, async (req, res) => {
     try {
       const studentId = req.params.studentId;
       

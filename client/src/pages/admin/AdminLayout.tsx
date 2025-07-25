@@ -78,18 +78,8 @@ export default function AdminLayout({ onLogout }: AdminLayoutProps) {
     // Clear all React Query cache to ensure fresh data on next login
     queryClient.clear();
     
-    // Also logout from Replit Auth if user is logged in
-    try {
-      await fetch('/api/logout', {
-        method: 'GET',
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error("Error during Replit logout:", error);
-    }
-    
     toast({
-      title: "Logged Out",
+      title: "Logged Out", 
       description: "You have been logged out successfully",
     });
     

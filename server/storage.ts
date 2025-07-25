@@ -1,15 +1,11 @@
 import {
-  users,
   adminUsers,
   students,
   results,
   scratchCards,
   news,
   admissionApplications,
-
   schoolInfo,
-  type User,
-  type UpsertUser,
   type AdminUser,
   type InsertAdminUser,
   type Student,
@@ -22,7 +18,6 @@ import {
   type InsertNews,
   type AdmissionApplication,
   type InsertAdmissionApplication,
-
   type SchoolInfo,
   type InsertSchoolInfo,
 } from "@shared/schema";
@@ -31,10 +26,6 @@ import { eq, desc, and, gte, lte, like, or } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export interface IStorage {
-  // User operations (required for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  
   // Admin user operations
   getAdminUserByEmail(email: string): Promise<AdminUser | undefined>;
   createAdminUser(adminUser: InsertAdminUser): Promise<AdminUser>;
@@ -93,27 +84,6 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
-  }
-
   // Admin user operations
   async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
     const [adminUser] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));

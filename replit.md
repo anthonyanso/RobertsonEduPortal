@@ -21,8 +21,8 @@ This is a comprehensive multi-page school website for Robertson Education built 
 - **Language**: TypeScript with ES modules
 - **Database**: PostgreSQL with Neon serverless
 - **ORM**: Drizzle ORM for type-safe database operations
-- **Authentication**: Dual system - Replit Auth for public users + Custom admin authentication
-- **Session Management**: Express sessions with PostgreSQL storage
+- **Authentication**: Pure JWT-based credential authentication system
+- **Session Management**: JWT tokens with secure payload verification
 - **Password Security**: bcryptjs for password hashing and validation
 
 ### Build System
@@ -61,10 +61,10 @@ This is a comprehensive multi-page school website for Robertson Education built 
 ## Data Flow
 
 ### Authentication Flow
-1. User authentication through Replit Auth (OpenID Connect)
-2. Session management with PostgreSQL storage
-3. Role-based access control (admin/user)
-4. Automatic session validation and refresh
+1. Admin authentication through credential-based login system
+2. JWT token generation and validation for admin access
+3. Role-based access control for admin operations
+4. Secure token verification with automatic expiration
 
 ### Result Checking Flow
 1. Student enters ID and scratch card PIN
