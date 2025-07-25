@@ -40,6 +40,7 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  app.use("/src", express.static(path.resolve(import.meta.dirname, "..", "src")));
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
@@ -48,7 +49,7 @@ export async function setupVite(app: Express, server: Server) {
       const clientTemplate = path.resolve(
         import.meta.dirname,
         "..",
-        "client",
+        "src",
         "index.html",
       );
 
